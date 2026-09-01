@@ -43,6 +43,36 @@
     color: #fff;
 }
 
+.adminNavLink {
+    color: #ff4d6d !important;
+    background: rgba(227, 24, 55, 0.12);
+    border: 1px solid rgba(227, 24, 55, 0.3);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+}
+
+.adminNavLink:hover {
+    background: rgba(227, 24, 55, 0.25);
+    border-color: #e31837;
+    box-shadow: 0 0 15px rgba(227, 24, 55, 0.3);
+}
+
+.adminDropdownLink {
+    color: #fcd34d !important;
+    font-weight: 700;
+    background: rgba(247, 164, 0, 0.08);
+}
+
+.superBadge {
+    background: linear-gradient(135deg, #f7a400, #e31837) !important;
+    color: #fff !important;
+}
+
+.selectedAccount {
+    border-color: #e31837 !important;
+    background: rgba(227, 24, 55, 0.15) !important;
+}
+
 .authAction {
     position: relative;
 }

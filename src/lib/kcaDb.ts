@@ -1,5 +1,7 @@
 // Server-side / in-memory storage for KCA Member & Wallet DB
-// Simulates Firestore collections: 'users', 'k_culture_balances', 'merchant_settlements', 'transactions'
+// Simulates Firestore collections: 'users', 'k_culture_balances', 'merchant_settlements', 'transactions', 'orders'
+
+export type UserRole = "SUPER_ADMIN" | "OPERATOR" | "VIP_MEMBER" | "GOLD_MEMBER" | "MEMBER";
 
 export interface UserWalletData {
     uid: string;
@@ -10,8 +12,10 @@ export interface UserWalletData {
     kcaPoints: number;       // in KCA Points
     vndBalance: number;      // in VND
     dpPoints: number;        // 대한포인트
-    role: string;
+    role: UserRole;
     avatar?: string;
+    createdAt?: string;
+    phone?: string;
 }
 
 export interface WalletTransaction {
@@ -19,7 +23,7 @@ export interface WalletTransaction {
     uid: string;
     merchantId: string;
     orderId?: string;
-    type: "PAYMENT" | "FAUCET" | "REWARD" | "REFUND";
+    type: "PAYMENT" | "FAUCET" | "REWARD" | "REFUND" | "SETTLEMENT";
     currency: "HEX" | "POINT" | "VND" | "DP";
     amount: number;
     description: string;
@@ -55,8 +59,36 @@ export interface MemberOrder {
     createdAt: string;
 }
 
-// Initial mock users database
+// Initial mock users database with Super Admin & Operators
 const usersDb: Record<string, UserWalletData> = {
+    "admin_super_daehan": {
+        uid: "admin_super_daehan",
+        name: "최고 관리자 (Super Admin)",
+        email: "super.admin@daehankimchi.com",
+        onChainWalletAddress: "0xa4850A83D219b5706D638cC28244EFe2bF8bdb40",
+        hexTokenBalance: 95000.0,
+        kcaPoints: 120000,
+        vndBalance: 85000000,
+        dpPoints: 50000,
+        role: "SUPER_ADMIN",
+        phone: "0702116617",
+        createdAt: "2026-08-01T00:00:00Z",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
+    },
+    "operator_hanoi_01": {
+        uid: "operator_hanoi_01",
+        name: "김하노이 (쇼핑몰 운영자)",
+        email: "op.hanoi@daehankimchi.com",
+        onChainWalletAddress: "0x89C1aB1234567890abcdef1234567890abcdef12",
+        hexTokenBalance: 12500.0,
+        kcaPoints: 45000,
+        vndBalance: 12000000,
+        dpPoints: 18000,
+        role: "OPERATOR",
+        phone: "0349475948",
+        createdAt: "2026-08-10T09:00:00Z",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80"
+    },
     "user_daehan_vip01": {
         uid: "user_daehan_vip01",
         name: "최민준 (VIP 회원)",
@@ -67,6 +99,8 @@ const usersDb: Record<string, UserWalletData> = {
         vndBalance: 1200000,
         dpPoints: 8500,
         role: "VIP_MEMBER",
+        phone: "0702116617",
+        createdAt: "2026-08-15T10:00:00Z",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
     },
     "user_hanoi_kca02": {
@@ -78,7 +112,9 @@ const usersDb: Record<string, UserWalletData> = {
         kcaPoints: 8400,
         vndBalance: 650000,
         dpPoints: 3200,
-        role: "GOLD_MEMBER"
+        role: "GOLD_MEMBER",
+        phone: "0901234567",
+        createdAt: "2026-08-20T11:00:00Z"
     },
     "guest_user_demo": {
         uid: "guest_user_demo",
@@ -89,7 +125,9 @@ const usersDb: Record<string, UserWalletData> = {
         kcaPoints: 5000,
         vndBalance: 300000,
         dpPoints: 1500,
-        role: "MEMBER"
+        role: "MEMBER",
+        phone: "0987654321",
+        createdAt: "2026-08-28T15:00:00Z"
     }
 };
 
@@ -118,6 +156,19 @@ const transactionsDb: WalletTransaction[] = [
         status: "CONFIRMED",
         txHash: "0x98ab123ef0123456789abcdef0123456789ab8fa928bc19d08e82710bb8a72b1",
         timestamp: "2026-08-25T14:32:10Z"
+    },
+    {
+        id: "tx_init_03",
+        uid: "user_hanoi_kca02",
+        merchantId: "daehan_kimchi_store",
+        orderId: "ORD-20260829-1044",
+        type: "PAYMENT",
+        currency: "HEX",
+        amount: 130,
+        description: "실비김치 1Kg HEX 토큰 결제",
+        status: "CONFIRMED",
+        txHash: "0x11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff",
+        timestamp: "2026-08-29T16:10:00Z"
     }
 ];
 
@@ -158,13 +209,40 @@ const ordersDb: MemberOrder[] = [
         },
         status: "DELIVERED",
         createdAt: "2026-08-25T14:32:10Z"
+    },
+    {
+        orderId: "ORD-20260829-1044",
+        uid: "user_hanoi_kca02",
+        items: [
+            {
+                productId: 13,
+                productName: "실비김치 (Silbi Kimchi) 1Kg",
+                weight: "1Kg",
+                quantity: 1,
+                priceVnd: 130000,
+                priceHex: 130,
+                image: "/images/products/silbi.jpg"
+            }
+        ],
+        totalVnd: 130000,
+        totalHex: 130,
+        paidAmount: 130,
+        currency: "HEX",
+        txId: "tx_init_03",
+        shippingAddress: {
+            recipient: "Nguyen Thi Mai",
+            phone: "0901234567",
+            address: "Keangnam Landmark 72, Pham Hung, Hanoi",
+            memo: "로비에서 연락 부탁드립니다."
+        },
+        status: "SHIPPING",
+        createdAt: "2026-08-29T16:10:00Z"
     }
 ];
 
-// Helper functions
+// User & Wallet Functions
 export function getUserWallet(uid: string): UserWalletData {
     if (!usersDb[uid]) {
-        // Create new user wallet on demand
         usersDb[uid] = {
             uid,
             name: `회원_${uid.slice(-4)}`,
@@ -174,10 +252,54 @@ export function getUserWallet(uid: string): UserWalletData {
             kcaPoints: 5000,
             vndBalance: 300000,
             dpPoints: 2000,
-            role: "MEMBER"
+            role: "MEMBER",
+            createdAt: new Date().toISOString()
         };
     }
     return usersDb[uid];
+}
+
+export function getAllUsers(): UserWalletData[] {
+    return Object.values(usersDb);
+}
+
+export function updateUserRole(adminUid: string, targetUid: string, newRole: UserRole): { success: boolean; error?: string; user?: UserWalletData } {
+    const admin = usersDb[adminUid];
+    if (!admin || admin.role !== "SUPER_ADMIN") {
+        return { success: false, error: "최고 관리자(SUPER_ADMIN)만 운영자 권한을 변경할 수 있습니다." };
+    }
+
+    const target = usersDb[targetUid];
+    if (!target) {
+        return { success: false, error: "해당 회원을 찾을 수 없습니다." };
+    }
+
+    target.role = newRole;
+    return { success: true, user: target };
+}
+
+export function updateUserBalance(adminUid: string, targetUid: string, updates: { hex?: number; kcaPoints?: number; vnd?: number; dp?: number }): { success: boolean; error?: string; user?: UserWalletData } {
+    const admin = usersDb[adminUid];
+    if (!admin || (admin.role !== "SUPER_ADMIN" && admin.role !== "OPERATOR")) {
+        return { success: false, error: "관리자 권한이 필요합니다." };
+    }
+
+    const target = usersDb[targetUid];
+    if (!target) return { success: false, error: "해당 회원을 찾을 수 없습니다." };
+
+    if (updates.hex !== undefined) target.hexTokenBalance = Number(updates.hex);
+    if (updates.kcaPoints !== undefined) target.kcaPoints = Number(updates.kcaPoints);
+    if (updates.vnd !== undefined) target.vndBalance = Number(updates.vnd);
+    if (updates.dp !== undefined) target.dpPoints = Number(updates.dp);
+
+    return { success: true, user: target };
+}
+
+export function updateOrderStatus(orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED"): { success: boolean; error?: string; order?: MemberOrder } {
+    const order = ordersDb.find(o => o.orderId === orderId);
+    if (!order) return { success: false, error: "주문을 찾을 수 없습니다." };
+    order.status = status;
+    return { success: true, order };
 }
 
 export function executePayment(params: {
@@ -260,7 +382,7 @@ export function executePayment(params: {
             txId,
             shippingAddress: params.shippingAddress || {
                 recipient: user.name,
-                phone: "0702116617",
+                phone: user.phone || "0702116617",
                 address: "Hanoi, Vietnam"
             },
             status: "PAID",
@@ -315,6 +437,36 @@ export function getUserTransactions(uid: string): WalletTransaction[] {
     return transactionsDb.filter(t => t.uid === uid);
 }
 
+export function getAllTransactions(): WalletTransaction[] {
+    return transactionsDb;
+}
+
 export function getUserOrders(uid: string): MemberOrder[] {
     return ordersDb.filter(o => o.uid === uid);
+}
+
+export function getAllOrders(): MemberOrder[] {
+    return ordersDb;
+}
+
+export function getAdminStats() {
+    const totalHexSales = ordersDb
+        .filter(o => o.currency === "HEX")
+        .reduce((sum, o) => sum + o.paidAmount, 0);
+    const totalVndSales = ordersDb
+        .filter(o => o.currency === "VND")
+        .reduce((sum, o) => sum + o.paidAmount, 0) + (totalHexSales * 1000);
+    
+    return {
+        totalHexSales,
+        totalVndSales,
+        totalOrders: ordersDb.length,
+        pendingShipping: ordersDb.filter(o => o.status === "PAID" || o.status === "PREPARING").length,
+        deliveredOrders: ordersDb.filter(o => o.status === "DELIVERED").length,
+        totalUsers: Object.keys(usersDb).length,
+        operatorCount: Object.values(usersDb).filter(u => u.role === "OPERATOR").length,
+        superAdminCount: Object.values(usersDb).filter(u => u.role === "SUPER_ADMIN").length,
+        recentOrders: ordersDb.slice(0, 5),
+        recentTransactions: transactionsDb.slice(0, 5)
+    };
 }

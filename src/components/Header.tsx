@@ -4,12 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { useUserWallet } from "@/context/UserWalletContext";
-import { Coins, Wallet, User, LogOut, ChevronDown, Sparkles, PlusCircle } from "lucide-react";
+import { Coins, Wallet, User, LogOut, ChevronDown, Sparkles, PlusCircle, ShieldAlert } from "lucide-react";
 
 export default function Header() {
     const { user, wallet, isLoggedIn, isWalletConnected, login, logout, connectWallet, faucetHex, isLoading } = useUserWallet();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+    const isSuperAdmin = user?.role === "SUPER_ADMIN";
+    const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
 
     const handleFaucet = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -37,6 +40,12 @@ export default function Header() {
                     <Link href="/service" className={styles.navLink}>서비스(웹진)</Link>
                     <Link href="/shop" className={styles.navLink}>쇼핑몰 (HEX결제)</Link>
                     <Link href="/mypage" className={styles.navLink}>지갑 & 마이페이지</Link>
+                    {isOperator && (
+                        <Link href="/admin" className={`${styles.navLink} ${styles.adminNavLink}`}>
+                            <ShieldAlert size={15} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                            관리자 모드
+                        </Link>
+                    )}
                 </nav>
 
                 <div className={styles.authAction}>
@@ -72,7 +81,7 @@ export default function Header() {
                                     <div className={styles.dropdownHeader}>
                                         <p className={styles.dropdownUserName}>{user.name}</p>
                                         <p className={styles.dropdownEmail}>{user.email}</p>
-                                        <span className={styles.roleBadge}>{user.role}</span>
+                                        <span className={`${styles.roleBadge} ${isSuperAdmin ? styles.superBadge : ''}`}>{user.role}</span>
                                     </div>
 
                                     <div className={styles.balancesBlock}>
@@ -101,8 +110,13 @@ export default function Header() {
                                         <Link href="/mypage" className={styles.dropdownLink} onClick={() => setDropdownOpen(false)}>
                                             <User size={15} /> 지갑 & 주문 내역 관리
                                         </Link>
+                                        {isOperator && (
+                                            <Link href="/admin" className={`${styles.dropdownLink} ${styles.adminDropdownLink}`} onClick={() => setDropdownOpen(false)}>
+                                                <ShieldAlert size={15} color="#f7a400" /> 관리자 센터 & 운영자 관리
+                                            </Link>
+                                        )}
                                         <button className={styles.switchUserBtn} onClick={() => { setDropdownOpen(false); setLoginModalOpen(true); }}>
-                                            계정 전환 (테스트용)
+                                            계정 전환 (최고관리자/운영자/회원)
                                         </button>
                                         <button className={styles.logoutBtn} onClick={() => { logout(); setDropdownOpen(false); }}>
                                             <LogOut size={15} /> 로그아웃
@@ -127,19 +141,43 @@ export default function Header() {
                 <div className={styles.modalOverlay} onClick={() => setLoginModalOpen(false)}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
-                            <h3>KCA 회원 DB & Web3 지갑 연동</h3>
+                            <h3>KCA 회원 DB & 계정 전환</h3>
                             <button className={styles.modalClose} onClick={() => setLoginModalOpen(false)}>✕</button>
                         </div>
                         <p className={styles.modalDesc}>
-                            KCA 통합 회원 계정을 선택하거나 Web3 지갑을 연결하여 15종 프리미엄 김치를 HEX 토큰으로 결제하세요.
+                            최고 관리자, 쇼핑몰 운영자 또는 일반 VIP 회원을 선택하여 로그인할 수 있습니다.
                         </p>
 
                         <div className={styles.accountList}>
                             <button 
-                                className={styles.accountOption}
-                                onClick={() => handleSwitchUser("user_daehan_vip01")}
+                                className={`${styles.accountOption} ${user?.uid === "admin_super_daehan" ? styles.selectedAccount : ''}`}
+                                onClick={() => handleSwitchUser("admin_super_daehan")}
                             >
                                 <div className={styles.accountAvatar}>👑</div>
+                                <div className={styles.accountMeta}>
+                                    <strong>최고 관리자 (Super Admin)</strong>
+                                    <span>운영자 지정 권한 보유 • 95,000 HEX</span>
+                                    <code>0xa485...bdb40 (컨트랙트 배포자)</code>
+                                </div>
+                            </button>
+
+                            <button 
+                                className={`${styles.accountOption} ${user?.uid === "operator_hanoi_01" ? styles.selectedAccount : ''}`}
+                                onClick={() => handleSwitchUser("operator_hanoi_01")}
+                            >
+                                <div className={styles.accountAvatar}>🛡️</div>
+                                <div className={styles.accountMeta}>
+                                    <strong>김하노이 (쇼핑몰 운영자)</strong>
+                                    <span>주문 및 배송 관리 권한 • 12,500 HEX</span>
+                                    <code>0x89C1...ef12</code>
+                                </div>
+                            </button>
+
+                            <button 
+                                className={`${styles.accountOption} ${user?.uid === "user_daehan_vip01" ? styles.selectedAccount : ''}`}
+                                onClick={() => handleSwitchUser("user_daehan_vip01")}
+                            >
+                                <div className={styles.accountAvatar}>⭐</div>
                                 <div className={styles.accountMeta}>
                                     <strong>최민준 (VIP 회원)</strong>
                                     <span>2,500 HEX • 15,000 P • 1,200,000 VND</span>
@@ -148,7 +186,7 @@ export default function Header() {
                             </button>
 
                             <button 
-                                className={styles.accountOption}
+                                className={`${styles.accountOption} ${user?.uid === "user_hanoi_kca02" ? styles.selectedAccount : ''}`}
                                 onClick={() => handleSwitchUser("user_hanoi_kca02")}
                             >
                                 <div className={styles.accountAvatar}>🇻🇳</div>
@@ -160,7 +198,7 @@ export default function Header() {
                             </button>
 
                             <button 
-                                className={styles.accountOption}
+                                className={`${styles.accountOption} ${user?.uid === "guest_user_demo" ? styles.selectedAccount : ''}`}
                                 onClick={() => handleSwitchUser("guest_user_demo")}
                             >
                                 <div className={styles.accountAvatar}>🌿</div>
