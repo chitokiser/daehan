@@ -8,47 +8,39 @@ const products = [
         desc: "신선한 고랭지 배추와 30년 비법 양념으로 버무린 대한김치의 시그니처 베스트셀러.",
         price: "150,000 VND",
         badge: "BEST",
-        image: "https://images.unsplash.com/photo-1583225206029-a46c5b058a94?q=80&w=700&auto=format&fit=crop"
+        image: "/images/products/pogi.jpg"
     },
     {
         id: 2,
-        name: "아삭한 총각김치 (Chonggak Kimchi)",
-        desc: "알타리 무 특유의 단단하고 아삭한 식감과 깊은 발효향을 동시에 느낄 수 있는 별미.",
-        price: "160,000 VND",
-        badge: "RECOMMEND",
-        image: "https://images.unsplash.com/photo-1549909249-165f9a6225a1?q=80&w=700&auto=format&fit=crop"
-    },
-    {
-        id: 3,
         name: "새콤달콤 깍두기 (Kkakdugi)",
         desc: "한 입 크기의 무를 시원하게 담가 진한 곰탕이나 국밥과 가장 잘 어울리는 식탁 필수품.",
         price: "140,000 VND",
-        badge: "",
-        image: "https://images.unsplash.com/photo-1549909249-165f9a6225a1?q=80&w=700&auto=format&fit=crop"
+        badge: "POPULAR",
+        image: "/images/products/kkakdugi.jpg"
+    },
+    {
+        id: 3,
+        name: "향긋한 깻잎김치 (Kkaennip Kimchi)",
+        desc: "한 장 한 장 정성스레 양념을 바른 밥도둑 깻잎김치. 향긋한 풍미와 깊은 감칠맛의 조화.",
+        price: "160,000 VND",
+        badge: "RECOMMEND",
+        image: "/images/products/kkaennip.jpg"
     },
     {
         id: 4,
-        name: "전라도식 갓김치 (Gat Kimchi)",
-        desc: "알싸한 돌산 갓의 향과 톡 쏘는 매력, 시간이 지나 숙성될수록 깊어지는 고급스러운 풍미.",
-        price: "180,000 VND",
-        badge: "PREMIUM",
-        image: "https://images.unsplash.com/photo-1583224964978-225ddb3ea664?q=80&w=700&auto=format&fit=crop"
+        name: "알싸한 대파김치 (Daepa Kimchi)",
+        desc: "달큼하고 알싸한 대파의 결이 살아있어 고기 구이나 라면과 최고의 마리아주를 자랑하는 별미.",
+        price: "170,000 VND",
+        badge: "SPECIAL",
+        image: "/images/products/daepa.jpg"
     },
     {
         id: 5,
-        name: "시원한 열무김치 (Yeolmu Kimchi)",
-        desc: "여름철 잃어버린 입맛을 돋우는 연한 열무와 자작한 국물의 시원한 조화.",
-        price: "145,000 VND",
-        badge: "",
-        image: "https://images.unsplash.com/photo-1583224964978-225ddb3ea664?q=80&w=700&auto=format&fit=crop"
-    },
-    {
-        id: 6,
-        name: "깔끔한 맛김치 (Mat Kimchi)",
-        desc: "미리 먹기 좋게 썰어져 있어 간편하며, 바쁜 일상 속에서도 정갈하게 즐길 수 있는 김치.",
-        price: "150,000 VND",
-        badge: "",
-        image: "https://images.unsplash.com/photo-1583225206029-a46c5b058a94?q=80&w=700&auto=format&fit=crop"
+        name: "정통 전라도식 파김치 (Pa Kimchi)",
+        desc: "신선한 쪽파에 멸치액젓과 특제 양념을 듬뿍 버무려 숙성될수록 톡 쏘는 깊은 감칠맛.",
+        price: "180,000 VND",
+        badge: "PREMIUM",
+        image: "/images/products/pa.jpg"
     }
 ];
 
