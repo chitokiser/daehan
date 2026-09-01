@@ -1,14 +1,45 @@
 .detailContainer {
-    padding: 120px 24px 80px;
+    padding: 120px 24px 100px;
     min-height: 100vh;
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 
+/* Breadcrumb */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-main);
+    transition: color 0.2s;
+}
+
+.backLink:hover {
+    color: var(--primary-color);
+}
+
+.breadDivider {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.breadCurrent {
+    color: var(--text-muted);
+}
+
+/* Main Split View */
 .productSplit {
     display: flex;
-    gap: 60px;
-    margin-bottom: 80px;
+    gap: 50px;
+    margin-bottom: 70px;
 }
 
 .imageSection {
@@ -17,9 +48,10 @@
     overflow: hidden;
     position: relative;
     border: 1px solid var(--border-subtle);
-    background: #111;
-    aspect-ratio: 4/5;
-    max-width: 500px;
+    background: #0f1015;
+    aspect-ratio: 1/1;
+    max-width: 480px;
+    box-shadow: var(--glass-shadow);
 }
 
 .productImage {
@@ -28,94 +60,539 @@
     object-fit: cover;
 }
 
-.infoSection {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
 .badge {
-    align-self: flex-start;
+    position: absolute;
+    top: 20px;
+    left: 20px;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
     color: #fff;
     padding: 6px 14px;
     border-radius: var(--radius-full);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(227, 24, 55, 0.5);
+}
+
+.hotBadge {
+    background: linear-gradient(135deg, #ff0055, #ff5500) !important;
+}
+
+.categoryBadge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    z-index: 2;
+}
+
+.imageHexFloatingBadge {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(247, 164, 0, 0.4);
+    color: #fcd34d;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 2;
+}
+
+.likeBtn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    z-index: 2;
+}
+
+.likeBtn:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.liked {
+    border-color: #e31837 !important;
+}
+
+/* Info Section */
+.infoSection {
+    flex: 1.1;
+    display: flex;
+    flex-direction: column;
+}
+
+.titleArea {
     margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(227, 24, 55, 0.4);
+}
+
+.subMeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+
+.brandName {
+    color: #ff4d6d;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.ratingBadge {
+    color: #FBBC05;
+    font-weight: 600;
 }
 
 .title {
-    font-size: 2.8rem;
-    font-weight: 700;
-    margin-bottom: 16px;
+    font-size: 2.6rem;
+    font-weight: 800;
     color: #fff;
-    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
 }
 
-.price {
-    font-size: 2rem;
-    color: var(--secondary-color);
+.englishSubtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.priceBox {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.priceRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.mainPriceGroup {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.finalPrice {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.hexPriceHighlight {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(247, 164, 0, 0.2), rgba(227, 24, 55, 0.15));
+    border: 1px solid rgba(247, 164, 0, 0.5);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    color: #fcd34d;
+    font-size: 1.25rem;
+    box-shadow: 0 0 15px rgba(247, 164, 0, 0.2);
+}
+
+.coinIcon {
+    color: #fcd34d;
+}
+
+.discountTag {
+    background: rgba(227, 24, 55, 0.2);
+    border: 1px solid #e31837;
+    color: #ff4d6d;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
     font-weight: 700;
-    margin-bottom: 24px;
+}
+
+.pointRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.pointRow strong {
+    color: var(--secondary-color);
 }
 
 .desc {
-    font-size: 1.15rem;
-    color: var(--text-muted);
-    line-height: 1.7;
-    margin-bottom: 40px;
+    font-size: 1.02rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.65;
+    margin-bottom: 20px;
 }
 
-.purchaseActions {
+.featuresList {
     display: flex;
-    gap: 20px;
-    margin-top: auto;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 14px 18px;
+    background: rgba(0, 230, 118, 0.05);
+    border: 1px solid rgba(0, 230, 118, 0.15);
+    border-radius: var(--radius-sm);
 }
 
-.buyBtn {
-    flex: 2;
-    font-size: 1.1rem;
-    padding: 18px;
-}
-
-.reviewSection {
-    background: var(--surface-color);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: var(--radius-lg);
-    padding: 40px;
-    border: 1px solid var(--border-subtle);
-}
-
-.reviewTitle {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 30px;
+.featureItem {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    font-size: 0.9rem;
     color: #fff;
 }
 
+/* Weight Selector */
+.optionSection {
+    margin-bottom: 20px;
+}
+
+.optionLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.freeShippingBadge {
+    background: rgba(247, 164, 0, 0.2);
+    color: var(--secondary-color);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.weightSelector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.weightBtn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.weightBtn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.activeWeight {
+    background: rgba(227, 24, 55, 0.15) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 12px rgba(227, 24, 55, 0.3);
+}
+
+.weightBtnLabel {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.weightBtnDesc {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+}
+
+/* Quantity Control */
+.quantitySection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.quantityControl {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-full);
+    padding: 4px 8px;
+}
+
+.qtyBtn {
+    background: none;
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.qtyBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.qtyNumber {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 0 16px;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Purchase Actions */
+.purchaseActions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.hexPayBtn {
+    flex: 2;
+    background: linear-gradient(135deg, #e31837, #f7a400);
+    border: none;
+    border-radius: var(--radius-full);
+    color: #fff;
+    padding: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(227, 24, 55, 0.4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hexPayBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(247, 164, 0, 0.5);
+}
+
+.buyBtn {
+    flex: 1.2;
+    padding: 16px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.vndPayBtn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.vndPayBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.cartAdded {
+    background: #00E676 !important;
+    color: #000 !important;
+    box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4) !important;
+}
+
+/* Trust Chips Row */
+.trustRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.trustChip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* Specifications Table */
+.specSection {
+    background: var(--surface-color);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 60px;
+    box-shadow: var(--glass-shadow);
+}
+
+.sectionHeading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.specGrid {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.specRow {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.specRow:last-child {
+    border-bottom: none;
+}
+
+.specKey {
+    width: 200px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 14px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.specVal {
+    padding: 14px 20px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+/* Review Section */
+.reviewSection {
+    background: var(--surface-color);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 60px;
+    box-shadow: var(--glass-shadow);
+}
+
+.reviewHeaderMain {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.reviewTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .ratingOverview {
-    font-size: 1.4rem;
     color: #FBBC05;
+    font-size: 1.25rem;
+}
+
+.reviewCountInfo {
+    color: var(--text-muted);
+    font-size: 0.9rem;
 }
 
 .writeForm {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 30px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 24px;
     border-radius: var(--radius-md);
-    margin-bottom: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.formHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.rewardNotice {
+    color: var(--secondary-color);
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 .ratingSelect {
     display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: 16px;
 }
 
 .starBtn {
@@ -123,7 +600,8 @@
     border: none;
     cursor: pointer;
     color: #444;
-    transition: color 0.2s, transform 0.2s;
+    transition: transform 0.2s;
+    padding: 0 2px;
 }
 
 .starBtn:hover {
@@ -134,19 +612,36 @@
     color: #FBBC05;
 }
 
-.reviewInput {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    font-size: 1.05rem;
-    padding: 12px 0;
-    margin-bottom: 24px;
-    outline: none;
-    transition: border-color 0.3s;
+.inputRow {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
+.nameInput {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    color: #fff;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+    outline: none;
+    width: 180px;
+}
+
+.reviewInput {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 0.92rem;
+    outline: none;
+    min-width: 250px;
+}
+
+.nameInput:focus,
 .reviewInput:focus {
     border-color: var(--primary-color);
 }
@@ -154,12 +649,12 @@
 .reviewList {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
 }
 
 .reviewItem {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 20px;
 }
 
 .reviewItem:last-child {
@@ -170,33 +665,532 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.reviewerInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .reviewerName {
     font-weight: 700;
     color: #fff;
-    font-size: 1.1rem;
+    font-size: 0.98rem;
 }
 
-.stars {
-    display: flex;
-    gap: 2px;
+.reviewDate {
+    color: var(--text-muted);
+    font-size: 0.8rem;
 }
 
 .reviewContent {
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
 }
 
-@media (max-width: 768px) {
+/* Related Products */
+.relatedSection {
+    margin-top: 60px;
+}
+
+.relatedGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.relatedCard {
+    background: var(--surface-color);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.relatedCard:hover {
+    transform: translateY(-6px);
+    border-color: rgba(227, 24, 55, 0.5);
+}
+
+.relatedImgWrap {
+    width: 100%;
+    aspect-ratio: 1/1;
+    position: relative;
+    background: #0f1015;
+}
+
+.relatedImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.relatedBadge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+}
+
+.relatedBody {
+    padding: 14px;
+}
+
+.relatedTitle {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.relatedDualPrice {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.relatedPrice {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.relatedHexPrice {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #fcd34d;
+}
+
+/* Modal Overlay & Checkout */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2500;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.checkoutModal {
+    background: #131722;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    max-width: 540px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modalTitleWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modalTitleWrap h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.modalClose {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.orderSummaryCard {
+    display: flex;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 20px;
+}
+
+.orderThumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+.orderMeta h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+.orderMeta p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.orderPrices {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.vndTotal {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.hexTotal {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fcd34d;
+}
+
+.sectionSubTitle {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.currencySelectGroup {
+    margin-bottom: 20px;
+}
+
+.currencyOptions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.currencyBtn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.currencyBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.activeCurrency {
+    background: rgba(247, 164, 0, 0.15) !important;
+    border-color: #f7a400 !important;
+    box-shadow: 0 0 12px rgba(247, 164, 0, 0.25);
+}
+
+.curTop {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+.curBalance {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.curDiscount {
+    font-size: 0.7rem;
+    color: #f7a400;
+    font-weight: 700;
+}
+
+.walletCheckCard {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 20px;
+}
+
+.walletCheckHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.walletCheckHeader strong {
+    color: #fff;
+}
+
+.walletCheckAddr {
+    font-family: monospace;
+    color: #00E676;
+    font-size: 0.78rem;
+}
+
+.insufficientAlert {
+    margin-top: 10px;
+    background: rgba(227, 24, 55, 0.15);
+    border: 1px solid #e31837;
+    color: #ff4d6d;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.inlineFaucetBtn {
+    background: #e31837;
+    border: none;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.shippingForm {
+    margin-bottom: 20px;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.checkoutInput {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 0.88rem;
+    outline: none;
+}
+
+.checkoutInput:focus {
+    border-color: var(--primary-color);
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+.errorBanner {
+    background: rgba(227, 24, 55, 0.2);
+    border: 1px solid #e31837;
+    color: #ff4d6d;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.executePayBtn {
+    width: 100%;
+    background: linear-gradient(135deg, #e31837, #f7a400);
+    border: none;
+    color: #fff;
+    padding: 16px;
+    border-radius: var(--radius-full);
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(227, 24, 55, 0.4);
+    transition: all 0.25s ease;
+}
+
+.executePayBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.executePayBtn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(247, 164, 0, 0.5);
+}
+
+/* Receipt View */
+.receiptView {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.successIconWrap {
+    margin-bottom: 12px;
+}
+
+.successTitle {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.successSub {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+}
+
+.receiptCard {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.receiptRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.receiptRow:last-child {
+    border-bottom: none;
+}
+
+.receiptRow strong {
+    color: #fff;
+}
+
+.txHashWrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.txHashWrap code {
+    font-family: monospace;
+    color: #00E676;
+    font-size: 0.82rem;
+}
+
+.copyBtn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.72rem;
+}
+
+.receiptActions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.closeReceiptBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
     .productSplit {
         flex-direction: column;
-        gap: 40px;
+        gap: 36px;
     }
 
     .imageSection {
         max-width: 100%;
+    }
+
+    .relatedGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .specRow {
+        flex-direction: column;
+    }
+
+    .specKey {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .weightSelector {
+        grid-template-columns: 1fr;
+    }
+
+    .currencyOptions {
+        grid-template-columns: 1fr;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .purchaseActions {
+        flex-direction: column;
+    }
+
+    .inputRow {
+        flex-direction: column;
+    }
+
+    .nameInput {
+        width: 100%;
     }
 }

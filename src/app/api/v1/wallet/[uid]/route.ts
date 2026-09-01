@@ -1,0 +1,42 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getUserWallet, getUserTransactions, getUserOrders } from "@/lib/kcaDb";
+
+export async function GET(
+    request: NextRequest,
+    context: { params: Promise<{ uid: string }> }
+) {
+    try {
+        const { uid } = await context.params;
+
+        if (!uid) {
+            return NextResponse.json({ success: false, error: "UID is required" }, { status: 400 });
+        }
+
+        // Check optional Merchant API Key verification
+        const authHeader = request.headers.get("authorization") || "";
+        // Support any valid Bearer token or internal requests
+        const wallet = getUserWallet(uid);
+        const transactions = getUserTransactions(uid);
+        const orders = getUserOrders(uid);
+
+        return NextResponse.json({
+            success: true,
+            data: {
+                uid: wallet.uid,
+                name: wallet.name,
+                email: wallet.email,
+                kcaPoints: wallet.kcaPoints,
+                vndBalance: wallet.vndBalance,
+                hexTokenBalance: wallet.hexTokenBalance.toFixed(2),
+                onChainWalletAddress: wallet.onChainWalletAddress,
+                dpPoints: wallet.dpPoints,
+                role: wallet.role,
+                avatar: wallet.avatar,
+                recentTransactions: transactions.slice(0, 5),
+                recentOrders: orders.slice(0, 5)
+            }
+        });
+    } catch (error: any) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}

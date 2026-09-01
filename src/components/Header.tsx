@@ -1,30 +1,185 @@
 "use client";
-import Link from 'next/link';
-import styles from './Header.module.css';
+
+import { useState } from "react";
+import Link from "next/link";
+import styles from "./Header.module.css";
+import { useUserWallet } from "@/context/UserWalletContext";
+import { Coins, Wallet, User, LogOut, ChevronDown, Sparkles, PlusCircle } from "lucide-react";
 
 export default function Header() {
+    const { user, wallet, isLoggedIn, isWalletConnected, login, logout, connectWallet, faucetHex, isLoading } = useUserWallet();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+    const handleFaucet = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const success = await faucetHex(500);
+        if (success) {
+            alert("🎉 500 HEX 토큰이 성공적으로 지갑에 지급되었습니다!");
+        }
+    };
+
+    const handleSwitchUser = async (uid: string) => {
+        await login(uid);
+        setLoginModalOpen(false);
+        setDropdownOpen(false);
+    };
+
     return (
-        <header className={styles.header}>
-            <Link href="/" className={styles.logoLink}>
-                <img src="/images/logo2.png" alt="대한김치" className={styles.logoImg} />
-            </Link>
-            <nav className={styles.nav}>
-                <Link href="/about" className={styles.navLink}>소개</Link>
-                <Link href="/service" className={styles.navLink}>서비스(웹진)</Link>
-                <Link href="/shop" className={styles.navLink}>쇼핑몰</Link>
-                <Link href="/mypage" className={styles.navLink}>포인트조회</Link>
-            </nav>
-            <div className={styles.authAction}>
-                <button className={styles.googleBtn} onClick={() => alert('구글 로그인 OAuth2.0 모듈과 연동될 예정입니다. (Zentaro API 호출)')}>
-                    <svg className={styles.googleIcon} viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    Google로 로그인
-                </button>
-            </div>
-        </header>
+        <>
+            <header className={styles.header}>
+                <Link href="/" className={styles.logoLink}>
+                    <img src="/images/logo2.png" alt="대한김치" className={styles.logoImg} />
+                </Link>
+
+                <nav className={styles.nav}>
+                    <Link href="/about" className={styles.navLink}>소개</Link>
+                    <Link href="/service" className={styles.navLink}>서비스(웹진)</Link>
+                    <Link href="/shop" className={styles.navLink}>쇼핑몰 (HEX결제)</Link>
+                    <Link href="/mypage" className={styles.navLink}>지갑 & 마이페이지</Link>
+                </nav>
+
+                <div className={styles.authAction}>
+                    {isLoggedIn && user ? (
+                        <div className={styles.walletBar}>
+                            {/* HEX Token Balance Chip */}
+                            <div className={styles.hexChip} onClick={() => setDropdownOpen(!dropdownOpen)}>
+                                <Coins size={16} className={styles.hexIcon} />
+                                <span className={styles.hexAmount}>{wallet.hexTokenBalance.toLocaleString()} HEX</span>
+                                <button 
+                                    className={styles.miniFaucetBtn} 
+                                    onClick={handleFaucet} 
+                                    title="+500 HEX 테스트 토큰 충전"
+                                    disabled={isLoading}
+                                >
+                                    <PlusCircle size={14} />
+                                </button>
+                            </div>
+
+                            {/* User Profile & Wallet Trigger */}
+                            <div className={styles.userTrigger} onClick={() => setDropdownOpen(!dropdownOpen)}>
+                                <div className={styles.walletAddr}>
+                                    <Wallet size={14} color="#00E676" />
+                                    <span>{wallet.onChainWalletAddress.slice(0, 6)}...{wallet.onChainWalletAddress.slice(-4)}</span>
+                                </div>
+                                <span className={styles.userName}>{user.name.split(" ")[0]}</span>
+                                <ChevronDown size={14} className={`${styles.chevron} ${dropdownOpen ? styles.open : ''}`} />
+                            </div>
+
+                            {/* Profile / Wallet Dropdown */}
+                            {dropdownOpen && (
+                                <div className={styles.dropdownMenu}>
+                                    <div className={styles.dropdownHeader}>
+                                        <p className={styles.dropdownUserName}>{user.name}</p>
+                                        <p className={styles.dropdownEmail}>{user.email}</p>
+                                        <span className={styles.roleBadge}>{user.role}</span>
+                                    </div>
+
+                                    <div className={styles.balancesBlock}>
+                                        <div className={styles.balanceItem}>
+                                            <span>🪙 HEX 토큰:</span>
+                                            <strong>{wallet.hexTokenBalance.toLocaleString()} HEX</strong>
+                                        </div>
+                                        <div className={styles.balanceItem}>
+                                            <span>🎟️ KCA 포인트:</span>
+                                            <strong>{wallet.kcaPoints.toLocaleString()} P</strong>
+                                        </div>
+                                        <div className={styles.balanceItem}>
+                                            <span>💵 VND 잔액:</span>
+                                            <strong>{wallet.vndBalance.toLocaleString()} ₫</strong>
+                                        </div>
+                                        <div className={styles.balanceItem}>
+                                            <span>⭐ 대한포인트(DP):</span>
+                                            <strong style={{ color: '#f7a400' }}>{wallet.dpPoints.toLocaleString()} DP</strong>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.dropdownActions}>
+                                        <button className={styles.faucetActionBtn} onClick={handleFaucet} disabled={isLoading}>
+                                            <Sparkles size={14} /> +500 HEX 토큰 무료 충전
+                                        </button>
+                                        <Link href="/mypage" className={styles.dropdownLink} onClick={() => setDropdownOpen(false)}>
+                                            <User size={15} /> 지갑 & 주문 내역 관리
+                                        </Link>
+                                        <button className={styles.switchUserBtn} onClick={() => { setDropdownOpen(false); setLoginModalOpen(true); }}>
+                                            계정 전환 (테스트용)
+                                        </button>
+                                        <button className={styles.logoutBtn} onClick={() => { logout(); setDropdownOpen(false); }}>
+                                            <LogOut size={15} /> 로그아웃
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className={styles.unauthActions}>
+                            <button className="btn-primary" style={{ padding: '8px 18px', fontSize: '0.9rem' }} onClick={() => setLoginModalOpen(true)}>
+                                <Wallet size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                                지갑 연결 & 로그인
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </header>
+
+            {/* Login / User Switch Modal */}
+            {loginModalOpen && (
+                <div className={styles.modalOverlay} onClick={() => setLoginModalOpen(false)}>
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <h3>KCA 회원 DB & Web3 지갑 연동</h3>
+                            <button className={styles.modalClose} onClick={() => setLoginModalOpen(false)}>✕</button>
+                        </div>
+                        <p className={styles.modalDesc}>
+                            KCA 통합 회원 계정을 선택하거나 Web3 지갑을 연결하여 15종 프리미엄 김치를 HEX 토큰으로 결제하세요.
+                        </p>
+
+                        <div className={styles.accountList}>
+                            <button 
+                                className={styles.accountOption}
+                                onClick={() => handleSwitchUser("user_daehan_vip01")}
+                            >
+                                <div className={styles.accountAvatar}>👑</div>
+                                <div className={styles.accountMeta}>
+                                    <strong>최민준 (VIP 회원)</strong>
+                                    <span>2,500 HEX • 15,000 P • 1,200,000 VND</span>
+                                    <code>0x71C3...3B29</code>
+                                </div>
+                            </button>
+
+                            <button 
+                                className={styles.accountOption}
+                                onClick={() => handleSwitchUser("user_hanoi_kca02")}
+                            >
+                                <div className={styles.accountAvatar}>🇻🇳</div>
+                                <div className={styles.accountMeta}>
+                                    <strong>응우옌 티 마이 (Nguyen Thi Mai)</strong>
+                                    <span>1,200 HEX • 8,400 P • 650,000 VND</span>
+                                    <code>0xa485...db40</code>
+                                </div>
+                            </button>
+
+                            <button 
+                                className={styles.accountOption}
+                                onClick={() => handleSwitchUser("guest_user_demo")}
+                            >
+                                <div className={styles.accountAvatar}>🌿</div>
+                                <div className={styles.accountMeta}>
+                                    <strong>대한김치 체험 회원</strong>
+                                    <span>800 HEX • 5,000 P • 300,000 VND</span>
+                                    <code>0x3B82...82a3</code>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className={styles.modalFooter}>
+                            <button className={styles.web3ConnectBtn} onClick={() => { connectWallet(); setLoginModalOpen(false); }}>
+                                🦊 MetaMask / 외부 Web3 지갑 직접 연결
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }

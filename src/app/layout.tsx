@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_KR } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { UserWalletProvider } from "@/context/UserWalletContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -21,7 +22,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Daehan Kimchi | ZENTARO R&D",
-  description: "Premium Kimchi Experience & Fermentation Culture",
+  description: "Premium Kimchi Experience & Fermentation Culture with KCA & HEX Token Shopping Mall",
 };
 
 export default function RootLayout({
@@ -32,9 +33,11 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${inter.variable} ${notoSansKr.variable}`}>
-        <Header />
-        <main style={{ minHeight: "100vh" }}>{children}</main>
-        <Footer />
+        <UserWalletProvider>
+          <Header />
+          <main style={{ minHeight: "100vh" }}>{children}</main>
+          <Footer />
+        </UserWalletProvider>
       </body>
     </html>
   );

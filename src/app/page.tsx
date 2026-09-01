@@ -1,14 +1,10 @@
 import styles from "./page.module.css";
 import Link from "next/link";
 import { Sparkles, ArrowRight, ShieldCheck, Award, HeartHandshake, ThermometerSnowflake } from "lucide-react";
+import { products } from "@/data/products";
 
 export default function Home() {
-  const featuredProducts = [
-    { id: 1, name: "프리미엄 포기김치", desc: "고랭지 배추와 30년 비법 양념의 시그니처", price: "150,000 VND", badge: "BEST", image: "/images/products/pogi.jpg" },
-    { id: 2, name: "새콤달콤 깍두기", desc: "국밥과 곰탕에 가장 잘 어울리는 아삭한 별미", price: "140,000 VND", badge: "POPULAR", image: "/images/products/kkakdugi.jpg" },
-    { id: 3, name: "향긋한 깻잎김치", desc: "한 장 한 장 정성스레 양념을 바른 밥도둑", price: "160,000 VND", badge: "RECOMMEND", image: "/images/products/kkaennip.jpg" },
-    { id: 4, name: "알싸한 대파김치", desc: "고기 구이 및 라면과 최고의 궁합을 자랑하는 별미", price: "170,000 VND", badge: "SPECIAL", image: "/images/products/daepa.jpg" },
-  ];
+  const featuredProducts = products.slice(0, 4);
 
   return (
     <main className={styles.main}>
@@ -58,10 +54,10 @@ export default function Home() {
                 <span className={styles.productBadge}>{product.badge}</span>
               </div>
               <div className={styles.cardBody}>
-                <h3 className={styles.productName}>{product.name}</h3>
+                <h3 className={styles.productName}>{product.koreanName}</h3>
                 <p className={styles.productDesc}>{product.desc}</p>
                 <div className={styles.cardFooter}>
-                  <span className={styles.productPrice}>{product.price}</span>
+                  <span className={styles.productPrice}>{product.priceFormatted}</span>
                   <span className={styles.viewDetail}>상세보기 →</span>
                 </div>
               </div>
