@@ -1,0 +1,149 @@
+.dnaContainer {
+    padding: 120px 24px 80px;
+    min-height: 100vh;
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.introSection {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeIn 1s ease forwards;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+}
+
+.description {
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+}
+
+/* Card shared styling */
+.glassCard {
+    background: var(--surface-color);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 60px 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Quiz Section */
+.quizHeader {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.stepIndicator {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.questionText {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.5;
+}
+
+.optionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.optionBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.optionBtn:hover {
+    background: rgba(227, 24, 55, 0.2);
+    border-color: var(--primary-color);
+    transform: translateX(8px);
+}
+
+/* Results Section */
+.resultsSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.matchTitle {
+    font-size: 2.5rem;
+    color: var(--secondary-color);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.chartContainer {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.2rem;
+    }
+
+    .questionText {
+        font-size: 1.4rem;
+    }
+
+    .glassCard {
+        padding: 40px 20px;
+    }
+
+    .chartContainer {
+        height: 300px;
+    }
+}

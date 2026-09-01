@@ -1,0 +1,97 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    z-index: 100;
+    background: rgba(11, 12, 16, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.logoLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.logoLink:hover {
+    transform: scale(1.03);
+}
+
+.logoImg {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    background: #ffffff;
+    padding: 3px 12px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.nav {
+    display: flex;
+    gap: 40px;
+}
+
+.navLink {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.navLink:hover {
+    color: #fff;
+}
+
+.authAction {
+    display: flex;
+    align-items: center;
+}
+
+.googleBtn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    color: #333;
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.googleBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+.googleIcon {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 20px;
+    }
+
+    .nav {
+        display: none;
+    }
+
+    /* On mobile, we might use a hamburger, hidden for MVP */
+}

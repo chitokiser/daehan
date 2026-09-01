@@ -1,0 +1,118 @@
+.dashboardContainer {
+    padding: 120px 24px 80px;
+    min-height: 100vh;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.pointCard {
+    background: linear-gradient(135deg, rgba(227, 24, 55, 0.1), rgba(247, 164, 0, 0.1));
+    border: 1px solid rgba(227, 24, 55, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.pointLabel {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.pointValue {
+    font-size: 4.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 24px;
+}
+
+.pointValue span {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-left: 8px;
+}
+
+.actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.historySection {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    border: 1px solid var(--border-subtle);
+}
+
+.historyTitle {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 16px;
+    color: #fff;
+}
+
+.historyList {
+    list-style: none;
+}
+
+.historyItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.3s ease;
+}
+
+.historyItem:last-child {
+    border-bottom: none;
+}
+
+.itemInfo h4 {
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+    color: #fff;
+}
+
+.itemInfo p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.itemAmount {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.positive {
+    color: #34A853;
+}
+
+.negative {
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .pointValue {
+        font-size: 3rem;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+}
