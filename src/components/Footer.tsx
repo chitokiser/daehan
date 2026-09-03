@@ -19,7 +19,6 @@ export default function Footer() {
                         <h4>COMPANY</h4>
                         <Link href="/about">브랜드 소개</Link>
                         <Link href="/service">제품 서비스</Link>
-                        <Link href="/research">ZENTAROLAB R&D</Link>
                     </div>
                     <div className={styles.linkColumn}>
                         <h4>SUPPORT</h4>

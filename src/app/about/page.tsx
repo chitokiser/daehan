@@ -11,7 +11,7 @@ export default function AboutPage() {
                         전통 발효의 장인정신과<br />현대 바이오 과학의 융합
                     </h1>
                     <p className={styles.subtitle}>
-                        대한김치는 30년 전통의 비법 양념과 하노이 ZENTARO 바이오 R&D 센터의 스마트 발효과학 기술이 만나 탄생한 프리미엄 김치 브랜드입니다.
+                        대한김치는 30년 전통의 비법 양념과 스마트 발효과학 연구진의 철저한 위생 관리 기술이 만나 탄생한 대한민국 대표 프리미엄 김치 브랜드입니다.
                     </p>
                 </div>
             </section>

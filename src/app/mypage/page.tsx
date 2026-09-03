@@ -47,7 +47,7 @@ export default function MyPageDashboard() {
         await refreshWallet();
         setTimeout(() => {
             setSyncing(false);
-            alert("KCA Merchant 회원 DB 및 온체인 지갑 잔액이 성공적으로 동기화되었습니다!");
+            alert("K-MOA 회원 DB 및 충전머니/포인트 잔액이 성공적으로 동기화되었습니다!");
         }, 600);
     };
 
@@ -65,7 +65,7 @@ export default function MyPageDashboard() {
                     </div>
                     <div>
                         <div className={styles.nameRow}>
-                            <h1 className={styles.userName}>{user?.name || "KCA 회원"}</h1>
+                            <h1 className={styles.userName}>{user?.name || "K-MOA 회원"}</h1>
                             <span className={styles.roleTag}>{user?.role || "VIP_MEMBER"}</span>
                         </div>
                         <p className={styles.userEmail}>{user?.email || "user@daehankimchi.com"}</p>
@@ -73,13 +73,21 @@ export default function MyPageDashboard() {
                 </div>
 
                 <div className={styles.profileActions}>
+                    <Link 
+                        href="/kmoa-guide" 
+                        className={styles.syncBtn} 
+                        style={{ textDecoration: 'none', color: '#fcd34d', borderColor: 'rgba(247, 164, 0, 0.4)' }}
+                    >
+                        <ExternalLink size={14} />
+                        K-MOA 결제 가이드
+                    </Link>
                     <button 
                         className={styles.syncBtn} 
                         onClick={handleSync}
                         disabled={syncing || isLoading}
                     >
                         <RefreshCw size={15} className={syncing ? styles.spinning : ''} />
-                        {syncing ? "동기화 중..." : "KCA DB 동기화"}
+                        {syncing ? "동기화 중..." : "K-MOA DB 동기화"}
                     </button>
                     <Link href="/shop" className="btn-primary" style={{ padding: '8px 20px', fontSize: '0.9rem' }}>
                         <ShoppingBag size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />
@@ -88,24 +96,24 @@ export default function MyPageDashboard() {
                 </div>
             </div>
 
-            {/* Web3 Wallet Card Grid */}
+            {/* Money & Point Wallet Card Grid */}
             <div className={styles.walletGrid}>
-                {/* Main HEX Token Card */}
+                {/* Main K-MOA Money Card */}
                 <div className={`${styles.walletCard} ${styles.hexCard}`}>
                     <div className={styles.cardHeader}>
                         <div className={styles.cardIconWrap}>
                             <Coins size={24} color="#fcd34d" />
                         </div>
-                        <span className={styles.cardBadge}>KCA 온체인 토큰</span>
+                        <span className={styles.cardBadge}>K-MOA 충전머니</span>
                     </div>
                     <div className={styles.cardContent}>
-                        <span className={styles.cardLabel}>보유 HEX 토큰</span>
+                        <span className={styles.cardLabel}>보유 K-MOA 머니</span>
                         <div className={styles.mainAmount}>
                             {wallet.hexTokenBalance.toLocaleString()}
-                            <span className={styles.unit}>HEX</span>
+                            <span className={styles.unit}>머니</span>
                         </div>
                         <div className={styles.approxVnd}>
-                            ≈ {(wallet.hexTokenBalance * 1000).toLocaleString()} VND 가치
+                            ≈ {(wallet.hexTokenBalance * 1000).toLocaleString()} VND 가치 (1머니 = 1,000 VND)
                         </div>
                     </div>
                     <div className={styles.cardFooter}>
@@ -115,7 +123,7 @@ export default function MyPageDashboard() {
                             disabled={isLoading}
                         >
                             <PlusCircle size={15} />
-                            {faucetSuccess ? "500 HEX 충전 완료!" : "+500 HEX 테스트 토큰 받기"}
+                            {faucetSuccess ? "500 머니 충전 완료!" : "+500 머니 충전하기"}
                         </button>
                     </div>
                 </div>
@@ -126,10 +134,10 @@ export default function MyPageDashboard() {
                         <div className={styles.cardIconWrap} style={{ background: 'rgba(0, 230, 118, 0.15)' }}>
                             <Sparkles size={24} color="#00E676" />
                         </div>
-                        <span className={styles.cardBadge} style={{ color: '#00E676', borderColor: 'rgba(0, 230, 118, 0.3)' }}>KCA 플랫폼</span>
+                        <span className={styles.cardBadge} style={{ color: '#00E676', borderColor: 'rgba(0, 230, 118, 0.3)' }}>K-MOA 플랫폼</span>
                     </div>
                     <div className={styles.cardContent}>
-                        <span className={styles.cardLabel}>KCA 포인트 잔액</span>
+                        <span className={styles.cardLabel}>K-MOA 포인트 잔액</span>
                         <div className={styles.mainAmount} style={{ color: '#00E676' }}>
                             {wallet.kcaPoints.toLocaleString()}
                             <span className={styles.unit}>P</span>
@@ -181,26 +189,18 @@ export default function MyPageDashboard() {
                 </div>
             </div>
 
-            {/* On-chain Wallet Address Bar */}
+            {/* K-MOA Member Account Identifier Bar */}
             <div className={styles.addressBar}>
                 <div className={styles.addrLeft}>
                     <Wallet size={18} color="#00E676" />
-                    <span className={styles.addrLabel}>연동된 스마트 지갑:</span>
+                    <span className={styles.addrLabel}>K-MOA 회원 식별 코드:</span>
                     <code className={styles.addrCode}>{wallet.onChainWalletAddress}</code>
                 </div>
                 <div className={styles.addrRight}>
                     <button className={styles.copyBtn} onClick={handleCopyAddress}>
                         {copiedAddress ? <Check size={14} color="#00E676" /> : <Copy size={14} />}
-                        {copiedAddress ? "복사됨" : "주소 복사"}
+                        {copiedAddress ? "복사완료" : "회원코드 복사"}
                     </button>
-                    <a 
-                        href={`https://etherscan.io/address/${wallet.onChainWalletAddress}`} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        className={styles.explorerBtn}
-                    >
-                        <ExternalLink size={14} /> 블록체인 익스플로러
-                    </a>
                 </div>
             </div>
 

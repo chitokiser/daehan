@@ -108,6 +108,7 @@ interface UserWalletContextType {
     adminStats: AdminStats | null;
     allOrders: MemberOrder[];
     login: (uid?: string) => Promise<void>;
+    loginWithGoogle: (customEmail?: string, customName?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
     logout: () => void;
     connectWallet: () => Promise<void>;
     payOrder: (params: PaymentParams) => Promise<PaymentResult>;
@@ -118,8 +119,10 @@ interface UserWalletContextType {
     changeOrderStatus: (orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => Promise<{ success: boolean; error?: string }>;
 }
 
+export const KMOA_CONTRACT_ADDRESS = "0xa4850A83D219b5706D638cC28244EFe2bF8bdb40";
+
 const defaultWallet: WalletState = {
-    onChainWalletAddress: "0xa4850A83D219b5706D638cC28244EFe2bF8bdb40",
+    onChainWalletAddress: KMOA_CONTRACT_ADDRESS,
     hexTokenBalance: 95000.0,
     kcaPoints: 120000,
     vndBalance: 85000000,
@@ -234,6 +237,64 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
+    const loginWithGoogle = async (customEmail?: string, customName?: string) => {
+        setIsLoading(true);
+        try {
+            const email = customEmail || (typeof window !== "undefined" ? localStorage.getItem("google_auth_email") || "user.google@gmail.com" : "user.google@gmail.com");
+            const name = customName || (typeof window !== "undefined" ? localStorage.getItem("google_auth_name") || "Google 인증 회원" : "Google 인증 회원");
+            const avatar = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80";
+
+            const res = await fetch("/api/v1/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email,
+                    name,
+                    avatar,
+                    sub: `google_sub_${Date.now()}`
+                })
+            });
+
+            const json = await res.json();
+            if (json.success && json.data) {
+                const loggedUser: UserProfile = {
+                    uid: json.data.uid,
+                    name: json.data.name,
+                    email: json.data.email,
+                    role: json.data.role,
+                    avatar: json.data.avatar,
+                    phone: json.data.phone
+                };
+                setUser(loggedUser);
+                setWallet({
+                    onChainWalletAddress: json.data.onChainWalletAddress,
+                    hexTokenBalance: parseFloat(json.data.hexTokenBalance) || 0,
+                    kcaPoints: json.data.kcaPoints || 0,
+                    vndBalance: json.data.vndBalance || 0,
+                    dpPoints: json.data.dpPoints || 0
+                });
+                if (json.data.recentOrders) setOrders(json.data.recentOrders);
+                if (json.data.recentTransactions) setTransactions(json.data.recentTransactions);
+                setIsLoggedIn(true);
+                setIsWalletConnected(true);
+
+                if (typeof window !== "undefined") {
+                    localStorage.setItem("google_auth_email", loggedUser.email);
+                    localStorage.setItem("google_auth_name", loggedUser.name);
+                }
+
+                await fetchAdminData();
+                return { success: true, user: loggedUser };
+            }
+            return { success: false, error: json.error || "Google 로그인에 실패했습니다." };
+        } catch (e: any) {
+            console.error("Google login failed:", e);
+            return { success: false, error: e.message || "Google 로그인 통신 오류가 발생했습니다." };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const logout = () => {
         setUser(null);
         setIsLoggedIn(false);
@@ -243,21 +304,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const connectWallet = async () => {
         setIsLoading(true);
         try {
-            if (typeof window !== "undefined" && (window as any).ethereum) {
-                try {
-                    const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
-                    if (accounts && accounts[0]) {
-                        setWallet(prev => ({ ...prev, onChainWalletAddress: accounts[0] }));
-                        setIsWalletConnected(true);
-                        alert(`지갑이 성공적으로 연결되었습니다!\n주소: ${accounts[0]}`);
-                        return;
-                    }
-                } catch (ethErr) {
-                    console.log("Web3 provider rejected, using KCA Smart Wallet.");
-                }
-            }
             setIsWalletConnected(true);
-            alert(`KCA 스마트 지갑이 연결되었습니다.\n온체인 주소: ${wallet.onChainWalletAddress}`);
+            alert(`K-MOA 충전머니 & 포인트 계정이 연결되었습니다.\n회원 식별 ID: ${user?.uid || "게스트"}`);
         } finally {
             setIsLoading(false);
         }
@@ -269,7 +317,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
         setIsLoading(true);
         try {
-            const res = await fetch("/api/v1/wallet/pay", {
+            const res = await fetch("/api/v1/kmoa/pay", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -298,13 +346,14 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             } else {
                 return {
                     success: false,
-                    error: json.error || "결제 처리 중 오류가 발생했습니다."
+                    error: json.error || "K-MOA 결제 승인에 실패했습니다."
                 };
             }
         } catch (e: any) {
+            console.error("Payment error:", e);
             return {
                 success: false,
-                error: e.message || "서버 통신 오류가 발생했습니다."
+                error: e.message || "결제 서버 통신 오류가 발생했습니다."
             };
         } finally {
             setIsLoading(false);
@@ -312,7 +361,10 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     };
 
     const faucetHex = async (amount: number = 500): Promise<boolean> => {
-        if (!user?.uid) return false;
+        if (!user?.uid) {
+            alert("로그인 후 충전해주세요.");
+            return false;
+        }
         setIsLoading(true);
         try {
             const res = await fetch("/api/v1/wallet/faucet", {
@@ -326,9 +378,11 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 await fetchAdminData();
                 return true;
             }
+            alert(`충전 실패: ${json.error}`);
             return false;
         } catch (e) {
             console.error("Faucet error:", e);
+            alert("머니 충전 통신 오류가 발생했습니다.");
             return false;
         } finally {
             setIsLoading(false);
@@ -400,6 +454,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 adminStats,
                 allOrders,
                 login,
+                loginWithGoogle,
                 logout,
                 connectWallet,
                 payOrder,

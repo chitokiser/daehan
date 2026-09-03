@@ -52,21 +52,26 @@ export default function Shop() {
                 <h1 className={`${styles.title} text-gradient`}>DAEHAN KIMCHI SHOP</h1>
                 <p className={styles.description}>
                     30년 전통의 발효 비법과 HACCP 인증 클린룸 시설에서 정성껏 담근 대한김치의 15가지 정통 라인업.<br />
-                    신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 <strong>HEX 토큰</strong> 및 <strong>KCA 포인트</strong>로 간편 결제 가능합니다.
+                    신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 일반 결제(VND/계좌이체) 및 K-MOA 충전머니, 포인트로 간편 결제할 수 있습니다.
                 </p>
 
-                {/* Crypto & Web3 Banner */}
+                {/* K-MOA Crypto & Web3 Banner */}
                 <div className={styles.hexNoticeBar}>
                     <div className={styles.hexNoticeItem}>
                         <Coins size={18} color="#fcd34d" />
-                        <span><strong>HEX 토큰 결제 지원:</strong> 1 HEX = 1,000 VND (결제 시 5% DP 대한포인트 즉시 적립)</span>
+                        <span><strong>결제 안내:</strong> 일반 결제(VND/계좌이체) 및 K-MOA 충전머니(HEX) 결제 시 5% DP 대한포인트 즉시 적립</span>
                     </div>
-                    {isLoggedIn && (
-                        <div className={styles.hexBalancePill}>
-                            <Wallet size={14} color="#00E676" />
-                            <span>내 보유: <strong>{wallet.hexTokenBalance.toLocaleString()} HEX</strong></span>
-                        </div>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Link href="/kmoa-guide" style={{ color: '#fcd34d', fontSize: '0.82rem', textDecoration: 'underline', fontWeight: 600 }}>
+                            K-MOA 결제안내
+                        </Link>
+                        {isLoggedIn && (
+                            <div className={styles.hexBalancePill}>
+                                <Wallet size={14} color="#00E676" />
+                                <span>내 충전머니 잔액: <strong>{wallet.hexTokenBalance.toLocaleString()} HEX</strong></span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className={styles.deliveryBanner}>
@@ -224,10 +229,10 @@ export default function Shop() {
                 <div className={styles.wholesaleContent}>
                     <div className={styles.wholesaleText}>
                         <span className="badge">B2B & WHOLESALE</span>
-                        <h3>식당 / 기업 / 단체 대량 주문 & HEX 결제 안내</h3>
+                        <h3>식당 / 기업 / 단체 대량 주문 & K-MOA 결제 안내</h3>
                         <p>
                             하노이 내 한식당, 호텔, 기업체 급식 및 마트에 정기적으로 10kg, 20kg, 50kg 단위로 신선하게 냉장 납품합니다.<br />
-                            정기 계약 시 맞춤형 숙성도 조절 및 <strong>KCA 온체인 지갑 연동 HEX 토큰 B2B 정산</strong> 혜택을 제공합니다.
+                            정기 계약 시 맞춤형 숙성도 조절 및 <strong>K-MOA 가맹점 충전머니 B2B 간편 정산</strong> 혜택을 제공합니다.
                         </p>
                     </div>
                     <div className={styles.wholesaleActions}>

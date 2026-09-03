@@ -5,18 +5,19 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { products, Product, vndToHex } from "@/data/products";
-import { useUserWallet } from "@/context/UserWalletContext";
+import { useUserWallet, KMOA_CONTRACT_ADDRESS } from "@/context/UserWalletContext";
 import { 
     Star, Truck, ShieldCheck, Award, Sparkles, Check, PhoneCall, 
     ArrowLeft, Heart, Plus, Minus, PackageCheck, Coins, Wallet, 
-    CreditCard, ArrowRight, CheckCircle2, AlertCircle, Copy 
+    CreditCard, ArrowRight, CheckCircle2, AlertCircle, Copy,
+    QrCode, ExternalLink, Zap, Shield, ShoppingCart
 } from "lucide-react";
 
 export default function ProductDetail() {
     const params = useParams();
     const rawId = params?.id as string || "1";
 
-    const { user, wallet, isLoggedIn, isWalletConnected, payOrder, faucetHex, refreshWallet, isLoading } = useUserWallet();
+    const { user, wallet, isLoggedIn, isWalletConnected, payOrder, faucetHex, refreshWallet, connectWallet, isLoading } = useUserWallet();
 
     // Find product by id, idx, or slug
     const product: Product = useMemo(() => {
@@ -39,7 +40,7 @@ export default function ProductDetail() {
 
     // Checkout modal state
     const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
-    const [selectedCurrency, setSelectedCurrency] = useState<"HEX" | "POINT" | "VND">("HEX");
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"HEX" | "VND" | "POINT" | "QR">("HEX");
     const [recipientName, setRecipientName] = useState(user?.name || "최민준");
     const [recipientPhone, setRecipientPhone] = useState("0702116617");
     const [recipientAddress, setRecipientAddress] = useState("Hanoi, Nam Tu Liem, My Dinh Song Da, Villa #12");
@@ -47,6 +48,8 @@ export default function ProductDetail() {
     const [paymentReceipt, setPaymentReceipt] = useState<any>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
     const [copiedTx, setCopiedTx] = useState(false);
+    const [copiedContract, setCopiedContract] = useState(false);
+    const [copiedDeepLink, setCopiedDeepLink] = useState(false);
 
     // Calculate dynamic pricing
     const unitPriceVnd = product.price;
@@ -57,6 +60,19 @@ export default function ProductDetail() {
     const totalPriceHex = vndToHex(totalPriceVnd);
     const earnedPoints = Math.round(totalPriceVnd * 0.05 / 100) * 100;
 
+    // Generated Dynamic Order ID & K-MOA Deep Link
+    const dynamicOrderId = useMemo(() => {
+        return `ORD-DAEHAN-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+    }, [checkoutModalOpen]);
+
+    const kmoaDeepLink = useMemo(() => {
+        return `kmoa://pay?merchant=daehan_kimchi_store&orderId=${dynamicOrderId}&amount=${totalPriceHex}&currency=HEX&contract=${KMOA_CONTRACT_ADDRESS}`;
+    }, [dynamicOrderId, totalPriceHex]);
+
+    const qrCodeUrl = useMemo(() => {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=${encodeURIComponent(kmoaDeepLink)}`;
+    }, [kmoaDeepLink]);
+
     // Rating & reviews state
     const [rating, setRating] = useState(5);
     const [hoverRating, setHoverRating] = useState(0);
@@ -64,8 +80,8 @@ export default function ProductDetail() {
     const [reviewerName, setReviewerName] = useState("");
 
     const [reviews, setReviews] = useState([
-        { id: 101, user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! HEX 토큰으로 원클릭 결제하니 편리하고 5% 대한포인트까지 적립되어 만족스럽습니다.` },
-        { id: 102, user: "응우옌티* (현지고객)", stars: 5, date: "2026.08.25", content: "한국인 셰프가 만든 진짜 한국 김치 맛입니다. KCA 지갑으로 바로 결제할 수 있어서 혁신적이에요." },
+        { id: 101, user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! K-MOA 충전머니로 간편하게 결제하니 5% 대한포인트까지 적립되어 만족스럽습니다.` },
+        { id: 102, user: "응우옌티* (현지고객)", stars: 5, date: "2026.08.25", content: "한국인 셰프가 만든 진짜 한국 김치 맛입니다. 계좌이체나 K-MOA 결제 중 선택할 수 있어 편리해요." },
         { id: 103, user: "김*석 (골드회원)", stars: 5, date: "2026.08.19", content: "10kg 대량 주문해서 식당에서 쓰는데 손님들 반응이 최고입니다. 콜드체인 배송도 아주 완벽합니다." },
     ]);
 
@@ -74,8 +90,7 @@ export default function ProductDetail() {
         setTimeout(() => setCartAdded(false), 2200);
     };
 
-    const handleOpenCheckout = (currency: "HEX" | "POINT" | "VND" = "HEX") => {
-        setSelectedCurrency(currency);
+    const handleOpenCheckout = () => {
         setPaymentError(null);
         setPaymentReceipt(null);
         setCheckoutModalOpen(true);
@@ -83,9 +98,10 @@ export default function ProductDetail() {
 
     const handleExecutePayment = async () => {
         setPaymentError(null);
-        const amount = selectedCurrency === "HEX" 
+        const currencyToPay = selectedPaymentMethod === "QR" ? "HEX" : selectedPaymentMethod;
+        const amount = currencyToPay === "HEX" 
             ? totalPriceHex 
-            : selectedCurrency === "POINT" 
+            : currencyToPay === "POINT" 
                 ? totalPriceHex * 10 
                 : totalPriceVnd;
 
@@ -100,8 +116,9 @@ export default function ProductDetail() {
         }];
 
         const res = await payOrder({
+            orderId: dynamicOrderId,
             amount,
-            currency: selectedCurrency,
+            currency: currencyToPay,
             items: orderItems,
             shippingAddress: {
                 recipient: recipientName,
@@ -122,6 +139,18 @@ export default function ProductDetail() {
         navigator.clipboard.writeText(hash);
         setCopiedTx(true);
         setTimeout(() => setCopiedTx(false), 2000);
+    };
+
+    const copyContract = () => {
+        navigator.clipboard.writeText(KMOA_CONTRACT_ADDRESS);
+        setCopiedContract(true);
+        setTimeout(() => setCopiedContract(false), 2000);
+    };
+
+    const copyDeepLink = () => {
+        navigator.clipboard.writeText(kmoaDeepLink);
+        setCopiedDeepLink(true);
+        setTimeout(() => setCopiedDeepLink(false), 2000);
     };
 
     const handleSubmitReview = (e: React.FormEvent) => {
@@ -186,7 +215,7 @@ export default function ProductDetail() {
                         <Heart size={20} fill={isLiked ? "#e31837" : "transparent"} color={isLiked ? "#e31837" : "#fff"} />
                     </button>
                     <div className={styles.imageHexFloatingBadge}>
-                        <Coins size={14} /> 1 HEX = 1,000 VND
+                        <Coins size={14} /> K-MOA 충전머니 <strong>{totalPriceHex.toLocaleString()} HEX</strong> 결제 지원
                     </div>
                 </div>
 
@@ -194,21 +223,21 @@ export default function ProductDetail() {
                 <div className={styles.infoSection}>
                     <div className={styles.titleArea}>
                         <div className={styles.subMeta}>
-                            <span className={styles.brandName}>DAEHAN KIMCHI • KCA OFFICIAL MERCHANT</span>
+                            <span className={styles.brandName}>DAEHAN KIMCHI • 대한민국 대표 프리미엄 김치</span>
                             <span className={styles.ratingBadge}>★ 4.9 (후기 {reviews.length}개)</span>
                         </div>
                         <h1 className={styles.title}>{product.koreanName}</h1>
                         <p className={styles.englishSubtitle}>{product.englishName}</p>
                     </div>
 
-                    {/* Dual Price Box: VND & HEX Token */}
+                    {/* Price Box */}
                     <div className={styles.priceBox}>
                         <div className={styles.priceRow}>
                             <div className={styles.mainPriceGroup}>
                                 <span className={styles.finalPrice}>{totalPriceVnd.toLocaleString()} VND</span>
-                                <span className={styles.hexPriceHighlight}>
-                                    <Coins size={20} className={styles.coinIcon} />
-                                    <strong>{totalPriceHex.toLocaleString()} HEX</strong>
+                                <span className={styles.hexPriceHighlight} title="K-MOA 충전머니로 결제 가능">
+                                    <Coins size={18} className={styles.coinIcon} />
+                                    <span>K-MOA {totalPriceHex.toLocaleString()} HEX</span>
                                 </span>
                             </div>
                             {selectedWeight >= 10 && (
@@ -217,7 +246,7 @@ export default function ProductDetail() {
                         </div>
                         <div className={styles.pointRow}>
                             <Sparkles size={14} color="#f7a400" />
-                            <span>결제 시 <strong>{earnedPoints.toLocaleString()} DP</strong> (5% 마일리지) 즉시 적립</span>
+                            <span>결제 시 <strong>{earnedPoints.toLocaleString()} DP</strong> (5% 대한포인트 마일리지) 즉시 적립</span>
                         </div>
                     </div>
 
@@ -279,15 +308,15 @@ export default function ProductDetail() {
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Standard E-Commerce Purchase Actions */}
                     <div className={styles.purchaseActions}>
-                        {/* Primary HEX Token Checkout Button */}
                         <button 
                             className={styles.hexPayBtn}
-                            onClick={() => handleOpenCheckout("HEX")}
+                            onClick={handleOpenCheckout}
+                            title="주문서 열기 및 결제수단 선택"
                         >
-                            <Coins size={20} color="#fcd34d" />
-                            <span>HEX 토큰 즉시 결제 ({totalPriceHex.toLocaleString()} HEX)</span>
+                            <CreditCard size={20} />
+                            <span>바로 구매하기 ({totalPriceVnd.toLocaleString()} VND)</span>
                         </button>
 
                         <button 
@@ -296,20 +325,13 @@ export default function ProductDetail() {
                         >
                             {cartAdded ? (
                                 <>
-                                    <PackageCheck size={20} /> 담김!
+                                    <PackageCheck size={20} /> 장바구니 담김!
                                 </>
                             ) : (
                                 <>
-                                    장바구니 담기
+                                    <ShoppingCart size={18} /> 장바구니 담기
                                 </>
                             )}
-                        </button>
-
-                        <button 
-                            className={styles.vndPayBtn}
-                            onClick={() => handleOpenCheckout("VND")}
-                        >
-                            <CreditCard size={18} /> 일반 주문
                         </button>
                     </div>
 
@@ -322,7 +344,7 @@ export default function ProductDetail() {
                             <ShieldCheck size={15} color="#00E676" /> HACCP 안심 클린룸 생산
                         </div>
                         <div className={styles.trustChip}>
-                            <Award size={15} color="#2979FF" /> KCA 공인 가맹점
+                            <Award size={15} color="#2979FF" /> K-MOA 충전머니 결제 지원
                         </div>
                     </div>
                 </div>
@@ -347,9 +369,9 @@ export default function ProductDetail() {
                         </div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>결제 수단</div>
+                        <div className={styles.specKey}>지원 결제 수단</div>
                         <div className={styles.specVal}>
-                            🪙 <strong>HEX 토큰</strong> (KCA On-Chain Wallet), 🎟️ <strong>KCA 포인트</strong>, 💵 <strong>VND 계좌이체/현금</strong>
+                            💵 <strong>일반 결제 (VND / 계좌이체)</strong>, 🪙 <strong>K-MOA 충전머니</strong>, 🎟️ <strong>K-MOA 포인트</strong>, 📱 <strong>K-MOA 모바일 앱 QR 스캔</strong>
                         </div>
                     </div>
                     <div className={styles.specRow}>
@@ -361,12 +383,8 @@ export default function ProductDetail() {
                         <div className={styles.specVal}>제조일로부터 90일 (적정 발효 숙성도에 따라 섭취)</div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>주요 원재료</div>
-                        <div className={styles.specVal}>신선 원채, 고춧가루, 마늘, 생강, 정제염, 멸치액젓, 찹쌀풀 등 (100% 엄선 식재료)</div>
-                    </div>
-                    <div className={styles.specRow}>
-                        <div className={styles.specKey}>가맹점 및 고객센터</div>
-                        <div className={styles.specVal}>대한김치 (DAEHAN KIMCHI / ZENTARO BIO FOOD) • Kakao/Zalo: 0702116617</div>
+                        <div className={styles.specKey}>고객센터 & 주문 문의</div>
+                        <div className={styles.specVal}>대한김치 (DAEHAN KIMCHI) • Kakao/Zalo: 0702116617</div>
                     </div>
                 </div>
             </section>
@@ -414,7 +432,7 @@ export default function ProductDetail() {
                         <input
                             type="text"
                             className={styles.reviewInput}
-                            placeholder="김치의 맛, 숙성도, HEX 결제 경험 등 솔직한 후기를 남겨주세요!"
+                            placeholder="김치의 맛, 숙성도, 배송 및 결제 경험 등 솔직한 후기를 남겨주세요!"
                             value={reviewText}
                             onChange={(e) => setReviewText(e.target.value)}
                         />
@@ -446,7 +464,6 @@ export default function ProductDetail() {
                 <h2 className={styles.sectionHeading}>함께 구매하면 좋은 대한김치 라인업</h2>
                 <div className={styles.relatedGrid}>
                     {relatedProducts.map(rel => {
-                        const hexRel = vndToHex(rel.price);
                         return (
                             <Link href={`/shop/${rel.id}`} key={rel.id} className={styles.relatedCard}>
                                 <div className={styles.relatedImgWrap}>
@@ -457,7 +474,6 @@ export default function ProductDetail() {
                                     <h4 className={styles.relatedTitle}>{rel.koreanName}</h4>
                                     <div className={styles.relatedDualPrice}>
                                         <span className={styles.relatedPrice}>{rel.priceFormatted}</span>
-                                        <span className={styles.relatedHexPrice}>🪙 {hexRel} HEX</span>
                                     </div>
                                 </div>
                             </Link>
@@ -466,7 +482,7 @@ export default function ProductDetail() {
                 </div>
             </section>
 
-            {/* Checkout & Web3 Payment Modal */}
+            {/* Universal Checkout Modal */}
             {checkoutModalOpen && (
                 <div className={styles.modalOverlay} onClick={() => setCheckoutModalOpen(false)}>
                     <div className={styles.checkoutModal} onClick={e => e.stopPropagation()}>
@@ -474,8 +490,8 @@ export default function ProductDetail() {
                             <>
                                 <div className={styles.modalHeader}>
                                     <div className={styles.modalTitleWrap}>
-                                        <Coins size={22} color="#fcd34d" />
-                                        <h3>KCA 스마트 결제 주문서</h3>
+                                        <CreditCard size={22} color="#f7a400" />
+                                        <h3>대한김치 주문 및 결제</h3>
                                     </div>
                                     <button className={styles.modalClose} onClick={() => setCheckoutModalOpen(false)}>✕</button>
                                 </div>
@@ -485,88 +501,178 @@ export default function ProductDetail() {
                                     <img src={product.image} alt={product.name} className={styles.orderThumb} />
                                     <div className={styles.orderMeta}>
                                         <h4>{product.koreanName}</h4>
-                                        <p>용량: {selectedWeight}Kg • 수량: {quantity}개</p>
+                                        <p>용량: {selectedWeight}Kg • 수량: {quantity}개 • 주문번호: <code>{dynamicOrderId}</code></p>
                                         <div className={styles.orderPrices}>
-                                            <span className={styles.vndTotal}>{totalPriceVnd.toLocaleString()} VND</span>
-                                            <span className={styles.hexTotal}>🪙 {totalPriceHex.toLocaleString()} HEX</span>
+                                            <span className={styles.vndTotal} style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 800 }}>
+                                                {totalPriceVnd.toLocaleString()} VND
+                                            </span>
+                                            <span className={styles.hexTotal} style={{ fontSize: '0.9rem', color: '#fcd34d' }}>
+                                                (K-MOA {totalPriceHex.toLocaleString()} HEX)
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Currency Selection */}
+                                {/* Payment Method Selection */}
                                 <div className={styles.currencySelectGroup}>
-                                    <label className={styles.sectionSubTitle}>결제 통화 선택 (Payment Currency):</label>
-                                    <div className={styles.currencyOptions}>
+                                    <label className={styles.sectionSubTitle}>결제 수단 선택 (Payment Method):</label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                                        {/* Option 1: K-MOA 충전머니 (HEX) */}
                                         <button 
                                             type="button"
-                                            className={`${styles.currencyBtn} ${selectedCurrency === "HEX" ? styles.activeCurrency : ''}`}
-                                            onClick={() => setSelectedCurrency("HEX")}
+                                            className={`${styles.currencyBtn} ${selectedPaymentMethod === "HEX" ? styles.activeCurrency : ''}`}
+                                            onClick={() => setSelectedPaymentMethod("HEX")}
                                         >
                                             <div className={styles.curTop}>
                                                 <Coins size={18} color="#fcd34d" />
-                                                <strong>HEX 토큰 (추천)</strong>
+                                                <strong>K-MOA 충전머니</strong>
                                             </div>
                                             <span className={styles.curBalance}>
                                                 내 잔액: {wallet.hexTokenBalance.toLocaleString()} HEX
                                             </span>
-                                            <span className={styles.curDiscount}>5% DP 추가 적립</span>
+                                            <span className={styles.curDiscount}>🎁 5% DP 적립 혜택</span>
                                         </button>
 
+                                        {/* Option 2: 일반 결제 (VND / 계좌이체) */}
                                         <button 
                                             type="button"
-                                            className={`${styles.currencyBtn} ${selectedCurrency === "POINT" ? styles.activeCurrency : ''}`}
-                                            onClick={() => setSelectedCurrency("POINT")}
+                                            className={`${styles.currencyBtn} ${selectedPaymentMethod === "VND" ? styles.activeCurrency : ''}`}
+                                            onClick={() => setSelectedPaymentMethod("VND")}
+                                        >
+                                            <div className={styles.curTop}>
+                                                <CreditCard size={18} color="#2979FF" />
+                                                <strong>일반 결제 (VND/계좌이체)</strong>
+                                            </div>
+                                            <span className={styles.curBalance}>
+                                                내 잔액: {wallet.vndBalance.toLocaleString()} ₫
+                                            </span>
+                                            <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>기본 현금/이체 결제</span>
+                                        </button>
+
+                                        {/* Option 3: K-MOA 포인트 */}
+                                        <button 
+                                            type="button"
+                                            className={`${styles.currencyBtn} ${selectedPaymentMethod === "POINT" ? styles.activeCurrency : ''}`}
+                                            onClick={() => setSelectedPaymentMethod("POINT")}
                                         >
                                             <div className={styles.curTop}>
                                                 <Sparkles size={18} color="#00E676" />
-                                                <strong>KCA 포인트</strong>
+                                                <strong>K-MOA 포인트</strong>
                                             </div>
                                             <span className={styles.curBalance}>
                                                 내 잔액: {wallet.kcaPoints.toLocaleString()} P
                                             </span>
+                                            <span style={{ fontSize: '0.7rem', color: '#00E676' }}>100% 포인트 차감</span>
                                         </button>
 
+                                        {/* Option 4: K-MOA 앱 QR 스캔 */}
                                         <button 
                                             type="button"
-                                            className={`${styles.currencyBtn} ${selectedCurrency === "VND" ? styles.activeCurrency : ''}`}
-                                            onClick={() => setSelectedCurrency("VND")}
+                                            className={`${styles.currencyBtn} ${selectedPaymentMethod === "QR" ? styles.activeCurrency : ''}`}
+                                            onClick={() => setSelectedPaymentMethod("QR")}
                                         >
                                             <div className={styles.curTop}>
-                                                <CreditCard size={18} color="#2979FF" />
-                                                <strong>VND 잔액/이체</strong>
+                                                <QrCode size={18} color="#fcd34d" />
+                                                <strong>K-MOA 앱 QR스캔</strong>
                                             </div>
                                             <span className={styles.curBalance}>
-                                                내 잔액: {wallet.vndBalance.toLocaleString()} VND
+                                                모바일 앱 카메라 스캔
                                             </span>
+                                            <span style={{ fontSize: '0.7rem', color: '#fcd34d' }}>모바일 전용 결제</span>
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Wallet / Account Check */}
-                                <div className={styles.walletCheckCard}>
-                                    <div className={styles.walletCheckHeader}>
-                                        <span>결제자 계정: <strong>{user?.name || "손님"}</strong></span>
-                                        <span className={styles.walletCheckAddr}>
-                                            {wallet.onChainWalletAddress.slice(0, 8)}...{wallet.onChainWalletAddress.slice(-6)}
-                                        </span>
-                                    </div>
+                                {/* Dynamic Guide according to selected method */}
+                                {selectedPaymentMethod === "HEX" && (
+                                    <div className={styles.walletCheckCard}>
+                                        <div className={styles.walletCheckHeader}>
+                                            <span>결제 계정: <strong>{user?.name || "로그인 회원"}</strong></span>
+                                            <span className={styles.walletCheckAddr}>
+                                                {wallet.onChainWalletAddress.slice(0, 8)}...{wallet.onChainWalletAddress.slice(-6)}
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: '0.82rem', color: '#d1d5db', marginTop: '6px' }}>
+                                            결제 필요 금액: <strong style={{ color: '#fcd34d' }}>{totalPriceHex.toLocaleString()} HEX</strong> (보유 잔액: {wallet.hexTokenBalance.toLocaleString()} HEX)
+                                        </div>
 
-                                    {selectedCurrency === "HEX" && wallet.hexTokenBalance < totalPriceHex && (
-                                        <div className={styles.insufficientAlert}>
-                                            <AlertCircle size={16} />
-                                            <span>HEX 잔액이 부족합니다. (+500 HEX 충전 후 결제하세요)</span>
-                                            <button 
-                                                className={styles.inlineFaucetBtn}
-                                                onClick={async () => {
-                                                    await faucetHex(500);
+                                        {wallet.hexTokenBalance < totalPriceHex && (
+                                            <div className={styles.insufficientAlert}>
+                                                <AlertCircle size={16} />
+                                                <span>HEX 잔액이 부족합니다. (+500 HEX 충전 후 결제하세요)</span>
+                                                <button 
+                                                    className={styles.inlineFaucetBtn}
+                                                    onClick={async () => {
+                                                        await faucetHex(500);
+                                                    }}
+                                                    disabled={isLoading}
+                                                >
+                                                    +500 HEX 충전
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {selectedPaymentMethod === "QR" && (
+                                    <div style={{
+                                        background: 'rgba(0,0,0,0.4)',
+                                        borderRadius: '10px',
+                                        padding: '16px',
+                                        textAlign: 'center',
+                                        marginBottom: '16px',
+                                        border: '1px solid rgba(247, 164, 0, 0.3)'
+                                    }}>
+                                        <p style={{ fontSize: '0.85rem', color: '#fcd34d', fontWeight: 700, marginBottom: '10px' }}>
+                                            📱 K-MOA 지갑 모바일 앱으로 아래 QR을 스캔하세요
+                                        </p>
+                                        <div style={{
+                                            display: 'inline-block',
+                                            padding: '8px',
+                                            background: '#fff',
+                                            borderRadius: '8px',
+                                            marginBottom: '10px'
+                                        }}>
+                                            <img 
+                                                src={qrCodeUrl} 
+                                                alt="K-MOA Payment QR" 
+                                                style={{ width: '140px', height: '140px', display: 'block' }} 
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                            <button
+                                                type="button"
+                                                onClick={copyDeepLink}
+                                                style={{
+                                                    background: 'rgba(255,255,255,0.08)',
+                                                    border: '1px solid rgba(255,255,255,0.2)',
+                                                    color: '#fff',
+                                                    padding: '5px 10px',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.75rem',
+                                                    cursor: 'pointer'
                                                 }}
-                                                disabled={isLoading}
                                             >
-                                                +500 HEX 충전
+                                                {copiedDeepLink ? "딥링크 복사완료!" : "딥링크 URL 복사"}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={copyContract}
+                                                style={{
+                                                    background: 'rgba(255,255,255,0.08)',
+                                                    border: '1px solid rgba(255,255,255,0.2)',
+                                                    color: '#fff',
+                                                    padding: '5px 10px',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.75rem',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                {copiedContract ? "컨트랙트 복사됨!" : "컨트랙트 주소 복사"}
                                             </button>
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
 
                                 {/* Shipping Address */}
                                 <div className={styles.shippingForm}>
@@ -613,13 +719,19 @@ export default function ProductDetail() {
                                 <button 
                                     className={styles.executePayBtn}
                                     onClick={handleExecutePayment}
-                                    disabled={isLoading || (selectedCurrency === "HEX" && wallet.hexTokenBalance < totalPriceHex)}
+                                    disabled={isLoading || (selectedPaymentMethod === "HEX" && wallet.hexTokenBalance < totalPriceHex)}
                                 >
                                     {isLoading ? (
-                                        "KCA 블록체인 결제 승인 중..."
+                                        "주문 결제 승인 처리 중..."
                                     ) : (
                                         <>
-                                            {selectedCurrency === "HEX" ? `🪙 ${totalPriceHex.toLocaleString()} HEX 즉시 결제하기` : `${totalPriceVnd.toLocaleString()} VND 결제하기`}
+                                            {selectedPaymentMethod === "HEX" || selectedPaymentMethod === "QR" ? (
+                                                <>🪙 K-MOA 충전머니 {totalPriceHex.toLocaleString()} HEX로 결제하기</>
+                                            ) : selectedPaymentMethod === "POINT" ? (
+                                                <>🎟️ {(totalPriceHex * 10).toLocaleString()} P 포인트로 결제하기</>
+                                            ) : (
+                                                <>💳 {totalPriceVnd.toLocaleString()} VND 일반 결제하기</>
+                                            )}
                                             <ArrowRight size={18} />
                                         </>
                                     )}
@@ -631,9 +743,9 @@ export default function ProductDetail() {
                                 <div className={styles.successIconWrap}>
                                     <CheckCircle2 size={54} color="#00E676" />
                                 </div>
-                                <h3 className={styles.successTitle}>결제가 성공적으로 완료되었습니다!</h3>
+                                <h3 className={styles.successTitle}>주문 결제가 완료되었습니다!</h3>
                                 <p className={styles.successSub}>
-                                    KCA Merchant Open API를 통해 트랜잭션이 안전하게 체결되었습니다.
+                                    대한김치 신선 배송 준비가 시작되었습니다.
                                 </p>
 
                                 <div className={styles.receiptCard}>
@@ -653,20 +765,16 @@ export default function ProductDetail() {
                                     </div>
                                     <div className={styles.receiptRow}>
                                         <span>적립된 대한포인트</span>
-                                        <strong style={{ color: '#f7a400' }}>+{paymentReceipt.earnedDp.toLocaleString()} DP</strong>
+                                        <strong style={{ color: '#f7a400' }}>+{paymentReceipt.earnedDp.toLocaleString()} DP (5% 리워드)</strong>
                                     </div>
                                     <div className={styles.receiptRow}>
-                                        <span>트랜잭션 해시 (TX)</span>
+                                        <span>트랜잭션 ID</span>
                                         <div className={styles.txHashWrap}>
                                             <code>{paymentReceipt.txHash.slice(0, 10)}...{paymentReceipt.txHash.slice(-8)}</code>
                                             <button className={styles.copyBtn} onClick={() => copyTxHash(paymentReceipt.txHash)}>
                                                 {copiedTx ? "복사됨!" : <Copy size={13} />}
                                             </button>
                                         </div>
-                                    </div>
-                                    <div className={styles.receiptRow}>
-                                        <span>가맹점 식별자</span>
-                                        <span>{paymentReceipt.merchantId}</span>
                                     </div>
                                 </div>
 

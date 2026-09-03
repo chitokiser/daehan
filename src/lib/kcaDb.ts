@@ -1,5 +1,7 @@
-// Server-side / in-memory storage for KCA Member & Wallet DB
-// Simulates Firestore collections: 'users', 'k_culture_balances', 'merchant_settlements', 'transactions', 'orders'
+// Server-side / in-memory storage for K-MOA Member & Balance DB
+// Simulates Firestore collections: 'users', 'kmoa_balances', 'merchant_settlements', 'transactions', 'orders'
+
+import { sendAdminOrderNotification } from "./notifier";
 
 export type UserRole = "SUPER_ADMIN" | "OPERATOR" | "VIP_MEMBER" | "GOLD_MEMBER" | "MEMBER";
 
@@ -259,6 +261,35 @@ export function getUserWallet(uid: string): UserWalletData {
     return usersDb[uid];
 }
 
+export function registerOrLoginGoogleUser(googleData: {
+    email: string;
+    name: string;
+    avatar?: string;
+    sub?: string;
+}): UserWalletData {
+    const safeUid = `google_${(googleData.email || "user").replace(/[^a-zA-Z0-9]/g, "_")}`;
+    
+    if (!usersDb[safeUid]) {
+        usersDb[safeUid] = {
+            uid: safeUid,
+            name: googleData.name || "Google 회원",
+            email: googleData.email,
+            avatar: googleData.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80",
+            onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
+            hexTokenBalance: 2000.0,
+            kcaPoints: 10000,
+            vndBalance: 500000,
+            dpPoints: 3000,
+            role: "VIP_MEMBER",
+            createdAt: new Date().toISOString()
+        };
+    } else {
+        if (googleData.name) usersDb[safeUid].name = googleData.name;
+        if (googleData.avatar) usersDb[safeUid].avatar = googleData.avatar;
+    }
+    return usersDb[safeUid];
+}
+
 export function getAllUsers(): UserWalletData[] {
     return Object.values(usersDb);
 }
@@ -301,7 +332,6 @@ export function updateOrderStatus(orderId: string, status: "PAID" | "PREPARING" 
     order.status = status;
     return { success: true, order };
 }
-
 export function executePayment(params: {
     uid: string;
     merchantId: string;
@@ -323,7 +353,7 @@ export function executePayment(params: {
         if (user.hexTokenBalance < amount) {
             return {
                 success: false,
-                error: `HEX 토큰 잔액이 부족합니다. (보유: ${user.hexTokenBalance.toFixed(2)} HEX, 필요: ${amount.toFixed(2)} HEX)`
+                error: `K-MOA 충전머니 잔액이 부족합니다. (보유: ${user.hexTokenBalance.toLocaleString()} 머니, 필요: ${amount.toLocaleString()} 머니)`
             };
         }
         user.hexTokenBalance = Number((user.hexTokenBalance - amount).toFixed(2));
@@ -331,10 +361,10 @@ export function executePayment(params: {
         if (user.kcaPoints < amount) {
             return {
                 success: false,
-                error: `KCA 포인트 잔액이 부족합니다. (보유: ${user.kcaPoints} P, 필요: ${amount} P)`
+                error: `K-MOA 포인트 잔액이 부족합니다. (보유: ${user.kcaPoints.toLocaleString()} P, 필요: ${amount.toLocaleString()} P)`
             };
         }
-        user.kcaPoints -= Math.round(amount);
+        user.kcaPoints = Math.max(0, user.kcaPoints - amount);
     } else if (params.currency === "VND") {
         if (user.vndBalance < amount) {
             return {
@@ -342,17 +372,17 @@ export function executePayment(params: {
                 error: `VND 잔액이 부족합니다. (보유: ${user.vndBalance.toLocaleString()} VND, 필요: ${amount.toLocaleString()} VND)`
             };
         }
-        user.vndBalance -= Math.round(amount);
+        user.vndBalance = Math.max(0, user.vndBalance - amount);
     } else {
         return { success: false, error: "지원하지 않는 통화입니다." };
     }
 
-    // Add 5% DP 대한포인트
-    const earnedDp = Math.round(amount * 5);
-    user.dpPoints += earnedDp;
+    // 5% DP Reward calculation for K-MOA money payment
+    const earnedDp = Math.round(amount * (params.currency === "HEX" ? 50 : 0.05));
+    user.dpPoints = (user.dpPoints || 0) + earnedDp;
 
-    const txId = `tx_${params.currency.toLowerCase()}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const txHash = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
+    const txId = `KMOA-PAY-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const txHash = `kmoa_pay_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
     const timestamp = new Date().toISOString();
 
     const txRecord: WalletTransaction = {
@@ -371,7 +401,7 @@ export function executePayment(params: {
     transactionsDb.unshift(txRecord);
 
     if (params.items && params.items.length > 0) {
-        ordersDb.unshift({
+        const newOrder = {
             orderId: params.orderId,
             uid: params.uid,
             items: params.items,
@@ -385,9 +415,13 @@ export function executePayment(params: {
                 phone: user.phone || "0702116617",
                 address: "Hanoi, Vietnam"
             },
-            status: "PAID",
+            status: "PAID" as const,
             createdAt: timestamp
-        });
+        };
+        ordersDb.unshift(newOrder);
+
+        // 텔레그램 관리자 알림 비동기 전송
+        sendAdminOrderNotification(newOrder).catch(err => console.error("알림 발송 실패:", err));
     }
 
     const remainingBalance = params.currency === "HEX" 
@@ -447,6 +481,16 @@ export function getUserOrders(uid: string): MemberOrder[] {
 
 export function getAllOrders(): MemberOrder[] {
     return ordersDb;
+}
+
+export function verifyTransaction(txHash: string, orderId?: string): { verified: boolean; transaction?: WalletTransaction; order?: MemberOrder } {
+    const tx = transactionsDb.find(t => t.txHash.toLowerCase() === txHash.toLowerCase() || t.id === txHash);
+    const order = orderId ? ordersDb.find(o => o.orderId === orderId) : (tx?.orderId ? ordersDb.find(o => o.orderId === tx.orderId) : undefined);
+    
+    if (tx) {
+        return { verified: true, transaction: tx, order };
+    }
+    return { verified: false };
 }
 
 export function getAdminStats() {

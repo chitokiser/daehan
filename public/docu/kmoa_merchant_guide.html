@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-MOA 충전머니 & 포인트 가맹점 결제 연동 가이드</title>
+    <style>
+        :root {
+            --bg: #0b0c10;
+            --surface: #12141c;
+            --surface-card: #181b26;
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #e31837;
+            --primary-gold: #f7a400;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --code-bg: #0d1117;
+            --accent-green: #00E676;
+            --accent-blue: #2979FF;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(247, 164, 0, 0.15);
+            color: var(--primary-gold);
+            border: 1px solid rgba(247, 164, 0, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        h1 { font-size: 2rem; margin-bottom: 8px; color: #fff; }
+        .subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+        h2 { font-size: 1.35rem; margin: 32px 0 16px; color: var(--primary-gold); display: flex; align-items: center; gap: 8px; }
+        h3 { font-size: 1.05rem; margin: 20px 0 8px; color: #fff; }
+        p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        .card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .card h4 { color: #fff; font-size: 1rem; margin-bottom: 6px; }
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 0.85rem;
+            color: #d1d5db;
+            overflow-x: auto;
+            margin: 12px 0 20px;
+        }
+        .highlight-box {
+            background: rgba(0, 230, 118, 0.08);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin: 16px 0;
+            color: #d1d5db;
+            font-size: 0.9rem;
+        }
+        .highlight-box code {
+            color: var(--accent-green);
+            font-weight: bold;
+            word-break: break-all;
+        }
+        .btn-return {
+            display: inline-block;
+            background: var(--primary);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="badge">K-MOA MONEY & POINT GATEWAY v2.0</span>
+        <h1>K-MOA 충전머니 & 포인트 결제 연동 가이드</h1>
+        <p class="subtitle">대한김치 및 K-컬처 쇼핑몰 가맹점을 위한 K-MOA 충전머니 & 포인트 즉시 결제 규격서</p>
+
+        <h2>1. K-MOA 결제 시스템 및 회원 DB 공유 개요</h2>
+        <p><strong>K-MOA 결제 시스템</strong>은 K-컬처 가맹점 생태계에서 <strong>K-MOA 충전머니(1 머니 = 1,000 VND)</strong>와 <strong>포인트</strong>를 매개로 온/오프라인 즉시 결제를 지원하는 통합 머니 결제 게이트웨이입니다.</p>
+        <p>회원 DB를 통합 공유하여 단 한 번의 로그인으로 모든 가맹점에서 충전머니 잔액과 포인트를 바로 사용할 수 있습니다.</p>
+
+        <div class="grid2">
+            <div class="card">
+                <h4>⚡ 1초 즉시 결제</h4>
+                <p>회원 계정에 충전된 머니 또는 포인트로 주문서에서 즉시 승인 및 자동 차감 결제됩니다.</p>
+            </div>
+            <div class="card">
+                <h4>🎁 5% 대한포인트(DP) 적립</h4>
+                <p>K-MOA 충전머니 결제 시 결제 금액의 5%가 대한포인트(DP)로 자동 적립됩니다.</p>
+            </div>
+            <div class="card">
+                <h4>👥 공통 회원 DB & 잔액 공유</h4>
+                <p>Google 소셜 로그인 및 회원 ID를 통해 가맹점 간 잔액과 구매 내역이 안전하게 동기화됩니다.</p>
+            </div>
+            <div class="card">
+                <h4>📱 모바일 앱 QR 스캔 결제</h4>
+                <p>쇼핑몰 주문서에 생성된 Dynamic QR 코드를 K-MOA 모바일 앱으로 스캔하여 결제합니다.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <strong>가맹점 식별 코드 (Merchant ID):</strong><br>
+            <code>daehan_kimchi_store</code>
+        </div>
+
+        <h2>2. 결제 승인 REST API 규격</h2>
+        <h3>POST /api/v1/kmoa/pay</h3>
+        <p>구매자의 K-MOA 충전머니 또는 포인트 잔액을 검증하고 결제를 승인합니다.</p>
+        
+        <div class="code-block">
+// Request Header
+Content-Type: application/json
+Authorization: Bearer {MERCHANT_SECRET_KEY}
+
+// Request Body
+{
+  "uid": "user_daehan_vip01",
+  "merchantId": "daehan_kimchi_store",
+  "currency": "HEX", // "HEX"(K-MOA 충전머니) | "POINT" | "VND"
+  "amount": 90,
+  "orderId": "ORD-KMOA-20260902-001",
+  "items": [
+    {
+      "productId": 1,
+      "productName": "배추김치 (포기김치 1Kg)",
+      "quantity": 1,
+      "priceVnd": 90000,
+      "priceHex": 90
+    }
+  ],
+  "shippingAddress": {
+    "recipient": "최민준",
+    "phone": "0702116617",
+    "address": "Hanoi, Nam Tu Liem, My Dinh Song Da, Villa #12"
+  }
+}
+
+// Response (200 OK)
+{
+  "success": true,
+  "message": "K-MOA 충전머니 결제가 성공적으로 승인되었습니다.",
+  "transactionId": "KMOA-PAY-M928K-1829",
+  "receipt": {
+    "orderId": "ORD-KMOA-20260902-001",
+    "paidAmount": 90,
+    "currency": "HEX",
+    "remainingBalance": 2410,
+    "earnedDp": 4500,
+    "txHash": "kmoa_pay_1788316200_a8f9b2"
+  }
+}
+        </div>
+
+        <h2>3. 결제 검증 및 주문 조회 REST API</h2>
+        <h3>GET /api/v1/kmoa/verify?orderId={ORDER_ID}</h3>
+        <div class="code-block">
+// Response (200 OK)
+{
+  "success": true,
+  "data": {
+    "orderId": "ORD-KMOA-20260902-001",
+    "status": "PAID",
+    "paidAmount": 90,
+    "currency": "HEX",
+    "txId": "KMOA-PAY-M928K-1829",
+    "createdAt": "2026-09-02T02:50:00Z"
+  }
+}
+        </div>
+
+        <a href="/" class="btn-return">대한김치 메인으로 돌아가기</a>
+    </div>
+</body>
+</html>

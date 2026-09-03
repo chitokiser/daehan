@@ -1,0 +1,16 @@
+{
+  "name": "대한김치 (DAEHAN KIMCHI)",
+  "short_name": "대한김치",
+  "description": "대한민국 정통 프리미엄 발효김치 쇼핑몰 & K-MOA 결제 시스템",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0c10",
+  "theme_color": "#0b0c10",
+  "icons": [
+    {
+      "src": "/images/favicon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

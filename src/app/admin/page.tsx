@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import styles from "./page.module.css";
-import { useUserWallet, UserRole } from "@/context/UserWalletContext";
+import { useUserWallet, UserRole, MemberOrder } from "@/context/UserWalletContext";
 import { products, vndToHex } from "@/data/products";
 import Link from "next/link";
 import { 
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
     });
 
     // Filter orders
-    const filteredOrders = allOrders.filter(o => {
+    const filteredOrders = (allOrders || []).filter((o: MemberOrder) => {
         if (orderFilter === "ALL") return true;
         return o.status === orderFilter;
     });
@@ -381,7 +381,7 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredOrders.map(order => (
+                                {filteredOrders.map((order: MemberOrder) => (
                                     <tr key={order.orderId}>
                                         <td>
                                             <strong>{order.orderId}</strong>
@@ -389,7 +389,7 @@ export default function AdminDashboard() {
                                         </td>
                                         <td>
                                             <div className={styles.orderItemsList}>
-                                                {order.items.map((it, i) => (
+                                                {order.items.map((it: any, i: number) => (
                                                     <div key={i} className={styles.orderItemSnippet}>
                                                         <img src={it.image} alt={it.productName} className={styles.tinyThumb} />
                                                         <span>{it.productName} x {it.quantity}</span>
@@ -476,13 +476,13 @@ export default function AdminDashboard() {
                 </section>
             )}
 
-            {/* TAB 4: API & CONTRACT SETTINGS */}
+            {/* TAB 4: API & GATEWAY SETTINGS */}
             {activeTab === "api" && (
                 <section className={styles.panelSection}>
-                    <h2 className={styles.panelHeading}>KCA Merchant API 및 스마트 컨트랙트 연동 스펙</h2>
+                    <h2 className={styles.panelHeading}>K-MOA Merchant 결제 게이트웨이 연동 스펙 (No Web3)</h2>
                     <p className={styles.panelDesc}>
-                        <a href="https://jump22.netlify.app/kca_merchant_api.html" target="_blank" rel="noreferrer" style={{ color: '#fcd34d', textDecoration: 'underline' }}>
-                            KCA Merchant Open API 공식 문서 바로가기 <ExternalLink size={14} style={{ verticalAlign: 'middle' }} />
+                        <a href="https://kmoa.netlify.app/kmoa_merchant_guide.html" target="_blank" rel="noreferrer" style={{ color: '#fcd34d', textDecoration: 'underline' }}>
+                            K-MOA Merchant API 공식 가이드 바로가기 <ExternalLink size={14} style={{ verticalAlign: 'middle' }} />
                         </a>
                     </p>
 
@@ -492,20 +492,20 @@ export default function AdminDashboard() {
                             <code>daehan_kimchi_store</code>
                         </div>
                         <div className={styles.apiSpecItem}>
-                            <span>Merchant API Key (비밀키)</span>
-                            <code>kca_merchant_sec_daehan2026_99x</code>
+                            <span>Merchant API Secret (인증키)</span>
+                            <code>Bearer sk_kmoa_sec_daehan2026_99x</code>
                         </div>
                         <div className={styles.apiSpecItem}>
-                            <span>HEX Token Smart Contract Address</span>
-                            <code>0xa4850A83D219b5706D638cC28244EFe2bF8bdb40</code>
+                            <span>회원 DB & 결제 엔진</span>
+                            <code>Firebase Auth UID + Firestore Realtime Engine (0.1s 원자적 처리)</code>
                         </div>
                         <div className={styles.apiSpecItem}>
-                            <span>KCA Cloud Functions API Root</span>
+                            <span>K-MOA Cloud Functions API Root</span>
                             <code>https://us-central1-kca-platform.cloudfunctions.net/api/v1</code>
                         </div>
                         <div className={styles.apiSpecItem}>
-                            <span>Internal Local API Gateway</span>
-                            <code>/api/v1/wallet/[uid] & /api/v1/wallet/pay</code>
+                            <span>추천인(Mentor) 자동 가입 URL</span>
+                            <code>https://kmoa.netlify.app/register.html?mentor=daehan_kimchi_store</code>
                         </div>
                     </div>
                 </section>

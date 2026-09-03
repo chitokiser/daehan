@@ -100,7 +100,7 @@ export default function WebzineServicePage() {
         if (!promptToUse.trim()) return;
 
         setGenerating(true);
-        setGenMessage("AI 이미지 생성 엔진(ZENTARO Vision API)으로 새로운 비주얼을 합성하는 중입니다...");
+        setGenMessage("AI 이미지 생성 엔진(대한김치 AI Studio API)으로 새로운 비주얼을 합성하는 중입니다...");
 
         try {
             const res = await fetch("/api/images", {
@@ -147,7 +147,7 @@ export default function WebzineServicePage() {
             <header className={styles.header}>
                 <div className={styles.badgeWrapper}>
                     <span className={styles.heroBadge}>
-                        <Sparkles size={14} className={styles.sparkleIcon} /> ZENTAROLAB FERMENTATION IMAGE & WEBZINE API
+                        <Sparkles size={14} className={styles.sparkleIcon} /> 대한김치 FERMENTATION IMAGE & WEBZINE API
                     </span>
                 </div>
                 <h1 className={`${styles.title} text-gradient`}>FERMENTATION WEBZINE</h1>
