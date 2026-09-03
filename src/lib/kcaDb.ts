@@ -141,7 +141,7 @@ const transactionsDb: WalletTransaction[] = [
         type: "REWARD",
         currency: "HEX",
         amount: 2500,
-        description: "KCA 발효 미식 생태계 가입 기념 HEX 에어드롭",
+        description: "K-MOA 대한김치 가입 기념 충전머니 지급",
         status: "CONFIRMED",
         txHash: "0x8fa928bc19d08e82710bb8a72b14c3e89a0123ef456789abcdef0123456789ab",
         timestamp: "2026-08-20T10:00:00Z"
@@ -154,7 +154,7 @@ const transactionsDb: WalletTransaction[] = [
         type: "PAYMENT",
         currency: "HEX",
         amount: 180,
-        description: "포기김치 1Kg + 깍두기 1Kg HEX 토큰 결제",
+        description: "포기김치 1Kg + 깍두기 1Kg K-MOA 머니 결제",
         status: "CONFIRMED",
         txHash: "0x98ab123ef0123456789abcdef0123456789ab8fa928bc19d08e82710bb8a72b1",
         timestamp: "2026-08-25T14:32:10Z"
@@ -167,7 +167,7 @@ const transactionsDb: WalletTransaction[] = [
         type: "PAYMENT",
         currency: "HEX",
         amount: 130,
-        description: "실비김치 1Kg HEX 토큰 결제",
+        description: "실비김치 1Kg K-MOA 머니 결제",
         status: "CONFIRMED",
         txHash: "0x11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff",
         timestamp: "2026-08-29T16:10:00Z"
@@ -458,7 +458,7 @@ export function faucetWallet(uid: string, hexAmount: number = 500): { success: b
         type: "FAUCET",
         currency: "HEX",
         amount: hexAmount,
-        description: `KCA 테스트넷 HEX 토큰 ${hexAmount} 에어드롭 충전`,
+        description: `K-MOA 대한김치 충전머니 ${hexAmount} 추가 지급`,
         status: "CONFIRMED",
         txHash: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
         timestamp: new Date().toISOString()

@@ -22,7 +22,7 @@ export default function Header() {
         if (res.success) {
             setLoginModalOpen(false);
             setDropdownOpen(false);
-            alert(`🎉 Google 계정(${res.user?.email})으로 로그인되었습니다!\n가입 기념 2,000 HEX 및 10,000 P가 지급되었습니다.`);
+            alert(`🎉 K-MOA 회원 계정(${res.user?.email})으로 로그인되었습니다!\n가입 기념 2,000 K-MOA 머니 및 10,000 포인트가 지급되었습니다.`);
         } else {
             alert(`로그인 실패: ${res.error}`);
         }
@@ -32,7 +32,7 @@ export default function Header() {
         e.stopPropagation();
         const success = await faucetHex(500);
         if (success) {
-            alert("🎉 500 HEX 토큰이 성공적으로 지갑에 지급되었습니다!");
+            alert("🎉 500 K-MOA 충전머니가 성공적으로 지급되었습니다!");
         }
     };
 
