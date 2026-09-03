@@ -21,9 +21,17 @@
 }
 
 .logoImg {
-    height: 48px;
+    height: 56px;
     width: auto;
+    max-width: 200px;
     object-fit: contain;
+    mix-blend-mode: lighten;
+    filter: brightness(1.15) contrast(1.1);
+    transition: opacity 0.2s ease;
+}
+
+.logoImg:hover {
+    opacity: 0.85;
 }
 
 .nav {

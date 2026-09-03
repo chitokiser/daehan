@@ -46,7 +46,11 @@ export default function Header() {
         <>
             <header className={styles.header}>
                 <Link href="/" className={styles.logoLink}>
-                    <img src="/images/logo2.png" alt="대한김치" className={styles.logoImg} />
+                    <img 
+                        src="/images/logo1.png" 
+                        alt="대한김치" 
+                        className={styles.logoImg}
+                    />
                 </Link>
 
                 <nav className={styles.nav}>
