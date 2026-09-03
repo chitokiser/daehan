@@ -25,8 +25,8 @@
     width: auto;
     max-width: 200px;
     object-fit: contain;
-    mix-blend-mode: lighten;
-    filter: brightness(1.15) contrast(1.1);
+    filter: invert(1) brightness(1.1);
+    mix-blend-mode: screen;
     transition: opacity 0.2s ease;
 }
 
