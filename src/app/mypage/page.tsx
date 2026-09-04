@@ -47,7 +47,7 @@ export default function MyPageDashboard() {
         await refreshWallet();
         setTimeout(() => {
             setSyncing(false);
-            alert("K-MOA 회원 DB 및 충전머니/포인트 잔액이 성공적으로 동기화되었습니다!");
+            alert("잔액 및 주문 내역이 성공적으로 동기화되었습니다!");
         }, 600);
     };
 
@@ -65,7 +65,7 @@ export default function MyPageDashboard() {
                     </div>
                     <div>
                         <div className={styles.nameRow}>
-                            <h1 className={styles.userName}>{user?.name || "K-MOA 회원"}</h1>
+                            <h1 className={styles.userName}>{user?.name || "대한김치 회원"}</h1>
                             <span className={styles.roleTag}>{user?.role || "VIP_MEMBER"}</span>
                         </div>
                         <p className={styles.userEmail}>{user?.email || "user@daehankimchi.com"}</p>
@@ -79,7 +79,7 @@ export default function MyPageDashboard() {
                         style={{ textDecoration: 'none', color: '#fcd34d', borderColor: 'rgba(247, 164, 0, 0.4)' }}
                     >
                         <ExternalLink size={14} />
-                        K-MOA 결제 가이드
+                        포인트 결제 안내
                     </Link>
                     <button 
                         className={styles.syncBtn} 
@@ -87,7 +87,7 @@ export default function MyPageDashboard() {
                         disabled={syncing || isLoading}
                     >
                         <RefreshCw size={15} className={syncing ? styles.spinning : ''} />
-                        {syncing ? "동기화 중..." : "K-MOA DB 동기화"}
+                        {syncing ? "동기화 중..." : "잔액 동기화"}
                     </button>
                     <Link href="/shop" className="btn-primary" style={{ padding: '8px 20px', fontSize: '0.9rem' }}>
                         <ShoppingBag size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />
@@ -104,10 +104,10 @@ export default function MyPageDashboard() {
                         <div className={styles.cardIconWrap}>
                             <Coins size={24} color="#fcd34d" />
                         </div>
-                        <span className={styles.cardBadge}>K-MOA 충전머니</span>
+                        <span className={styles.cardBadge}>충전 잔액</span>
                     </div>
                     <div className={styles.cardContent}>
-                        <span className={styles.cardLabel}>보유 K-MOA 머니</span>
+                        <span className={styles.cardLabel}>보유 충전 잔액</span>
                         <div className={styles.mainAmount}>
                             {wallet.hexTokenBalance.toLocaleString()}
                             <span className={styles.unit}>머니</span>
@@ -134,10 +134,10 @@ export default function MyPageDashboard() {
                         <div className={styles.cardIconWrap} style={{ background: 'rgba(0, 230, 118, 0.15)' }}>
                             <Sparkles size={24} color="#00E676" />
                         </div>
-                        <span className={styles.cardBadge} style={{ color: '#00E676', borderColor: 'rgba(0, 230, 118, 0.3)' }}>K-MOA 플랫폼</span>
+                        <span className={styles.cardBadge} style={{ color: '#00E676', borderColor: 'rgba(0, 230, 118, 0.3)' }}>적립 포인트</span>
                     </div>
                     <div className={styles.cardContent}>
-                        <span className={styles.cardLabel}>K-MOA 포인트 잔액</span>
+                        <span className={styles.cardLabel}>적립 포인트 잔액</span>
                         <div className={styles.mainAmount} style={{ color: '#00E676' }}>
                             {wallet.kcaPoints.toLocaleString()}
                             <span className={styles.unit}>P</span>
@@ -193,7 +193,7 @@ export default function MyPageDashboard() {
             <div className={styles.addressBar}>
                 <div className={styles.addrLeft}>
                     <Wallet size={18} color="#00E676" />
-                    <span className={styles.addrLabel}>K-MOA 회원 식별 코드:</span>
+                    <span className={styles.addrLabel}>회원 식별 코드:</span>
                     <code className={styles.addrCode}>{wallet.onChainWalletAddress}</code>
                 </div>
                 <div className={styles.addrRight}>

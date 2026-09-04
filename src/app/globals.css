@@ -1,27 +1,38 @@
 /* src/app/globals.css */
 :root {
-  /* Premium Dark Theme Core Colors */
-  --bg-color: #0b0c10;
-  --surface-color: rgba(25, 27, 34, 0.7);
-  --primary-color: #e31837; /* vibrant red for Kimchi/Premium feel */
-  --primary-hover: #b91029;
-  --secondary-color: #f7a400; /* vibrant gold/orange */
-  
-  /* Text */
-  --text-main: #ffffff;
-  --text-muted: #a0a4ab;
+  /* === 웜 라이트 테마 (대한김치 리뉴얼) === */
 
-  /* Borders & Shadows */
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  
-  /* Radii */
+  /* 배경 - 따뜻한 아이보리 계열 */
+  --bg-color: #FFF8F0;
+  --bg-secondary: #FFF3E6;
+  --surface-color: rgba(255, 255, 255, 0.85);
+  --surface-card: #FFFFFF;
+
+  /* 포인트 컬러 - 한국 전통 단청 빨강 + 황금 고추 */
+  --primary-color: #C8392B;       /* 단청 빨강 */
+  --primary-hover: #A52D21;
+  --secondary-color: #E8A020;     /* 황금 고추 */
+  --secondary-hover: #C88018;
+  --accent-deep: #3D2B1F;         /* 짙은 고동색 (텍스트) */
+
+  /* 텍스트 */
+  --text-main: #2C1810;           /* 짙은 갈색 (식품 쇼핑몰 최적) */
+  --text-sub: #5C4033;
+  --text-muted: #8D6E63;
+
+  /* 테두리 & 그림자 */
+  --border-subtle: rgba(180, 120, 80, 0.2);
+  --border-warm: rgba(200, 57, 43, 0.15);
+  --glass-shadow: 0 4px 24px rgba(60, 30, 10, 0.1);
+  --card-shadow: 0 2px 12px rgba(60, 30, 10, 0.08);
+
+  /* 반경 */
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-full: 9999px;
-  
-  /* Layout */
+
+  /* 레이아웃 */
   --max-width: 1200px;
 }
 
@@ -47,17 +58,17 @@ a {
   text-decoration: none;
 }
 
-/* Glassmorphism Utilities */
+/* 카드 패널 */
 .glass-panel {
   background: var(--surface-color);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--card-shadow);
 }
 
-/* Text Gradients */
+/* 텍스트 그라디언트 */
 .text-gradient {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   -webkit-background-clip: text;
@@ -65,17 +76,17 @@ a {
   background-clip: text;
 }
 
-/* Micro Animations */
+/* 마이크로 애니메이션 */
 .hover-lift {
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
 }
 
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 40px rgba(227, 24, 55, 0.2);
+  box-shadow: 0 10px 32px rgba(200, 57, 43, 0.18);
 }
 
-/* Common Layout */
+/* 공통 레이아웃 */
 .container {
   width: 100%;
   max-width: var(--max-width);
@@ -83,26 +94,44 @@ a {
   padding: 0 24px;
 }
 
-/* Base Buttons */
+/* 기본 버튼 */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: #fff;
   border: none;
   border-radius: var(--radius-full);
   padding: 12px 28px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(227, 24, 55, 0.3);
+  box-shadow: 0 4px 15px rgba(200, 57, 43, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .btn-primary:hover {
   transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(227, 24, 55, 0.5);
+  box-shadow: 0 6px 20px rgba(200, 57, 43, 0.4);
 }
 
-/* Full height center */
+/* 보조 버튼 */
+.btn-secondary {
+  background: #fff;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--radius-full);
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+/* 전체 중앙 정렬 */
 .flex-center {
   display: flex;
   align-items: center;

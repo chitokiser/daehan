@@ -10,7 +10,7 @@ export default function Footer() {
                         <img src="/images/logo2.png" alt="대한김치" className={styles.footerLogoImg} />
                     </Link>
                     <p className={styles.brandDesc}>
-                        30년 장인의 손맛과 철저한 위생 관리 프로세스(HACCP).<br />
+                        30년 장인의 손맛과 꼼꼼한 위생 관리.<br />
                         하노이 중심에서 전하는 완벽한 발효과학의 비밀.
                     </p>
                 </div>

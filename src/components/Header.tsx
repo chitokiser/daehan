@@ -22,7 +22,7 @@ export default function Header() {
         if (res.success) {
             setLoginModalOpen(false);
             setDropdownOpen(false);
-            alert(`🎉 K-MOA 회원 계정(${res.user?.email})으로 로그인되었습니다!\n가입 기념 2,000 K-MOA 머니 및 10,000 포인트가 지급되었습니다.`);
+            alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!\n가입 기념 2,000 포인트 및 10,000 적립금이 지급되었습니다.`);
         } else {
             alert(`로그인 실패: ${res.error}`);
         }
@@ -32,7 +32,7 @@ export default function Header() {
         e.stopPropagation();
         const success = await faucetHex(500);
         if (success) {
-            alert("🎉 500 K-MOA 충전머니가 성공적으로 지급되었습니다!");
+            alert("🎉 500 포인트가 성공적으로 적립되었습니다!");
         }
     };
 
@@ -104,11 +104,11 @@ export default function Header() {
 
                                     <div className={styles.balancesBlock}>
                                         <div className={styles.balanceItem}>
-                                            <span>🪙 K-MOA 머니:</span>
+                                            <span>🪙 충전 잔액:</span>
                                             <strong>{wallet.hexTokenBalance.toLocaleString()} 머니</strong>
                                         </div>
                                         <div className={styles.balanceItem}>
-                                            <span>🎟️ K-MOA 포인트:</span>
+                                            <span>🎟️ 적립 포인트:</span>
                                             <strong>{wallet.kcaPoints.toLocaleString()} P</strong>
                                         </div>
                                         <div className={styles.balanceItem}>
@@ -123,13 +123,13 @@ export default function Header() {
 
                                     <div className={styles.dropdownActions}>
                                         <button className={styles.faucetActionBtn} onClick={handleFaucet} disabled={isLoading}>
-                                            <Sparkles size={14} /> +500 K-MOA 머니 무료 충전
+                                            <Sparkles size={14} /> +500 포인트 무료 적립
                                         </button>
                                         <Link href="/mypage" className={styles.dropdownLink} onClick={() => setDropdownOpen(false)}>
-                                            <User size={15} /> K-MOA 머니 & 주문 내역 관리
+                                            <User size={15} /> 충전 잔액 & 주문 내역
                                         </Link>
                                         <Link href="/kmoa-guide" className={styles.dropdownLink} onClick={() => setDropdownOpen(false)} style={{ color: '#fcd34d' }}>
-                                            <Coins size={15} color="#fcd34d" /> K-MOA 가맹점 결제 가이드
+                                            <Coins size={15} color="#fcd34d" /> 포인트 결제 안내
                                         </Link>
                                         {isOperator && (
                                             <Link href="/admin" className={`${styles.dropdownLink} ${styles.adminDropdownLink}`} onClick={() => setDropdownOpen(false)}>
@@ -172,7 +172,7 @@ export default function Header() {
                                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                                 </svg>
-                                K-MOA 회원 로그인
+                                회원 로그인
                             </button>
                             <button className="btn-primary" style={{ padding: '7px 16px', fontSize: '0.85rem' }} onClick={() => setLoginModalOpen(true)}>
                                 <Wallet size={15} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
@@ -192,7 +192,7 @@ export default function Header() {
                             <button className={styles.modalClose} onClick={() => setLoginModalOpen(false)}>✕</button>
                         </div>
                         <p className={styles.modalDesc}>
-                            K-MOA 회원 계정(Google)으로 바로 시작하거나, 테스트용 계정을 선택하세요.
+                            Google 계정으로 로그인하거나, 테스트용 계정을 선택하세요.
                         </p>
 
                         {/* Google Social Login Primary Button */}
@@ -225,7 +225,7 @@ export default function Header() {
                                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                                 </svg>
-                                <span>K-MOA 회원으로 Google 계정 계속하기</span>
+                                <span>Google 계정으로 계속하기</span>
                             </button>
 
                             <div style={{ marginTop: '8px', textAlign: 'center' }}>

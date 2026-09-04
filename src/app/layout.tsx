@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "대한김치 (DAEHAN KIMCHI) | 대한민국 정통 프리미엄 발효김치",
-  description: "대한민국 30년 전통 비법과 안심 식자재로 담근 대한김치 공식 쇼핑몰 & K-MOA 충전머니 결제",
+  description: "대한민국 30년 전통 비법과 안심 식자재로 담근 대한김치 공식 쇼핑몰. 하노이 현지 직접 생산, 신선 직배송.",
   manifest: "/manifest.json",
   icons: {
     icon: "/images/favicon.png",

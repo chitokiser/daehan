@@ -51,19 +51,19 @@ export default function Shop() {
                 </div>
                 <h1 className={`${styles.title} text-gradient`}>DAEHAN KIMCHI SHOP</h1>
                 <p className={styles.description}>
-                    30년 전통의 발효 비법과 HACCP 인증 클린룸 시설에서 정성껏 담근 대한김치의 15가지 정통 라인업.<br />
-                    신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 일반 결제(VND/계좌이체) 및 K-MOA 충전머니, 포인트로 간편 결제할 수 있습니다.
+                    30년 전통의 발효 비법과 HACCP 기준 위생 관리 환경에서 정성껏 담근 대한김치의 15가지 정통 라인업.<br />
+                    신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 일반 결제(VND/계좌이체) 및 포인트로 간편 결제할 수 있습니다.
                 </p>
 
                 {/* K-MOA Crypto & Web3 Banner */}
                 <div className={styles.hexNoticeBar}>
                     <div className={styles.hexNoticeItem}>
                         <Coins size={18} color="#fcd34d" />
-                        <span><strong>결제 안내:</strong> 일반 결제(VND/계좌이체) 및 K-MOA 충전머니(HEX) 결제 시 5% DP 대한포인트 즉시 적립</span>
+                        <span><strong>결제 안내:</strong> 일반 결제(VND/계좌이체) 또는 포인트 결제 시 5% 대한포인트 즉시 적립</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Link href="/kmoa-guide" style={{ color: '#fcd34d', fontSize: '0.82rem', textDecoration: 'underline', fontWeight: 600 }}>
-                            K-MOA 결제안내
+                            포인트 결제 안내
                         </Link>
                         {isLoggedIn && (
                             <div className={styles.hexBalancePill}>
