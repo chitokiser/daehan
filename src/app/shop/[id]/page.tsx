@@ -12,6 +12,7 @@ import {
     CreditCard, ArrowRight, CheckCircle2, AlertCircle, Copy,
     QrCode, ExternalLink, Zap, Shield, ShoppingCart
 } from "lucide-react";
+import ShareButtons from "@/components/ShareButtons";
 
 export default function ProductDetail() {
     const params = useParams();
@@ -348,6 +349,14 @@ export default function ProductDetail() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* ===== 소셜 공유 ===== */}
+            <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px' }}>
+                <ShareButtons
+                    title={`${product.koreanName} | 대한김치 (DAEHAN KIMCHI)`}
+                    description={product.desc || product.name}
+                />
             </div>
 
             {/* Product Specifications Table */}

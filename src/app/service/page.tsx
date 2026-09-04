@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { Sparkles, Search, SlidersHorizontal, Heart, Bookmark, Eye, X, RefreshCw, Send, BookOpen, Thermometer, FlaskConical, Award } from "lucide-react";
+import ShareButtons from "@/components/ShareButtons";
 
 interface ArticleImageItem {
     id: string;
@@ -403,6 +404,14 @@ export default function WebzineServicePage() {
                                             <Eye size={16} /> 상세 보기
                                         </button>
                                     </div>
+                                </div>
+                                {/* 소셜 공유 버튼 (카드) */}
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <ShareButtons
+                                        title={`${article.title} | 대한김치 발효 웹진`}
+                                        description={article.excerpt}
+                                        compact={true}
+                                    />
                                 </div>
                             </div>
                         </article>

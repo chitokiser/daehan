@@ -1,0 +1,86 @@
+.shareWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 0;
+    border-top: 1px solid rgba(180, 120, 80, 0.18);
+    margin-top: 8px;
+}
+
+.shareLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #8D6E63;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.shareButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.shareBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.18s ease, transform 0.15s ease;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.shareBtn:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+.shareBtn:active {
+    transform: scale(0.97);
+}
+
+.copied {
+    animation: popIn 0.2s ease;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.95); }
+    60% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* 컴팩트 모드 - 아이콘만 */
+.compact .shareButtons {
+    gap: 6px;
+}
+
+.compact .shareBtn {
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+}
+
+@media (max-width: 480px) {
+    .shareBtn span {
+        display: none;
+    }
+    .shareBtn {
+        padding: 8px;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        justify-content: center;
+    }
+}
