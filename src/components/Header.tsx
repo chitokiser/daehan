@@ -5,6 +5,7 @@ import Link from "next/link";
 import styles from "./Header.module.css";
 import { useUserWallet } from "@/context/UserWalletContext";
 import { User, LogOut, ChevronDown, ShieldAlert, Wallet } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
     const { user, wallet, isLoggedIn, login, loginWithGoogle, logout, isLoading } = useUserWallet();
@@ -16,13 +17,51 @@ export default function Header() {
     const isSuperAdmin = user?.role === "SUPER_ADMIN";
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
 
-    const handleGoogleLogin = async (customEmail?: string) => {
-        const emailToUse = customEmail || googleEmailInput.trim() || undefined;
+    const handleRealGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                });
+                const userInfo = await res.json();
+                
+                if (userInfo.email) {
+                    const loginRes = await loginWithGoogle(userInfo.email, userInfo.name);
+                    if (loginRes.success) {
+                        setLoginModalOpen(false);
+                        setDropdownOpen(false);
+                        alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
+                    } else {
+                        alert(`로그인 실패: ${loginRes.error}`);
+                    }
+                }
+            } catch (err) {
+                console.error("Google Auth Error:", err);
+                alert("구글 로그인 처리 중 오류가 발생했습니다.");
+            }
+        },
+        onError: errorResponse => {
+            console.error("Google Auth Error:", errorResponse);
+            if (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID === undefined) {
+                alert("Google Client ID가 설정되지 않았습니다. .env 파일에 NEXT_PUBLIC_GOOGLE_CLIENT_ID를 등록해주세요.");
+            } else {
+                alert("구글 로그인에 실패했습니다.");
+            }
+        }
+    });
+
+    const handleEmailLogin = async (customEmail?: string) => {
+        let emailToUse = customEmail || googleEmailInput.trim();
+        if (!emailToUse) {
+            alert("이메일을 입력해주세요.");
+            return;
+        }
+
         const res = await loginWithGoogle(emailToUse);
         if (res.success) {
             setLoginModalOpen(false);
             setDropdownOpen(false);
-            alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!\n가입 기념 2,000 포인트 및 10,000 적립금이 지급되었습니다.`);
+            alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
         } else {
             alert(`로그인 실패: ${res.error}`);
         }
@@ -78,6 +117,10 @@ export default function Header() {
 
                                     <div className={styles.balancesBlock}>
                                         <div className={styles.balanceItem}>
+                                            <span>💎 K-MOA 머니:</span>
+                                            <strong>{wallet.hexBalance?.toLocaleString() || 0} HEX</strong>
+                                        </div>
+                                        <div className={styles.balanceItem}>
                                             <span>🎟️ 적립 포인트:</span>
                                             <strong>{wallet.points.toLocaleString()} P</strong>
                                         </div>
@@ -101,7 +144,7 @@ export default function Header() {
                                             </Link>
                                         )}
                                         <button className={styles.switchUserBtn} onClick={() => { setDropdownOpen(false); setLoginModalOpen(true); }}>
-                                            계정 전환
+                                            다른 계정 로그인
                                         </button>
                                         <button className={styles.logoutBtn} onClick={() => { logout(); setDropdownOpen(false); }}>
                                             <LogOut size={15} /> 로그아웃
@@ -113,7 +156,7 @@ export default function Header() {
                     ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <button
-                                onClick={() => handleGoogleLogin()}
+                                onClick={() => setLoginModalOpen(true)}
                                 disabled={isLoading}
                                 style={{
                                     background: '#ffffff',
@@ -138,10 +181,6 @@ export default function Header() {
                                 </svg>
                                 로그인
                             </button>
-                            <button className="btn-primary" style={{ padding: '7px 16px', fontSize: '0.85rem' }} onClick={() => setLoginModalOpen(true)}>
-                                <Wallet size={15} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                                계정 전환
-                            </button>
                         </div>
                     )}
                 </div>
@@ -152,18 +191,18 @@ export default function Header() {
                 <div className={styles.modalOverlay} onClick={() => setLoginModalOpen(false)}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
-                            <h3>로그인 & 계정 전환</h3>
+                            <h3>로그인</h3>
                             <button className={styles.modalClose} onClick={() => setLoginModalOpen(false)}>✕</button>
                         </div>
                         <p className={styles.modalDesc}>
-                            Google 계정으로 로그인하거나, 테스트용 계정을 선택하세요.
+                            Google 계정 또는 이메일로 로그인하세요.
                         </p>
 
                         {/* Google Social Login */}
                         <div style={{ marginBottom: '20px' }}>
                             <button
                                 type="button"
-                                onClick={() => handleGoogleLogin()}
+                                onClick={() => handleRealGoogleLogin()}
                                 disabled={isLoading}
                                 style={{
                                     width: '100%',
@@ -223,7 +262,7 @@ export default function Header() {
                                         type="button"
                                         className="btn-primary"
                                         style={{ padding: '8px 16px', fontSize: '0.85rem' }}
-                                        onClick={() => handleGoogleLogin()}
+                                        onClick={() => handleEmailLogin()}
                                     >
                                         로그인
                                     </button>
@@ -231,34 +270,7 @@ export default function Header() {
                             )}
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', textAlign: 'center', color: '#9ca3af', fontSize: '0.75rem', margin: '16px 0 12px' }}>
-                            <div style={{ flex: 1, borderBottom: '1px solid rgba(0,0,0,0.10)' }}></div>
-                            <span style={{ padding: '0 10px' }}>또는 테스트 계정으로 체험</span>
-                            <div style={{ flex: 1, borderBottom: '1px solid rgba(0,0,0,0.10)' }}></div>
-                        </div>
 
-                        <div className={styles.accountList}>
-                            {[
-                                { uid: "admin_super_daehan", emoji: "👑", name: "최고 관리자 (Super Admin)", desc: "운영자 지정 권한 보유", email: "super.admin@daehankimchi.com" },
-                                { uid: "operator_hanoi_01", emoji: "🛡️", name: "김하노이 (쇼핑몰 운영자)", desc: "주문 및 배송 관리 권한", email: "op.hanoi@daehankimchi.com" },
-                                { uid: "user_daehan_vip01", emoji: "⭐", name: "최민준 (VIP 회원)", desc: "VIP_MEMBER", email: "min.jun@gmail.com" },
-                                { uid: "user_hanoi_kca02", emoji: "🇻🇳", name: "응우옌 티 마이", desc: "MEMBER", email: "nguyen.mai@gmail.com" },
-                                { uid: "guest_user_demo", emoji: "🌿", name: "대한김치 체험 회원", desc: "MEMBER (게스트)", email: "demo@daehankimchi.com" },
-                            ].map(acc => (
-                                <button
-                                    key={acc.uid}
-                                    className={`${styles.accountOption} ${user?.uid === acc.uid ? styles.selectedAccount : ''}`}
-                                    onClick={() => handleSwitchUser(acc.uid)}
-                                >
-                                    <div className={styles.accountAvatar}>{acc.emoji}</div>
-                                    <div className={styles.accountMeta}>
-                                        <strong>{acc.name}</strong>
-                                        <span>{acc.desc}</span>
-                                        <code>{acc.email}</code>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
                     </div>
                 </div>
             )}

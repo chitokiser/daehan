@@ -125,7 +125,7 @@ export default function AdminDashboard() {
                             </span>
                         </div>
                         <p className={styles.adminSub}>
-                            KCA Merchant Open API 연동 기반 회원 DB, 운영자 권한 부여 및 온체인 HEX 토큰 결제 관리
+                            가맹점 결제 시스템 연동 기반 회원 DB, 운영자 권한 부여 및 결제 관리
                         </p>
                     </div>
                 </div>
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
                     <div className={styles.kmoaPanelTitle}>
                         <span className={styles.kmoaLiveDot2} />
                         <Wallet size={18} color="#C8392B" />
-                        <strong>K-MOA 가맹점 실시간 자산 현황</strong>
+                        <strong>가맹점 실시간 자산 현황</strong>
                         {kmoaConnStatus === "live" && (
                             <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#16a34a', background: 'rgba(22,163,74,.1)', border: '1px solid rgba(22,163,74,.3)', padding: '2px 9px', borderRadius: '99px' }}>
                                 🟢 LIVE 연결됨
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
                     <div className={styles.kmoaBalanceCard}>
                         <div className={styles.kmoaBalanceIcon}>💰</div>
                         <div>
-                            <div className={styles.kmoaBalanceLabel}>K-MOA 포인트 잔액</div>
+                            <div className={styles.kmoaBalanceLabel}>플랫폼 포인트 잔액</div>
                             <div className={styles.kmoaBalanceVal}>
                                 {kmoaBalance ? kmoaBalance.balance?.points?.toLocaleString() : "--"}
                                 <span className={styles.kmoaBalanceUnit}>P</span>
@@ -208,8 +208,18 @@ export default function AdminDashboard() {
                         <div>
                             <div className={styles.kmoaBalanceLabel}>BT (보너스티켓) 재고</div>
                             <div className={styles.kmoaBalanceVal}>
-                                {kmoaBalance ? kmoaBalance.balance?.bt?.toLocaleString() : "--"}
+                                {kmoaBalance ? kmoaBalance.balance?.btBalance?.toLocaleString() : "--"}
                                 <span className={styles.kmoaBalanceUnit}>BT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={styles.kmoaBalanceCard}>
+                        <div className={styles.kmoaBalanceIcon}>💵</div>
+                        <div>
+                            <div className={styles.kmoaBalanceLabel}>KM 머니 (결제대금)</div>
+                            <div className={styles.kmoaBalanceVal}>
+                                {kmoaBalance ? kmoaBalance.balance?.km?.toLocaleString() : "--"}
+                                <span className={styles.kmoaBalanceUnit}>KM</span>
                             </div>
                         </div>
                     </div>
@@ -238,7 +248,7 @@ export default function AdminDashboard() {
             {/* K-MOA 단골 회원 CRM 테이블 */}
             <div className={styles.kmoaCrmSection}>
                 <div className={styles.kmoaCrmHeader}>
-                    <h3 className={styles.kmoaCrmTitle}>👥 K-MOA 단골 멤버십 DB</h3>
+                    <h3 className={styles.kmoaCrmTitle}>👥 단골 멤버십 DB</h3>
                     <span className={styles.kmoaCrmCount}>전체 {kmoaMembers.length}명</span>
                 </div>
                 <div className={styles.kmoaCrmTable}>
@@ -285,12 +295,12 @@ export default function AdminDashboard() {
                         <Coins size={24} color="#fcd34d" />
                     </div>
                     <div className={styles.kpiMeta}>
-                        <span className={styles.kpiLabel}>총 HEX 결제 매출</span>
+                        <span className={styles.kpiLabel}>총 충전머니 결제 매출</span>
                         <div className={styles.kpiVal}>
                             {(adminStats?.totalHexSales || 0).toLocaleString()}
-                            <span className={styles.kpiUnit}>HEX</span>
+                            <span className={styles.kpiUnit}>머니</span>
                         </div>
-                        <span className={styles.kpiSub}>KCA 온체인 스마트 컨트랙트 체결</span>
+                        <span className={styles.kpiSub}>결제 시스템 안전 거래 기록</span>
                     </div>
                 </div>
 
@@ -304,7 +314,7 @@ export default function AdminDashboard() {
                             {(adminStats?.totalVndSales || 0).toLocaleString()}
                             <span className={styles.kpiUnit}>₫</span>
                         </div>
-                        <span className={styles.kpiSub}>1 HEX = 1,000 VND 기준 정산</span>
+                        <span className={styles.kpiSub}>1 머니 = 1,000 VND 기준 정산</span>
                     </div>
                 </div>
 
@@ -332,7 +342,7 @@ export default function AdminDashboard() {
                             {adminStats?.totalUsers || 0}
                             <span className={styles.kpiUnit}>명 (운영자 {adminStats?.operatorCount || 0}명)</span>
                         </div>
-                        <span className={styles.kpiSub}>KCA Merchant API 회원 연동</span>
+                        <span className={styles.kpiSub}>플랫폼 가맹점 연동</span>
                     </div>
                 </div>
             </div>
@@ -355,13 +365,13 @@ export default function AdminDashboard() {
                     className={`${styles.navTabBtn} ${activeTab === "analytics" ? styles.activeNavTab : ''}`}
                     onClick={() => setActiveTab("analytics")}
                 >
-                    <Coins size={16} /> 📊 KCA 매출 & 정산 대시보드
+                    <Coins size={16} /> 📊 매출 & 정산 대시보드
                 </button>
                 <button 
                     className={`${styles.navTabBtn} ${activeTab === "api" ? styles.activeNavTab : ''}`}
                     onClick={() => setActiveTab("api")}
                 >
-                    <Key size={16} /> ⚙️ KCA 가맹점 API 연동 정보
+                    <Key size={16} /> ⚙️ 가맹점 API 연동 정보
                 </button>
             </div>
 
@@ -370,7 +380,7 @@ export default function AdminDashboard() {
                 <section className={styles.panelSection}>
                     <div className={styles.panelHeader}>
                         <div>
-                            <h2 className={styles.panelHeading}>KCA 회원 DB & 운영자(Operator) 지정 관리</h2>
+                            <h2 className={styles.panelHeading}>회원 DB & 운영자(Operator) 지정 관리</h2>
                             <p className={styles.panelDesc}>
                                 💡 <strong>최고 관리자(SUPER_ADMIN)</strong>는 회원의 역할을 <code>OPERATOR (운영자)</code>로 지정하거나 해제할 수 있습니다.
                             </p>
@@ -419,8 +429,8 @@ export default function AdminDashboard() {
                                     <th>회원 정보</th>
                                     <th>현재 권한</th>
                                     <th>연동 지갑 주소</th>
-                                    <th>보유 HEX 토큰</th>
-                                    <th>KCA 포인트</th>
+                                    <th>보유 충전머니</th>
+                                    <th>플랫폼 포인트</th>
                                     <th>VND 예치금</th>
                                     <th>대한포인트</th>
                                     <th>운영자 지정 및 권한 변경</th>
@@ -452,7 +462,7 @@ export default function AdminDashboard() {
                                             </div>
                                         </td>
                                         <td>
-                                            <strong style={{ color: '#fcd34d' }}>{(member.hexTokenBalance || 0).toLocaleString()} HEX</strong>
+                                            <strong style={{ color: '#fcd34d' }}>{(member.hexTokenBalance || 0).toLocaleString()} 머니</strong>
                                         </td>
                                         <td>
                                             <span style={{ color: '#00E676' }}>{(member.kcaPoints || 0).toLocaleString()} P</span>
@@ -585,13 +595,13 @@ export default function AdminDashboard() {
             {/* TAB 3: ANALYTICS & SETTLEMENT */}
             {activeTab === "analytics" && (
                 <section className={styles.panelSection}>
-                    <h2 className={styles.panelHeading}>KCA 가맹점 매출 분석 & 토큰 정산 현황</h2>
+                    <h2 className={styles.panelHeading}>가맹점 매출 분석 & 정산 현황</h2>
                     <div className={styles.analyticsGrid}>
                         <div className={styles.analyticsCard}>
                             <h3>🪙 통화별 결제 비중</h3>
                             <div className={styles.currencyBreakdown}>
                                 <div className={styles.curBreakRow}>
-                                    <span>HEX 토큰 결제</span>
+                                    <span>충전머니 결제</span>
                                     <strong style={{ color: '#fcd34d' }}>85.4% (주요 결제 수단)</strong>
                                 </div>
                                 <div className={styles.curBreakRow}>
@@ -599,7 +609,7 @@ export default function AdminDashboard() {
                                     <strong style={{ color: '#60a5fa' }}>10.2%</strong>
                                 </div>
                                 <div className={styles.curBreakRow}>
-                                    <span>KCA 플랫폼 포인트</span>
+                                    <span>플랫폼 포인트</span>
                                     <strong style={{ color: '#00E676' }}>4.4%</strong>
                                 </div>
                             </div>
@@ -629,10 +639,10 @@ export default function AdminDashboard() {
             {/* TAB 4: API & GATEWAY SETTINGS */}
             {activeTab === "api" && (
                 <section className={styles.panelSection}>
-                    <h2 className={styles.panelHeading}>K-MOA Merchant 결제 게이트웨이 연동 스펙 (No Web3)</h2>
+                    <h2 className={styles.panelHeading}>플랫폼 가맹점 결제 게이트웨이 연동 스펙</h2>
                     <p className={styles.panelDesc}>
                         <a href="https://kmoa.netlify.app/kmoa_merchant_guide.html" target="_blank" rel="noreferrer" style={{ color: '#fcd34d', textDecoration: 'underline' }}>
-                            K-MOA Merchant API 공식 가이드 바로가기 <ExternalLink size={14} style={{ verticalAlign: 'middle' }} />
+                            가맹점 API 공식 가이드 바로가기 <ExternalLink size={14} style={{ verticalAlign: 'middle' }} />
                         </a>
                     </p>
 
@@ -650,7 +660,7 @@ export default function AdminDashboard() {
                             <code>Firebase Auth UID + Firestore Realtime Engine (0.1s 원자적 처리)</code>
                         </div>
                         <div className={styles.apiSpecItem}>
-                            <span>K-MOA Cloud Functions API Root</span>
+                            <span>플랫폼 Cloud Functions API Root</span>
                             <code>https://us-central1-kca-platform.cloudfunctions.net/api/v1</code>
                         </div>
                         <div className={styles.apiSpecItem}>

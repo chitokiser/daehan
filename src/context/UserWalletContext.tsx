@@ -21,6 +21,7 @@ export interface WalletState {
     points: number;
     vndBalance: number;
     dpPoints: number;
+    hexBalance: number;
 }
 
 export interface MemberOrder {
@@ -107,13 +108,14 @@ interface UserWalletContextType {
 const defaultWallet: WalletState = {
     points: 120000,
     vndBalance: 85000000,
-    dpPoints: 50000
+    dpPoints: 50000,
+    hexBalance: 95000.0
 };
 
 const defaultUser: UserProfile = {
     uid: "admin_super_daehan",
-    name: "최고 관리자 (Super Admin)",
-    email: "super.admin@daehankimchi.com",
+    name: "최고관리자",
+    email: "daguri75@gmail.com",
     role: "SUPER_ADMIN",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
 };
@@ -121,9 +123,9 @@ const defaultUser: UserProfile = {
 const UserWalletContext = createContext<UserWalletContextType | undefined>(undefined);
 
 export function UserWalletProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<UserProfile | null>(defaultUser);
-    const [wallet, setWallet] = useState<WalletState>(defaultWallet);
-    const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const [user, setUser] = useState<UserProfile | null>(null);
+    const [wallet, setWallet] = useState<WalletState>({ points: 0, vndBalance: 0, dpPoints: 0, hexBalance: 0 });
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [orders, setOrders] = useState<MemberOrder[]>([]);
     const [allMembers, setAllMembers] = useState<UserProfile[]>([]);
@@ -141,7 +143,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 setWallet({
                     points: json.data.kcaPoints || 0,
                     vndBalance: json.data.vndBalance || 0,
-                    dpPoints: json.data.dpPoints || 0
+                    dpPoints: json.data.dpPoints || 0,
+                    hexBalance: json.data.hexTokenBalance || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
             }
@@ -193,7 +196,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 setWallet({
                     points: json.data.kcaPoints || 0,
                     vndBalance: json.data.vndBalance || 0,
-                    dpPoints: json.data.dpPoints || 0
+                    dpPoints: json.data.dpPoints || 0,
+                    hexBalance: json.data.hexTokenBalance || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
                 setIsLoggedIn(true);
@@ -209,8 +213,12 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const loginWithGoogle = async (customEmail?: string, customName?: string) => {
         setIsLoading(true);
         try {
-            const email = customEmail || (typeof window !== "undefined" ? localStorage.getItem("google_auth_email") || "user.google@gmail.com" : "user.google@gmail.com");
-            const name = customName || (typeof window !== "undefined" ? localStorage.getItem("google_auth_name") || "Google 인증 회원" : "Google 인증 회원");
+            // localStorage 캐시 무시하고 입력받은 이메일만 사용
+            const email = customEmail;
+            if (!email) {
+                return { success: false, error: "이메일이 제공되지 않았습니다." };
+            }
+            const name = customName || "Google 인증 회원";
             const avatar = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80";
 
             const res = await fetch("/api/v1/auth/google", {
@@ -233,7 +241,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 setWallet({
                     points: json.data.kcaPoints || 0,
                     vndBalance: json.data.vndBalance || 0,
-                    dpPoints: json.data.dpPoints || 0
+                    dpPoints: json.data.dpPoints || 0,
+                    hexBalance: json.data.hexTokenBalance || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
                 setIsLoggedIn(true);

@@ -7,9 +7,9 @@ const DEMO_DATA = {
     success: true,
     demo: true,
     connectionStatus: "demo",
-    merchantId: "daehan-kimchi-hanoi",
-    merchantName: "대한김치 본점 (하노이)",
-    balance: { points: 500000, bt: 1500 }
+    merchantId: "2",
+    merchantName: "대한김치",
+    balance: { points: 726212, km: 367620, btBalance: 193 }
 };
 
 export async function GET() {

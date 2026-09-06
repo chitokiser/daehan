@@ -3,6 +3,7 @@ import { Inter, Noto_Sans_KR } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ExtensionErrorShield from "@/components/ExtensionErrorShield";
+import GoogleAuthProvider from "@/components/GoogleAuthProvider";
 import { UserWalletProvider } from "@/context/UserWalletContext";
 import "./globals.css";
 
@@ -44,11 +45,13 @@ export default function RootLayout({
       <body className={`${inter.variable} ${notoSansKr.variable}`}>
         <ExtensionErrorShield />
         <PWAInit />
-        <UserWalletProvider>
-          <Header />
-          <main style={{ minHeight: "100vh" }}>{children}</main>
-          <Footer />
-        </UserWalletProvider>
+        <GoogleAuthProvider>
+          <UserWalletProvider>
+            <Header />
+            <main style={{ minHeight: "100vh" }}>{children}</main>
+            <Footer />
+          </UserWalletProvider>
+        </GoogleAuthProvider>
       </body>
     </html>
   );

@@ -4,9 +4,16 @@ const KMOA_BASE = "https://us-central1-jumper-b15aa.cloudfunctions.net/merchantA
 const KMOA_API_KEY = process.env.KMOA_API_KEY || "";
 
 const DEMO_MEMBERS = [
-    { uid: "demo-uid-001", email: "c***1@gmail.com", displayName: "김치마니아", userLevel: 3, pointBalance: 12500, btBalance: 5, joinedAt: "2026-09-01T15:00:00.000Z" },
-    { uid: "demo-uid-002", email: "u***2@naver.com", displayName: "K푸드러버", userLevel: 1, pointBalance: 3200, btBalance: 2, joinedAt: "2026-09-03T11:20:00.000Z" },
-    { uid: "demo-uid-003", email: "h***3@kakao.com", displayName: "하노이단골", userLevel: 2, pointBalance: 8800, btBalance: 10, joinedAt: "2026-09-04T08:45:00.000Z" }
+    {
+        uid: "user-kfu-1234",
+        email: "kfu134252@gmail.com",
+        displayName: "홍길동",
+        walletAddress: "0x...",
+        userLevel: 3,
+        pointBalance: 1000,
+        btBalance: 5,
+        joinedAt: "2026-09-06T00:00:00.000Z"
+    }
 ];
 
 export async function GET(request: Request) {

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer moa-merch-4900c6d440dc5419" // 발급받은 가맹점 API Key
+                    "Authorization": "Bearer moa-merch-5e516c7d164218f4" // 발급받은 가맹점 API Key
                 },
                 body: JSON.stringify({
                     uid,

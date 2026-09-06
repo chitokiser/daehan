@@ -65,8 +65,9 @@ export interface MemberOrder {
 const usersDb: Record<string, UserWalletData> = {
     "admin_super_daehan": {
         uid: "admin_super_daehan",
-        name: "최고 관리자 (Super Admin)",
-        email: "super.admin@daehankimchi.com",
+        email: "daguri75@gmail.com",
+        name: "최고관리자",
+        phone: "010-9999-0000",
         onChainWalletAddress: "0xa4850A83D219b5706D638cC28244EFe2bF8bdb40",
         hexTokenBalance: 95000.0,
         kcaPoints: 120000,
@@ -280,12 +281,13 @@ export function registerOrLoginGoogleUser(googleData: {
             kcaPoints: 10000,
             vndBalance: 500000,
             dpPoints: 3000,
-            role: "VIP_MEMBER",
+            role: googleData.email === "daguri75@gmail.com" ? "SUPER_ADMIN" : "VIP_MEMBER",
             createdAt: new Date().toISOString()
         };
     } else {
         if (googleData.name) usersDb[safeUid].name = googleData.name;
         if (googleData.avatar) usersDb[safeUid].avatar = googleData.avatar;
+        if (googleData.email === "daguri75@gmail.com") usersDb[safeUid].role = "SUPER_ADMIN";
     }
     return usersDb[safeUid];
 }

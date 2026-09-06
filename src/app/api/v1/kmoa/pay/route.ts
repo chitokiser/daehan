@@ -4,7 +4,7 @@ import { executePayment } from "@/lib/kcaDb";
 export async function POST(request: NextRequest) {
     try {
         const authHeader = request.headers.get("Authorization");
-        const VALID_MERCHANT_KEY = "Bearer moa-merch-4900c6d440dc5419";
+        const VALID_MERCHANT_KEY = "Bearer moa-merch-5e516c7d164218f4";
         
         if (!authHeader || authHeader !== VALID_MERCHANT_KEY) {
             return NextResponse.json({ success: false, error: "인증되지 않은 가맹점 접근입니다. (Invalid API Key)" }, { status: 401 });
