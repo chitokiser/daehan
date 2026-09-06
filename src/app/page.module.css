@@ -1,3 +1,5 @@
+/* page.module.css — 화이트 테마 */
+
 .main {
   width: 100%;
   min-height: 100vh;
@@ -5,32 +7,52 @@
   flex-direction: column;
 }
 
+/* ===== HERO ===== */
 .hero {
   position: relative;
-  min-height: 85vh;
+  min-height: 88vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 30%, rgba(229, 9, 20, 0.15) 0%, #0b0c10 75%);
+  background: linear-gradient(160deg, #FFF8F0 0%, #FFF0E6 40%, #FFF5EE 100%);
   padding: 120px 24px 60px;
 }
 
-.heroOverlay {
+/* 배경 장식 원 */
+.hero::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(11, 12, 16, 0.2) 0%, rgba(11, 12, 16, 0.98) 100%);
-  z-index: 0;
+  top: -120px;
+  right: -120px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 57, 43, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  left: -80px;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 135, 10, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.heroOverlay {
+  display: none; /* 화이트 테마에서는 오버레이 불필요 */
 }
 
 .heroContent {
   text-align: center;
   z-index: 1;
-  max-width: 850px;
+  max-width: 860px;
   padding: 0 24px;
 }
 
@@ -40,12 +62,13 @@
   line-height: 1.2;
   margin-bottom: 20px;
   letter-spacing: -1px;
+  color: var(--text-main);
 }
 
 .subtitle {
   font-size: 1.2rem;
   font-weight: 400;
-  color: var(--text-muted);
+  color: var(--text-sub);
   margin-bottom: 36px;
   line-height: 1.7;
 }
@@ -58,11 +81,9 @@
 }
 
 .btnSecondary {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #fff;
+  color: var(--primary-color);
+  border: 1.5px solid var(--primary-color);
   border-radius: var(--radius-full);
   padding: 12px 28px;
   font-weight: 600;
@@ -72,12 +93,16 @@
 }
 
 .btnSecondary:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--primary-color);
+  color: #fff;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(200, 57, 43, 0.25);
 }
 
+/* ===== SECTION ===== */
 .section {
   padding: 80px 24px;
+  background: var(--bg-color);
 }
 
 .sectionHeader {
@@ -85,6 +110,7 @@
   margin-bottom: 48px;
 }
 
+/* ===== PRODUCT GRID ===== */
 .productGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -92,27 +118,28 @@
 }
 
 .productCard {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   text-decoration: none;
+  box-shadow: var(--card-shadow);
 }
 
 .productCard:hover {
   transform: translateY(-6px);
-  border-color: rgba(229, 9, 20, 0.5);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+  border-color: rgba(200, 57, 43, 0.30);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(200, 57, 43, 0.15);
 }
 
 .cardImgWrap {
   position: relative;
   width: 100%;
   height: 220px;
-  background: #15161e;
+  background: #F5F0EB;
   overflow: hidden;
 }
 
@@ -131,12 +158,13 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #e50914;
+  background: var(--primary-color);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(200, 57, 43, 0.4);
 }
 
 .cardBody {
@@ -147,8 +175,9 @@
 }
 
 .productName {
-  font-size: 1.15rem;
-  color: #fff;
+  font-size: 1.1rem;
+  color: var(--text-main);
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
@@ -164,12 +193,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
   padding-top: 12px;
 }
 
 .productPrice {
-  color: #e50914;
+  color: var(--primary-color);
   font-weight: 700;
   font-size: 1.1rem;
 }
@@ -180,8 +209,9 @@
   font-weight: 500;
 }
 
+/* ===== DNA HIGHLIGHT SECTION ===== */
 .dnaHighlightSection {
-  background: linear-gradient(180deg, rgba(229, 9, 20, 0.04) 0%, rgba(11, 12, 16, 1) 100%);
+  background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   padding: 90px 24px;
@@ -201,35 +231,38 @@
 }
 
 .techBadge {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   padding: 8px 14px;
   border-radius: var(--radius-md);
   font-size: 0.85rem;
-  color: #eee;
+  color: var(--text-sub);
+  font-weight: 500;
 }
 
+/* DNA Preview Card */
 .dnaPreviewCard {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.10);
   border-radius: var(--radius-lg);
   padding: 28px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 .metricRow {
   display: flex;
   justify-content: space-between;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   font-size: 0.95rem;
-  color: #ccc;
+  color: var(--text-sub);
 }
 
 .metricRow:last-child {
   border-bottom: none;
 }
 
+/* ===== TRUST GRID ===== */
 .trustGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -238,7 +271,7 @@
 }
 
 .trustItem {
-  background: var(--bg-card);
+  background: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 30px 20px;
@@ -246,11 +279,19 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.trustItem:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
 }
 
 .trustItem h4 {
-  font-size: 1.1rem;
-  color: #fff;
+  font-size: 1.05rem;
+  color: var(--text-main);
+  font-weight: 700;
   margin: 0;
 }
 
@@ -261,7 +302,7 @@
   line-height: 1.4;
 }
 
-/* Animations */
+/* ===== ANIMATIONS ===== */
 .fadeInUp {
   animation: fadeInUpAnim 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   opacity: 0;

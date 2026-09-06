@@ -7,6 +7,402 @@
     margin: 0 auto;
 }
 
+/* ─── TODAY'S PICK Hero Banner ─── */
+.todayHero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 48px;
+    cursor: pointer;
+    box-shadow: 0 8px 40px rgba(200, 57, 43, 0.18);
+    border: 2px solid rgba(200, 57, 43, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    background: #fff;
+}
+.todayHero:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 56px rgba(200, 57, 43, 0.28);
+}
+.todayImgWrap {
+    position: relative;
+    height: 360px;
+    overflow: hidden;
+}
+.todayImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.todayHero:hover .todayImg {
+    transform: scale(1.04);
+}
+.todayImgOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 60%, rgba(250,250,248,0.15) 100%);
+}
+.todayContent {
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    background: var(--bg-secondary, #F5F0EB);
+}
+.todayBadgeRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.todayBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #C8392B;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 5px 14px;
+    border-radius: 100px;
+    text-transform: uppercase;
+}
+.todayDate {
+    font-size: 0.82rem;
+    color: var(--text-muted, #6b7280);
+    font-weight: 500;
+}
+.todayTitle {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--text-main, #1A0D08);
+    line-height: 1.4;
+    margin: 0;
+}
+.todayExcerpt {
+    font-size: 0.9rem;
+    color: var(--text-sub, #4B3832);
+    line-height: 1.7;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.todayMeta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-muted, #6b7280);
+    font-weight: 500;
+    flex-wrap: wrap;
+}
+@media (max-width: 768px) {
+    .todayHero {
+        grid-template-columns: 1fr;
+    }
+    .todayImgWrap {
+        height: 220px;
+    }
+    .todayContent {
+        padding: 24px 20px;
+    }
+    .todayTitle {
+        font-size: 1.1rem;
+    }
+}
+
+
+/* ─── K-MOA 공식 AI 웹진 섹션 ─── */
+.kmoaWebzineSection {
+    margin-bottom: 20px;
+}
+.kmoaSectionHeader {
+    margin-bottom: 20px;
+}
+.kmoaTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.kmoaLiveDot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+    animation: pulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+}
+.kmoaSectionTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-main, #1A0D08);
+    margin: 0;
+}
+.demoBadge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.08em;
+}
+.kmoaSectionDesc {
+    font-size: 0.87rem;
+    color: var(--text-muted, #6b7280);
+    margin: 0;
+}
+.kmoaGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+@media (max-width: 900px) {
+    .kmoaGrid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+    .kmoaGrid { grid-template-columns: 1fr; }
+}
+.kmoaCard {
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    cursor: pointer;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    display: flex;
+    flex-direction: column;
+}
+.kmoaCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 32px rgba(200, 57, 43, 0.15);
+    border-color: rgba(200, 57, 43, 0.3);
+}
+.kmoaThumbWrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+}
+.kmoaThumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+}
+.kmoaCard:hover .kmoaThumb {
+    transform: scale(1.05);
+}
+.kmoaStatsOverlay {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    display: flex;
+    gap: 6px;
+}
+.kmoaStatChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0,0,0,0.58);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 99px;
+    backdrop-filter: blur(4px);
+}
+.kmoaWhitelabelBadge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(200, 57, 43, 0.88);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 99px;
+}
+.kmoaCardBody {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+.kmoaCardDate {
+    font-size: 0.73rem;
+    color: var(--text-muted, #9ca3af);
+    margin: 0;
+}
+.kmoaCardTitle {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-main, #1A0D08);
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.kmoaCardExcerpt {
+    font-size: 0.79rem;
+    color: var(--text-sub, #4B3832);
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.kmoaCardFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid #f3f4f6;
+}
+.kmoaViewCount {
+    font-size: 0.75rem;
+    color: var(--text-muted, #9ca3af);
+}
+.kmoaReadBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #C8392B;
+    background: rgba(200, 57, 43, 0.08);
+    border: 1px solid rgba(200, 57, 43, 0.2);
+    padding: 4px 10px;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.kmoaReadBtn:hover { background: rgba(200, 57, 43, 0.18); }
+
+/* Skeleton */
+.kmoaSkeletonGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+.kmoaSkeleton {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1.5px solid #e5e7eb;
+}
+.kmoaSkeletonThumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+}
+.kmoaSkeletonLine {
+    margin: 14px 16px 6px;
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+}
+.kmoaSkeletonLineShort {
+    margin: 0 16px 16px;
+    width: 60%;
+    height: 11px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* iframe 화이트라벨 뷰어 */
+.kmoaViewerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.kmoaViewerModal {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    width: min(900px, 100%);
+    height: min(700px, 90vh);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+}
+.kmoaViewerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+.kmoaViewerTitle {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1A0D08;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 40px);
+}
+.kmoaViewerClose {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.kmoaViewerClose:hover { background: #f3f4f6; color: #111; }
+.kmoaViewerFrame {
+    flex: 1;
+    width: 100%;
+    border: none;
+}
+
+/* 섹션 구분선 */
+.sectionDivider {
+    border: none;
+    border-top: 2px solid #f3f4f6;
+    margin: 48px 0;
+}
+
 /* Header & Hero */
 .header {
     text-align: center;

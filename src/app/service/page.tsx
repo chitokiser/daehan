@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import { Sparkles, Search, SlidersHorizontal, Heart, Bookmark, Eye, X, RefreshCw, Send, BookOpen, Thermometer, FlaskConical, Award } from "lucide-react";
+import { Sparkles, Search, SlidersHorizontal, Heart, Eye, X, RefreshCw, Send, BookOpen, Thermometer, FlaskConical, Award, ThumbsUp, Share2, ExternalLink } from "lucide-react";
 import ShareButtons from "@/components/ShareButtons";
+
 
 interface ArticleImageItem {
     id: string;
@@ -18,6 +19,7 @@ interface ArticleImageItem {
     likes: number;
     readTime: string;
     author: string;
+    isToday?: boolean;
     stats: {
         ph: string;
         temp: string;
@@ -27,6 +29,21 @@ interface ArticleImageItem {
     pairingTip: string;
     recipe: string;
 }
+
+// K-MOA 공식 웹진 타입
+interface KmoaWebzine {
+    webzineId: string;
+    title: string;
+    excerpt: string;
+    thumbnailUrl: string;
+    viewCount: number;
+    likeCount: number;
+    shareCount: number;
+    readUrl: string;
+    whitelabelUrl: string;
+    publishedAt: string;
+}
+
 
 interface CategoryOption {
     key: string;
@@ -52,6 +69,12 @@ export default function WebzineServicePage() {
     const [loading, setLoading] = useState(true);
     const [likedArticles, setLikedArticles] = useState<Record<string, boolean>>({});
 
+    // K-MOA 공식 웹진 상태
+    const [kmoaWebzines, setKmoaWebzines] = useState<KmoaWebzine[]>([]);
+    const [kmoaLoading, setKmoaLoading] = useState(true);
+    const [kmoaDemo, setKmoaDemo] = useState(false);
+    const [kmoaViewer, setKmoaViewer] = useState<KmoaWebzine | null>(null); // iframe 뷰어
+
     // AI Image Generator input
     const [customPrompt, setCustomPrompt] = useState("");
     const [customTitle, setCustomTitle] = useState("");
@@ -60,6 +83,20 @@ export default function WebzineServicePage() {
 
     // Modal state
     const [selectedArticle, setSelectedArticle] = useState<ArticleImageItem | null>(null);
+
+    // K-MOA 웹진 데이터 fetch
+    useEffect(() => {
+        fetch("/api/v1/kmoa/webzines?limit=6")
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    setKmoaWebzines(data.webzines || []);
+                    setKmoaDemo(!!data.demo);
+                }
+            })
+            .catch(() => {})
+            .finally(() => setKmoaLoading(false));
+    }, []);
 
     // Fetch articles from /api/images
     const fetchArticles = async (category = activeCategory, query = searchQuery, sort = sortBy) => {
@@ -144,6 +181,98 @@ export default function WebzineServicePage() {
 
     return (
         <div className={styles.webzineContainer}>
+
+            {/* ── K-MOA 공식 AI 웹진 섹션 ── */}
+            <section className={styles.kmoaWebzineSection}>
+                <div className={styles.kmoaSectionHeader}>
+                    <div className={styles.kmoaTitleRow}>
+                        <span className={styles.kmoaLiveDot} />
+                        <h2 className={styles.kmoaSectionTitle}>📰 K-MOA 브랜드 AI 매거진</h2>
+                        {kmoaDemo && (
+                            <span className={styles.demoBadge}>DEMO</span>
+                        )}
+                    </div>
+                    <p className={styles.kmoaSectionDesc}>K-MOA 플랫폼에서 자동 발행된 대한김치 전용 브랜드 매거진 — 클릭하면 가맹점 전용 화이트라벨 뷰어로 열립니다.</p>
+                </div>
+
+                {kmoaLoading ? (
+                    <div className={styles.kmoaSkeletonGrid}>
+                        {[1,2,3].map(n => (
+                            <div key={n} className={styles.kmoaSkeleton}>
+                                <div className={styles.kmoaSkeletonThumb} />
+                                <div className={styles.kmoaSkeletonLine} />
+                                <div className={styles.kmoaSkeletonLineShort} />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className={styles.kmoaGrid}>
+                        {kmoaWebzines.map(wz => (
+                            <div
+                                key={wz.webzineId}
+                                className={styles.kmoaCard}
+                                onClick={() => setKmoaViewer(wz)}
+                            >
+                                <div className={styles.kmoaThumbWrap}>
+                                    <img
+                                        src={wz.thumbnailUrl}
+                                        alt={wz.title}
+                                        className={styles.kmoaThumb}
+                                        onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=800&q=80"; }}
+                                    />
+                                    <div className={styles.kmoaStatsOverlay}>
+                                        <span className={styles.kmoaStatChip}>
+                                            <ThumbsUp size={11} /> {wz.likeCount}
+                                        </span>
+                                        <span className={styles.kmoaStatChip}>
+                                            <Share2 size={11} /> {wz.shareCount}
+                                        </span>
+                                    </div>
+                                    <div className={styles.kmoaWhitelabelBadge}>
+                                        <ExternalLink size={10} /> 화이트라벨
+                                    </div>
+                                </div>
+                                <div className={styles.kmoaCardBody}>
+                                    <p className={styles.kmoaCardDate}>
+                                        {new Date(wz.publishedAt).toLocaleDateString("ko-KR")}
+                                    </p>
+                                    <h3 className={styles.kmoaCardTitle}>{wz.title}</h3>
+                                    <p className={styles.kmoaCardExcerpt}>{wz.excerpt}</p>
+                                    <div className={styles.kmoaCardFooter}>
+                                        <span className={styles.kmoaViewCount}>👁 {wz.viewCount}</span>
+                                        <button className={styles.kmoaReadBtn}>
+                                            <Eye size={13} /> 상세 보기
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            {/* K-MOA 화이트라벨 iframe 뷰어 팝업 */}
+            {kmoaViewer && (
+                <div className={styles.kmoaViewerOverlay} onClick={() => setKmoaViewer(null)}>
+                    <div className={styles.kmoaViewerModal} onClick={e => e.stopPropagation()}>
+                        <div className={styles.kmoaViewerHeader}>
+                            <span className={styles.kmoaViewerTitle}>{kmoaViewer.title}</span>
+                            <button className={styles.kmoaViewerClose} onClick={() => setKmoaViewer(null)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <iframe
+                            src={kmoaViewer.whitelabelUrl}
+                            className={styles.kmoaViewerFrame}
+                            title={kmoaViewer.title}
+                            sandbox="allow-scripts allow-same-origin allow-popups"
+                        />
+                    </div>
+                </div>
+            )}
+
+            <hr className={styles.sectionDivider} />
+
             {/* Header Hero */}
             <header className={styles.header}>
                 <div className={styles.badgeWrapper}>
@@ -320,6 +449,36 @@ export default function WebzineServicePage() {
                 </div>
             </div>
 
+            {/* TODAY'S PICK Hero Banner */}
+            {articles.length > 0 && articles[0].isToday && (
+                <div className={styles.todayHero} onClick={() => setSelectedArticle(articles[0])}>
+                    <div className={styles.todayImgWrap}>
+                        <img
+                            src={articles[0].image}
+                            alt={articles[0].title}
+                            className={styles.todayImg}
+                            onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
+                        />
+                        <div className={styles.todayImgOverlay} />
+                    </div>
+                    <div className={styles.todayContent}>
+                        <div className={styles.todayBadgeRow}>
+                            <span className={styles.todayBadge}>📅 오늘의 아티클</span>
+                            <span className={styles.todayDate}>{articles[0].date}</span>
+                        </div>
+                        <h2 className={styles.todayTitle}>{articles[0].title}</h2>
+                        <p className={styles.todayExcerpt}>{articles[0].excerpt}</p>
+                        <div className={styles.todayMeta}>
+                            <span>{articles[0].author}</span>
+                            <span>•</span>
+                            <span>{articles[0].readTime} 읽기</span>
+                            <span>•</span>
+                            <span>❤️ {articles[0].likes}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Article Grid */}
             {loading ? (
                 <div className={styles.loadingGrid}>
@@ -347,7 +506,7 @@ export default function WebzineServicePage() {
                 </div>
             ) : (
                 <div className={styles.articleGrid}>
-                    {articles.map((article) => (
+                    {articles.filter(a => !a.isToday).map((article) => (
                         <article
                             key={article.id}
                             className={styles.articleCard}

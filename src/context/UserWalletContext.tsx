@@ -10,9 +10,7 @@ export interface UserProfile {
     email: string;
     role: UserRole;
     avatar?: string;
-    onChainWalletAddress?: string;
-    hexTokenBalance?: number;
-    kcaPoints?: number;
+    points?: number;
     vndBalance?: number;
     dpPoints?: number;
     phone?: string;
@@ -20,9 +18,7 @@ export interface UserProfile {
 }
 
 export interface WalletState {
-    onChainWalletAddress: string;
-    hexTokenBalance: number;
-    kcaPoints: number;
+    points: number;
     vndBalance: number;
     dpPoints: number;
 }
@@ -36,13 +32,11 @@ export interface MemberOrder {
         weight: string;
         quantity: number;
         priceVnd: number;
-        priceHex: number;
         image: string;
     }[];
     totalVnd: number;
-    totalHex: number;
     paidAmount: number;
-    currency: "HEX" | "POINT" | "VND";
+    currency: "VND" | "HEX" | "POINT";
     txId: string;
     shippingAddress: {
         recipient: string;
@@ -57,19 +51,15 @@ export interface MemberOrder {
 export interface WalletTransaction {
     id: string;
     uid: string;
-    merchantId: string;
-    orderId?: string;
-    type: "PAYMENT" | "FAUCET" | "REWARD" | "REFUND" | "SETTLEMENT";
-    currency: "HEX" | "POINT" | "VND" | "DP";
+    type: "PAYMENT" | "REWARD" | "REFUND";
+    currency: "VND" | "DP" | "HEX" | "POINT";
     amount: number;
     description: string;
     status: "CONFIRMED" | "PENDING" | "FAILED";
-    txHash: string;
     timestamp: string;
 }
 
 export interface AdminStats {
-    totalHexSales: number;
     totalVndSales: number;
     totalOrders: number;
     pendingShipping: number;
@@ -78,13 +68,12 @@ export interface AdminStats {
     operatorCount: number;
     superAdminCount: number;
     recentOrders: MemberOrder[];
-    recentTransactions: WalletTransaction[];
 }
 
 interface PaymentParams {
     orderId?: string;
     amount: number;
-    currency: "HEX" | "POINT" | "VND";
+    currency?: "HEX" | "POINT" | "VND";
     items?: any[];
     shippingAddress?: any;
 }
@@ -100,31 +89,23 @@ interface UserWalletContextType {
     user: UserProfile | null;
     wallet: WalletState;
     isLoggedIn: boolean;
-    isWalletConnected: boolean;
     isLoading: boolean;
     orders: MemberOrder[];
-    transactions: WalletTransaction[];
     allMembers: UserProfile[];
     adminStats: AdminStats | null;
     allOrders: MemberOrder[];
     login: (uid?: string) => Promise<void>;
     loginWithGoogle: (customEmail?: string, customName?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
     logout: () => void;
-    connectWallet: () => Promise<void>;
     payOrder: (params: PaymentParams) => Promise<PaymentResult>;
-    faucetHex: (amount?: number) => Promise<boolean>;
     refreshWallet: () => Promise<void>;
     fetchAdminData: () => Promise<void>;
     changeUserRole: (targetUid: string, newRole: UserRole) => Promise<{ success: boolean; error?: string; message?: string }>;
     changeOrderStatus: (orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => Promise<{ success: boolean; error?: string }>;
 }
 
-export const KMOA_CONTRACT_ADDRESS = "0xa4850A83D219b5706D638cC28244EFe2bF8bdb40";
-
 const defaultWallet: WalletState = {
-    onChainWalletAddress: KMOA_CONTRACT_ADDRESS,
-    hexTokenBalance: 95000.0,
-    kcaPoints: 120000,
+    points: 120000,
     vndBalance: 85000000,
     dpPoints: 50000
 };
@@ -143,15 +124,12 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const [user, setUser] = useState<UserProfile | null>(defaultUser);
     const [wallet, setWallet] = useState<WalletState>(defaultWallet);
     const [isLoggedIn, setIsLoggedIn] = useState(true);
-    const [isWalletConnected, setIsWalletConnected] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [orders, setOrders] = useState<MemberOrder[]>([]);
-    const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
     const [allMembers, setAllMembers] = useState<UserProfile[]>([]);
     const [allOrders, setAllOrders] = useState<MemberOrder[]>([]);
     const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
 
-    // Fetch live wallet data from KCA API
     const refreshWallet = useCallback(async () => {
         if (!user?.uid) return;
         try {
@@ -161,19 +139,16 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             const json = await res.json();
             if (json.success && json.data) {
                 setWallet({
-                    onChainWalletAddress: json.data.onChainWalletAddress || wallet.onChainWalletAddress,
-                    hexTokenBalance: parseFloat(json.data.hexTokenBalance) || 0,
-                    kcaPoints: json.data.kcaPoints || 0,
+                    points: json.data.kcaPoints || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
-                if (json.data.recentTransactions) setTransactions(json.data.recentTransactions);
             }
         } catch (e) {
-            console.error("Failed to fetch wallet from KCA API:", e);
+            console.error("Failed to fetch wallet:", e);
         }
-    }, [user?.uid, wallet.onChainWalletAddress]);
+    }, [user?.uid]);
 
     const fetchAdminData = useCallback(async () => {
         try {
@@ -181,10 +156,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 fetch("/api/v1/admin/members"),
                 fetch("/api/v1/admin/orders")
             ]);
-
             const membersJson = await membersRes.json();
             const ordersJson = await ordersRes.json();
-
             if (membersJson.success && membersJson.data) {
                 setAllMembers(membersJson.data.users);
                 setAdminStats(membersJson.data.stats);
@@ -218,16 +191,12 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     avatar: json.data.avatar
                 });
                 setWallet({
-                    onChainWalletAddress: json.data.onChainWalletAddress,
-                    hexTokenBalance: parseFloat(json.data.hexTokenBalance) || 0,
-                    kcaPoints: json.data.kcaPoints || 0,
+                    points: json.data.kcaPoints || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
-                if (json.data.recentTransactions) setTransactions(json.data.recentTransactions);
                 setIsLoggedIn(true);
-                setIsWalletConnected(true);
                 await fetchAdminData();
             }
         } catch (e) {
@@ -247,12 +216,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             const res = await fetch("/api/v1/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email,
-                    name,
-                    avatar,
-                    sub: `google_sub_${Date.now()}`
-                })
+                body: JSON.stringify({ email, name, avatar, sub: `google_sub_${Date.now()}` })
             });
 
             const json = await res.json();
@@ -267,16 +231,12 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 };
                 setUser(loggedUser);
                 setWallet({
-                    onChainWalletAddress: json.data.onChainWalletAddress,
-                    hexTokenBalance: parseFloat(json.data.hexTokenBalance) || 0,
-                    kcaPoints: json.data.kcaPoints || 0,
+                    points: json.data.kcaPoints || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
-                if (json.data.recentTransactions) setTransactions(json.data.recentTransactions);
                 setIsLoggedIn(true);
-                setIsWalletConnected(true);
 
                 if (typeof window !== "undefined") {
                     localStorage.setItem("google_auth_email", loggedUser.email);
@@ -298,17 +258,6 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const logout = () => {
         setUser(null);
         setIsLoggedIn(false);
-        setIsWalletConnected(false);
-    };
-
-    const connectWallet = async () => {
-        setIsLoading(true);
-        try {
-            setIsWalletConnected(true);
-            alert(`K-MOA 충전머니 & 포인트 계정이 연결되었습니다.\n회원 식별 ID: ${user?.uid || "게스트"}`);
-        } finally {
-            setIsLoading(false);
-        }
     };
 
     const payOrder = async (params: PaymentParams): Promise<PaymentResult> => {
@@ -317,7 +266,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
         setIsLoading(true);
         try {
-            const res = await fetch("/api/v1/kmoa/pay", {
+            const res = await fetch("/api/v1/wallet/pay", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -326,7 +275,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 body: JSON.stringify({
                     uid: user.uid,
                     merchantId: "daehan_kimchi_store",
-                    currency: params.currency,
+                    currency: params.currency || "VND",
                     amount: params.amount,
                     orderId: params.orderId || `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
                     items: params.items,
@@ -338,52 +287,13 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             if (json.success) {
                 await refreshWallet();
                 await fetchAdminData();
-                return {
-                    success: true,
-                    transactionId: json.transactionId,
-                    receipt: json.receipt
-                };
+                return { success: true, transactionId: json.transactionId, receipt: json.receipt };
             } else {
-                return {
-                    success: false,
-                    error: json.error || "K-MOA 결제 승인에 실패했습니다."
-                };
+                return { success: false, error: json.error || "결제 승인에 실패했습니다." };
             }
         } catch (e: any) {
             console.error("Payment error:", e);
-            return {
-                success: false,
-                error: e.message || "결제 서버 통신 오류가 발생했습니다."
-            };
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const faucetHex = async (amount: number = 500): Promise<boolean> => {
-        if (!user?.uid) {
-            alert("로그인 후 충전해주세요.");
-            return false;
-        }
-        setIsLoading(true);
-        try {
-            const res = await fetch("/api/v1/wallet/faucet", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ uid: user.uid, amount })
-            });
-            const json = await res.json();
-            if (json.success) {
-                await refreshWallet();
-                await fetchAdminData();
-                return true;
-            }
-            alert(`충전 실패: ${json.error}`);
-            return false;
-        } catch (e) {
-            console.error("Faucet error:", e);
-            alert("머니 충전 통신 오류가 발생했습니다.");
-            return false;
+            return { success: false, error: e.message || "결제 서버 통신 오류가 발생했습니다." };
         } finally {
             setIsLoading(false);
         }
@@ -391,26 +301,16 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
 
     const changeUserRole = async (targetUid: string, newRole: UserRole) => {
         if (!user?.uid) return { success: false, error: "관리자 로그인이 필요합니다." };
-        if (user.role !== "SUPER_ADMIN") {
-            return { success: false, error: "최고 관리자(SUPER_ADMIN)만 운영자 권한을 지정할 수 있습니다." };
-        }
+        if (user.role !== "SUPER_ADMIN") return { success: false, error: "최고 관리자(SUPER_ADMIN)만 운영자 권한을 지정할 수 있습니다." };
         setIsLoading(true);
         try {
             const res = await fetch("/api/v1/admin/members", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    adminUid: user.uid,
-                    targetUid,
-                    action: "UPDATE_ROLE",
-                    newRole
-                })
+                body: JSON.stringify({ adminUid: user.uid, targetUid, action: "UPDATE_ROLE", newRole })
             });
             const json = await res.json();
-            if (json.success) {
-                await fetchAdminData();
-                return { success: true, message: json.message };
-            }
+            if (json.success) { await fetchAdminData(); return { success: true, message: json.message }; }
             return { success: false, error: json.error };
         } catch (e: any) {
             return { success: false, error: e.message };
@@ -428,10 +328,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 body: JSON.stringify({ orderId, status })
             });
             const json = await res.json();
-            if (json.success) {
-                await fetchAdminData();
-                return { success: true };
-            }
+            if (json.success) { await fetchAdminData(); return { success: true }; }
             return { success: false, error: json.error };
         } catch (e: any) {
             return { success: false, error: e.message };
@@ -446,19 +343,15 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 user,
                 wallet,
                 isLoggedIn,
-                isWalletConnected,
                 isLoading,
                 orders,
-                transactions,
                 allMembers,
                 adminStats,
                 allOrders,
                 login,
                 loginWithGoogle,
                 logout,
-                connectWallet,
                 payOrder,
-                faucetHex,
                 refreshWallet,
                 fetchAdminData,
                 changeUserRole,

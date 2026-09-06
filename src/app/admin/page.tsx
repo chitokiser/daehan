@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { useUserWallet, UserRole, MemberOrder } from "@/context/UserWalletContext";
-import { products, vndToHex } from "@/data/products";
+import { products } from "@/data/products";
+
 import Link from "next/link";
 import { 
     ShieldAlert, Users, ShoppingBag, Coins, DollarSign, RefreshCw, 
     UserCheck, UserX, Crown, CheckCircle2, Truck, Eye, Search, 
-    Key, ExternalLink, ArrowUpRight, Sparkles, Filter, Edit3, Lock 
+    Key, ExternalLink, ArrowUpRight, Sparkles, Filter, Edit3, Lock,
+    Wallet, Ticket, RefreshCcw
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -25,12 +27,44 @@ export default function AdminDashboard() {
         isLoading 
     } = useUserWallet();
 
-    const [activeTab, setActiveTab] = useState<"members" | "orders" | "analytics" | "api">("members");
+    const [activeTab, setActiveTab] = useState<"members" | "orders" | "analytics" | "api" | "kmoa_crm">("members");
     const [memberSearch, setMemberSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState<string>("ALL");
     const [orderFilter, setOrderFilter] = useState<string>("ALL");
     const [selectedMember, setSelectedMember] = useState<any>(null);
     const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+    // K-MOA CRM 상태
+    const [kmoaBalance, setKmoaBalance] = useState<any>(null);
+    const [kmoaMembers, setKmoaMembers] = useState<any[]>([]);
+    const [kmoaDbLoading, setKmoaDbLoading] = useState(false);
+    const [kmoaDemo, setKmoaDemo] = useState(false);
+    const [kmoaConnStatus, setKmoaConnStatus] = useState<"live"|"demo"|"error"|"offline"|"loading">("loading");
+
+
+    // K-MOA 데이터 로드
+    const loadKmoaData = async () => {
+        setKmoaDbLoading(true);
+        setKmoaConnStatus("loading");
+        try {
+            const [balRes, memRes] = await Promise.all([
+                fetch("/api/v1/kmoa/balance").then(r => r.json()),
+                fetch("/api/v1/kmoa/members?limit=50").then(r => r.json())
+            ]);
+            if (balRes.success) setKmoaBalance(balRes);
+            if (memRes.success) {
+                setKmoaMembers(memRes.members || []);
+                setKmoaDemo(!!memRes.demo);
+                setKmoaConnStatus(balRes.connectionStatus || "demo");
+            }
+        } catch {
+            setKmoaConnStatus("offline");
+        } finally { setKmoaDbLoading(false); }
+    };
+
+
+    useEffect(() => { loadKmoaData(); }, []);
+
 
     const isSuperAdmin = user?.role === "SUPER_ADMIN";
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
@@ -128,7 +162,123 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            {/* KPI Metric Cards */}
+            {/* K-MOA 실시간 잠액 패널 */}
+            <div className={styles.kmoaPanel}>
+                <div className={styles.kmoaPanelHeader}>
+                    <div className={styles.kmoaPanelTitle}>
+                        <span className={styles.kmoaLiveDot2} />
+                        <Wallet size={18} color="#C8392B" />
+                        <strong>K-MOA 가맹점 실시간 자산 현황</strong>
+                        {kmoaConnStatus === "live" && (
+                            <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#16a34a', background: 'rgba(22,163,74,.1)', border: '1px solid rgba(22,163,74,.3)', padding: '2px 9px', borderRadius: '99px' }}>
+                                🟢 LIVE 연결됨
+                            </span>
+                        )}
+                        {(kmoaConnStatus === "error" || kmoaConnStatus === "offline") && (
+                            <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#dc2626', background: 'rgba(220,38,38,.08)', border: '1px solid rgba(220,38,38,.25)', padding: '2px 9px', borderRadius: '99px' }}>
+                                🔴 API 키 확인 중 (DEMO 표시)
+                            </span>
+                        )}
+                        {(kmoaConnStatus === "demo" || kmoaConnStatus === "loading") && (
+                            <span className={styles.kmoaDemoBadge}>DEMO 데이터</span>
+                        )}
+                    </div>
+                    <button
+                        className={styles.kmoaRefreshBtn}
+                        onClick={loadKmoaData}
+                        disabled={kmoaDbLoading}
+                    >
+                        <RefreshCcw size={14} className={kmoaDbLoading ? styles.spinning : ''} />
+                        {kmoaDbLoading ? "로딩...": "실시간 동기화"}
+                    </button>
+                </div>
+                <div className={styles.kmoaBalanceRow}>
+                    <div className={styles.kmoaBalanceCard}>
+                        <div className={styles.kmoaBalanceIcon}>💰</div>
+                        <div>
+                            <div className={styles.kmoaBalanceLabel}>K-MOA 포인트 잔액</div>
+                            <div className={styles.kmoaBalanceVal}>
+                                {kmoaBalance ? kmoaBalance.balance?.points?.toLocaleString() : "--"}
+                                <span className={styles.kmoaBalanceUnit}>P</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={styles.kmoaBalanceCard}>
+                        <div className={styles.kmoaBalanceIcon}>🎟️</div>
+                        <div>
+                            <div className={styles.kmoaBalanceLabel}>BT (보너스티켓) 재고</div>
+                            <div className={styles.kmoaBalanceVal}>
+                                {kmoaBalance ? kmoaBalance.balance?.bt?.toLocaleString() : "--"}
+                                <span className={styles.kmoaBalanceUnit}>BT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={styles.kmoaBalanceCard}>
+                        <div className={styles.kmoaBalanceIcon}>👥</div>
+                        <div>
+                            <div className={styles.kmoaBalanceLabel}>확보 단골 회원 수</div>
+                            <div className={styles.kmoaBalanceVal}>
+                                {kmoaMembers.length}
+                                <span className={styles.kmoaBalanceUnit}>명</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={styles.kmoaBalanceCard}>
+                        <div className={styles.kmoaBalanceIcon}>🏷️</div>
+                        <div>
+                            <div className={styles.kmoaBalanceLabel}>가맹점 ID</div>
+                            <div className={styles.kmoaBalanceVal} style={{ fontSize: '0.9rem' }}>
+                                {kmoaBalance?.merchantName || "--"}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* K-MOA 단골 회원 CRM 테이블 */}
+            <div className={styles.kmoaCrmSection}>
+                <div className={styles.kmoaCrmHeader}>
+                    <h3 className={styles.kmoaCrmTitle}>👥 K-MOA 단골 멤버십 DB</h3>
+                    <span className={styles.kmoaCrmCount}>전체 {kmoaMembers.length}명</span>
+                </div>
+                <div className={styles.kmoaCrmTable}>
+                    <table className={styles.kmoaTable}>
+                        <thead>
+                            <tr>
+                                <th>회원명</th>
+                                <th>이메일</th>
+                                <th>레벨</th>
+                                <th>지개 포인트</th>
+                                <th>BT</th>
+                                <th>가입일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {kmoaMembers.length === 0 && (
+                                <tr><td colSpan={6} className={styles.kmoaEmptyRow}>API 키를 설정하면 실제 회원 DB가 표시됩니다.</td></tr>
+                            )}
+                            {kmoaMembers.map((m: any) => (
+                                <tr key={m.uid}>
+                                    <td className={styles.kmoaTableName}>{m.displayName}</td>
+                                    <td className={styles.kmoaTableEmail}>{m.email}</td>
+                                    <td>
+                                        <span className={styles.kmoaLevelBadge} data-level={m.userLevel}>
+                                            Lv.{m.userLevel}
+                                        </span>
+                                    </td>
+                                    <td className={styles.kmoaTablePoints}>{m.pointBalance?.toLocaleString()} P</td>
+                                    <td>{m.btBalance} BT</td>
+                                    <td className={styles.kmoaTableDate}>
+                                        {new Date(m.joinedAt).toLocaleDateString("ko-KR")}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
             <div className={styles.kpiGrid}>
                 <div className={`${styles.kpiCard} ${styles.kpiHex}`}>
                     <div className={styles.kpiIconWrap}>

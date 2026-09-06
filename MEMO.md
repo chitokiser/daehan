@@ -1,5 +1,49 @@
 # 📝 대한김치 (DAEHAN KIMCHI) 프로젝트 메모
 
+---
+
+## 🎨 UI 테마 — 화이트 테마 (White Theme)
+
+> **적용일**: 2026-09-05 | **파일**: `src/app/globals.css`
+
+현재 적용된 테마는 **따뜻한 오프화이트 라이트 테마**입니다.
+
+### CSS 변수 (`:root`)
+
+| 변수 | 값 | 용도 |
+|---|---|---|
+| `--bg-color` | `#FAFAF8` | 전체 배경 (따뜻한 오프화이트) |
+| `--bg-secondary` | `#F5F0EB` | 섹션 구분 배경 |
+| `--surface-color` / `--bg-card` | `#FFFFFF` | 카드 · 패널 배경 |
+| `--primary-color` | `#C8392B` | 단청 빨강 (포인트 컬러) |
+| `--primary-hover` | `#A52D21` | 빨강 호버 |
+| `--secondary-color` | `#D4870A` | 황금 고추 (보조 포인트) |
+| `--text-main` | `#1A0D08` | 본문 텍스트 (거의 검정) |
+| `--text-sub` | `#3D2010` | 서브 텍스트 |
+| `--text-muted` | `#6B4C38` | 보조 텍스트 (WCAG AA 기준 충족) |
+| `--border-color` / `--border-subtle` | `rgba(0,0,0,0.10)` | 테두리 |
+| `--card-shadow` | `0 1px 8px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.05)` | 카드 그림자 |
+
+### 적용 파일 목록
+
+- `globals.css` — CSS 변수 정의
+- `components/Header.module.css` — 헤더
+- `app/page.module.css` — 메인 페이지
+- `app/shop/page.module.css` — 쇼핑몰
+- `app/about/page.module.css` — 소개 페이지
+- `app/mypage/page.module.css` — 마이페이지
+- `app/dna-test/page.module.css` — DNA 테스트
+- `app/kmoa-guide/page.module.css` — K-MOA 가이드
+- `app/shop/[id]/page.module.css` — 상품 상세
+
+### 특이사항
+
+- 코드 블록(`.codeBlock`)은 가독성을 위해 다크 배경(`#1E1E2E`) 유지
+- 히어로 섹션은 `linear-gradient(160deg, #FFF8F0, #FFF5EE)` — 배경 오버레이 제거됨
+- 이전 다크 테마 잔재(`rgba(255,255,255,0.x)` 배경, `#fff` 텍스트 하드코딩) 전부 제거됨
+
+---
+
 ## 1. 회원 DB 및 결제 시스템 통합
 - **K-MOA 일원화 완료**: 기존 ZENTARO 관련 잔재를 완전히 제거하고 K-MOA 회원 DB(Firebase Auth UID + Firestore 기반)로 100% 일원화했습니다.
 - **주요 변경점**: KCA 포인트 -> K-MOA 포인트 / K-MOA 충전머니 사용. 모든 가맹점 공유 기능 확보.

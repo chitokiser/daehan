@@ -18,6 +18,40 @@ export async function POST(request: NextRequest) {
 
         const effectiveOrderId = orderId || `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+        // K-MOA 충전머니(HEX) 또는 포인트 결제인 경우 K-MOA API 서버로 요청 전달
+        if (currency === "HEX" || currency === "POINT") {
+            const baseUrl = request.headers.get("origin") || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
+            
+            const response = await fetch(`${baseUrl}/api/v1/kmoa/pay`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer moa-merch-4900c6d440dc5419" // 발급받은 가맹점 API Key
+                },
+                body: JSON.stringify({
+                    uid,
+                    merchantId: merchantId || "daehan_kimchi_store",
+                    currency,
+                    amount: Number(amount),
+                    orderId: effectiveOrderId,
+                    items,
+                    shippingAddress
+                })
+            });
+
+            const result = await response.json();
+            if (!result.success) {
+                return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+            }
+
+            return NextResponse.json({
+                success: true,
+                transactionId: result.transactionId,
+                receipt: result.receipt
+            });
+        }
+
+        // 일반 결제 (VND)
         const result = executePayment({
             uid,
             merchantId: merchantId || "daehan_kimchi_store",

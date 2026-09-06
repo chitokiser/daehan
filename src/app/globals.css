@@ -1,39 +1,42 @@
 /* src/app/globals.css */
+/* ============================================================
+   대한김치 (DAEHAN KIMCHI) — 화이트 테마 (WHITE THEME)
+   테마 변경 이력 → /MEMO.md 참고
+   ============================================================ */
 :root {
-  /* === 웜 라이트 테마 (대한김치 리뉴얼) === */
+  /* === 배경 === */
+  --bg-color:       #FAFAF8;          /* 따뜻한 오프화이트 */
+  --bg-secondary:   #F5F0EB;          /* 섹션 구분용 살짝 어두운 배경 */
+  --surface-color:  #FFFFFF;          /* 카드/패널 흰색 */
+  --bg-card:        #FFFFFF;
+  --surface-card:   #FFFFFF;
 
-  /* 배경 - 따뜻한 아이보리 계열 */
-  --bg-color: #FFF8F0;
-  --bg-secondary: #FFF3E6;
-  --surface-color: rgba(255, 255, 255, 0.85);
-  --surface-card: #FFFFFF;
+  /* === 포인트 컬러 — 단청 빨강 + 황금 고추 === */
+  --primary-color:  #C8392B;          /* 단청 빨강 */
+  --primary-hover:  #A52D21;
+  --secondary-color:#D4870A;          /* 황금 고추 (화이트 배경에서 읽히도록 진하게) */
+  --secondary-hover:#B37208;
 
-  /* 포인트 컬러 - 한국 전통 단청 빨강 + 황금 고추 */
-  --primary-color: #C8392B;       /* 단청 빨강 */
-  --primary-hover: #A52D21;
-  --secondary-color: #E8A020;     /* 황금 고추 */
-  --secondary-hover: #C88018;
-  --accent-deep: #3D2B1F;         /* 짙은 고동색 (텍스트) */
+  /* === 텍스트 — WCAG AA 보장 (최소 4.5:1 대비) === */
+  --text-main:      #1A0D08;          /* 거의 검정 (짙은 갈색) */
+  --text-sub:       #3D2010;          /* 중간 갈색 */
+  --text-muted:     #6B4C38;          /* 보조 텍스트 — 화이트 배경에서 충분히 어두움 */
 
-  /* 텍스트 */
-  --text-main: #2C1810;           /* 짙은 갈색 (식품 쇼핑몰 최적) */
-  --text-sub: #5C4033;
-  --text-muted: #8D6E63;
+  /* === 테두리 & 그림자 === */
+  --border-color:   rgba(0, 0, 0, 0.10);
+  --border-subtle:  rgba(0, 0, 0, 0.10);
+  --border-warm:    rgba(200, 57, 43, 0.18);
+  --glass-shadow:   0 2px 16px rgba(0, 0, 0, 0.08);
+  --card-shadow:    0 1px 8px rgba(0, 0, 0, 0.07), 0 4px 20px rgba(0, 0, 0, 0.05);
 
-  /* 테두리 & 그림자 */
-  --border-subtle: rgba(180, 120, 80, 0.2);
-  --border-warm: rgba(200, 57, 43, 0.15);
-  --glass-shadow: 0 4px 24px rgba(60, 30, 10, 0.1);
-  --card-shadow: 0 2px 12px rgba(60, 30, 10, 0.08);
+  /* === 반경 === */
+  --radius-sm:      8px;
+  --radius-md:      16px;
+  --radius-lg:      24px;
+  --radius-full:    9999px;
 
-  /* 반경 */
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-full: 9999px;
-
-  /* 레이아웃 */
-  --max-width: 1200px;
+  /* === 레이아웃 === */
+  --max-width:      1200px;
 }
 
 * {
@@ -42,8 +45,7 @@
   padding: 0;
 }
 
-html,
-body {
+html, body {
   width: 100%;
   min-height: 100vh;
   background-color: var(--bg-color);
@@ -61,11 +63,24 @@ a {
 /* 카드 패널 */
 .glass-panel {
   background: var(--surface-color);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--card-shadow);
+}
+
+/* 배지 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(200, 57, 43, 0.10);
+  border: 1px solid rgba(200, 57, 43, 0.28);
+  color: #A52D21;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
 }
 
 /* 텍스트 그라디언트 */
@@ -80,10 +95,9 @@ a {
 .hover-lift {
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
 }
-
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 32px rgba(200, 57, 43, 0.18);
+  box-shadow: 0 12px 32px rgba(200, 57, 43, 0.15);
 }
 
 /* 공통 레이아웃 */
@@ -96,7 +110,7 @@ a {
 
 /* 기본 버튼 */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(135deg, var(--primary-color), #E05A10);
   color: #fff;
   border: none;
   border-radius: var(--radius-full);
@@ -104,28 +118,26 @@ a {
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(200, 57, 43, 0.25);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 14px rgba(200, 57, 43, 0.30);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-
 .btn-primary:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(200, 57, 43, 0.4);
+  transform: scale(1.03);
+  box-shadow: 0 6px 22px rgba(200, 57, 43, 0.45);
 }
 
 /* 보조 버튼 */
 .btn-secondary {
   background: #fff;
   color: var(--primary-color);
-  border: 2px solid var(--primary-color);
+  border: 1.5px solid var(--primary-color);
   border-radius: var(--radius-full);
-  padding: 10px 24px;
+  padding: 12px 28px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
-
 .btn-secondary:hover {
   background: var(--primary-color);
   color: #fff;

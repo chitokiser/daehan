@@ -8,7 +8,6 @@ export interface Product {
     category: string;
     price: number;
     priceFormatted: string;
-    priceHex?: number;
     badge?: string;
     desc: string;
     detailDesc: string;
@@ -18,9 +17,6 @@ export interface Product {
     image: string;
 }
 
-export function vndToHex(vnd: number): number {
-    return Math.round(vnd / 1000);
-}
 
 export const products: Product[] = [
     {

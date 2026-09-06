@@ -1,8 +1,11 @@
+/* shop/[id]/page.module.css — 화이트 테마 */
+
 .detailContainer {
     padding: 120px 24px 100px;
     min-height: 100vh;
     max-width: 1100px;
     margin: 0 auto;
+    background: var(--bg-color);
 }
 
 /* Breadcrumb */
@@ -19,7 +22,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: var(--text-main);
+    color: var(--text-sub);
     transition: color 0.2s;
 }
 
@@ -28,7 +31,7 @@
 }
 
 .breadDivider {
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(0, 0, 0, 0.20);
 }
 
 .breadCurrent {
@@ -48,10 +51,10 @@
     overflow: hidden;
     position: relative;
     border: 1px solid var(--border-subtle);
-    background: #0f1015;
+    background: #F5F0EB;
     aspect-ratio: 1/1;
     max-width: 480px;
-    box-shadow: var(--glass-shadow);
+    box-shadow: var(--card-shadow);
 }
 
 .productImage {
@@ -64,32 +67,32 @@
     position: absolute;
     top: 20px;
     left: 20px;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    background: linear-gradient(135deg, var(--primary-color), #E05A10);
     color: #fff;
     padding: 6px 14px;
     border-radius: var(--radius-full);
     font-size: 0.8rem;
     font-weight: 800;
     z-index: 2;
-    box-shadow: 0 4px 12px rgba(227, 24, 55, 0.5);
+    box-shadow: 0 4px 12px rgba(200, 57, 43, 0.40);
 }
 
 .hotBadge {
-    background: linear-gradient(135deg, #ff0055, #ff5500) !important;
+    background: linear-gradient(135deg, #e31837, #ff5500) !important;
 }
 
 .categoryBadge {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: rgba(0, 0, 0, 0.65);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px);
-    color: #fff;
+    color: var(--text-sub);
     padding: 4px 12px;
     border-radius: var(--radius-full);
     font-size: 0.78rem;
     font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.10);
     z-index: 2;
 }
 
@@ -97,10 +100,10 @@
     position: absolute;
     bottom: 20px;
     left: 20px;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(247, 164, 0, 0.4);
-    color: #fcd34d;
+    border: 1px solid rgba(212, 135, 10, 0.35);
+    color: var(--secondary-color);
     padding: 5px 12px;
     border-radius: var(--radius-full);
     font-size: 0.78rem;
@@ -115,9 +118,9 @@
     position: absolute;
     bottom: 20px;
     right: 20px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 50%;
     width: 44px;
     height: 44px;
@@ -131,11 +134,11 @@
 
 .likeBtn:hover {
     transform: scale(1.1);
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(255, 255, 255, 1);
 }
 
 .liked {
-    border-color: #e31837 !important;
+    border-color: var(--primary-color) !important;
 }
 
 /* Info Section */
@@ -158,20 +161,20 @@
 }
 
 .brandName {
-    color: #ff4d6d;
+    color: var(--primary-color);
     font-weight: 700;
     letter-spacing: 0.5px;
 }
 
 .ratingBadge {
-    color: #FBBC05;
+    color: #D4870A;
     font-weight: 600;
 }
 
 .title {
     font-size: 2.6rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-main);
     line-height: 1.15;
     margin-bottom: 4px;
     letter-spacing: -0.5px;
@@ -183,8 +186,8 @@
 }
 
 .priceBox {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 16px 20px;
     margin-bottom: 20px;
@@ -209,30 +212,30 @@
 .finalPrice {
     font-size: 1.9rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-main);
 }
 
 .hexPriceHighlight {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: linear-gradient(135deg, rgba(247, 164, 0, 0.2), rgba(227, 24, 55, 0.15));
-    border: 1px solid rgba(247, 164, 0, 0.5);
+    background: linear-gradient(135deg, rgba(212, 135, 10, 0.12), rgba(200, 57, 43, 0.08));
+    border: 1px solid rgba(212, 135, 10, 0.35);
     padding: 6px 14px;
     border-radius: var(--radius-full);
-    color: #fcd34d;
+    color: var(--secondary-color);
     font-size: 1.25rem;
-    box-shadow: 0 0 15px rgba(247, 164, 0, 0.2);
+    font-weight: 700;
 }
 
 .coinIcon {
-    color: #fcd34d;
+    color: var(--secondary-color);
 }
 
 .discountTag {
-    background: rgba(227, 24, 55, 0.2);
-    border: 1px solid #e31837;
-    color: #ff4d6d;
+    background: rgba(200, 57, 43, 0.10);
+    border: 1px solid rgba(200, 57, 43, 0.30);
+    color: var(--primary-color);
     padding: 3px 10px;
     border-radius: var(--radius-full);
     font-size: 0.78rem;
@@ -253,7 +256,7 @@
 
 .desc {
     font-size: 1.02rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-sub);
     line-height: 1.65;
     margin-bottom: 20px;
 }
@@ -264,8 +267,8 @@
     gap: 8px;
     margin-bottom: 24px;
     padding: 14px 18px;
-    background: rgba(0, 230, 118, 0.05);
-    border: 1px solid rgba(0, 230, 118, 0.15);
+    background: rgba(22, 163, 74, 0.05);
+    border: 1px solid rgba(22, 163, 74, 0.18);
     border-radius: var(--radius-sm);
 }
 
@@ -274,7 +277,7 @@
     align-items: center;
     gap: 10px;
     font-size: 0.9rem;
-    color: #fff;
+    color: var(--text-sub);
 }
 
 /* Weight Selector */
@@ -288,12 +291,12 @@
     gap: 10px;
     font-size: 0.92rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-main);
     margin-bottom: 10px;
 }
 
 .freeShippingBadge {
-    background: rgba(247, 164, 0, 0.2);
+    background: rgba(212, 135, 10, 0.10);
     color: var(--secondary-color);
     padding: 2px 8px;
     border-radius: 4px;
@@ -308,8 +311,8 @@
 }
 
 .weightBtn {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #fff;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
     text-align: left;
@@ -321,20 +324,20 @@
 }
 
 .weightBtn:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(200, 57, 43, 0.04);
+    border-color: rgba(200, 57, 43, 0.30);
 }
 
 .activeWeight {
-    background: rgba(227, 24, 55, 0.15) !important;
+    background: rgba(200, 57, 43, 0.08) !important;
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 12px rgba(227, 24, 55, 0.3);
+    box-shadow: 0 0 0 3px rgba(200, 57, 43, 0.10);
 }
 
 .weightBtnLabel {
     font-size: 0.9rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
 }
 
 .weightBtnDesc {
@@ -349,14 +352,14 @@
     justify-content: space-between;
     margin-bottom: 24px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .quantityControl {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #fff;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--radius-full);
     padding: 4px 8px;
 }
@@ -364,7 +367,7 @@
 .qtyBtn {
     background: none;
     border: none;
-    color: #fff;
+    color: var(--text-main);
     width: 28px;
     height: 28px;
     display: flex;
@@ -376,13 +379,13 @@
 }
 
 .qtyBtn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.06);
 }
 
 .qtyNumber {
     font-size: 1rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     padding: 0 16px;
     min-width: 40px;
     text-align: center;
@@ -398,7 +401,7 @@
 
 .hexPayBtn {
     flex: 2;
-    background: linear-gradient(135deg, #e31837, #f7a400);
+    background: linear-gradient(135deg, var(--primary-color), #E05A10);
     border: none;
     border-radius: var(--radius-full);
     color: #fff;
@@ -410,13 +413,13 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    box-shadow: 0 4px 20px rgba(227, 24, 55, 0.4);
+    box-shadow: 0 4px 20px rgba(200, 57, 43, 0.35);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .hexPayBtn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(247, 164, 0, 0.5);
+    box-shadow: 0 6px 24px rgba(212, 135, 10, 0.40);
 }
 
 .buyBtn {
@@ -430,9 +433,9 @@
 }
 
 .vndPayBtn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: #fff;
+    border: 1.5px solid rgba(0, 0, 0, 0.15);
+    color: var(--text-main);
     padding: 14px 18px;
     border-radius: var(--radius-full);
     font-size: 0.9rem;
@@ -445,14 +448,14 @@
 }
 
 .vndPayBtn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.25);
 }
 
 .cartAdded {
-    background: #00E676 !important;
-    color: #000 !important;
-    box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4) !important;
+    background: #16a34a !important;
+    color: #fff !important;
+    box-shadow: 0 4px 20px rgba(22, 163, 74, 0.35) !important;
 }
 
 /* Trust Chips Row */
@@ -467,8 +470,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     padding: 6px 12px;
     border-radius: var(--radius-full);
     font-size: 0.78rem;
@@ -478,34 +481,33 @@
 /* Specifications Table */
 .specSection {
     background: var(--surface-color);
-    backdrop-filter: blur(12px);
     border-radius: var(--radius-lg);
     padding: 36px;
     border: 1px solid var(--border-subtle);
     margin-bottom: 60px;
-    box-shadow: var(--glass-shadow);
+    box-shadow: var(--card-shadow);
 }
 
 .sectionHeading {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     margin-bottom: 24px;
     padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .specGrid {
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     overflow: hidden;
 }
 
 .specRow {
     display: flex;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .specRow:last-child {
@@ -514,19 +516,19 @@
 
 .specKey {
     width: 200px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-secondary);
     padding: 14px 20px;
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-muted);
     flex-shrink: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-right: 1px solid var(--border-color);
 }
 
 .specVal {
     padding: 14px 20px;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-sub);
     line-height: 1.5;
     flex-grow: 1;
 }
@@ -534,12 +536,11 @@
 /* Review Section */
 .reviewSection {
     background: var(--surface-color);
-    backdrop-filter: blur(12px);
     border-radius: var(--radius-lg);
     padding: 36px;
     border: 1px solid var(--border-subtle);
     margin-bottom: 60px;
-    box-shadow: var(--glass-shadow);
+    box-shadow: var(--card-shadow);
 }
 
 .reviewHeaderMain {
@@ -552,14 +553,14 @@
 .reviewTitle {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .ratingOverview {
-    color: #FBBC05;
+    color: #D4870A;
     font-size: 1.25rem;
 }
 
@@ -569,11 +570,11 @@
 }
 
 .writeForm {
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--bg-secondary);
     padding: 24px;
     border-radius: var(--radius-md);
     margin-bottom: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
 }
 
 .formHeader {
@@ -599,7 +600,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: #444;
+    color: rgba(0, 0, 0, 0.18);
     transition: transform 0.2s;
     padding: 0 2px;
 }
@@ -609,7 +610,7 @@
 }
 
 .starBtn.active {
-    color: #FBBC05;
+    color: #D4870A;
 }
 
 .inputRow {
@@ -619,10 +620,10 @@
 }
 
 .nameInput {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #fff;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--radius-sm);
-    color: #fff;
+    color: var(--text-main);
     padding: 10px 14px;
     font-size: 0.92rem;
     outline: none;
@@ -631,10 +632,10 @@
 
 .reviewInput {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #fff;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--radius-sm);
-    color: #fff;
+    color: var(--text-main);
     padding: 10px 16px;
     font-size: 0.92rem;
     outline: none;
@@ -644,6 +645,7 @@
 .nameInput:focus,
 .reviewInput:focus {
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(200, 57, 43, 0.10);
 }
 
 .reviewList {
@@ -653,7 +655,7 @@
 }
 
 .reviewItem {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 20px;
 }
 
@@ -676,7 +678,7 @@
 
 .reviewerName {
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     font-size: 0.98rem;
 }
 
@@ -686,7 +688,7 @@
 }
 
 .reviewContent {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-sub);
     line-height: 1.6;
     font-size: 0.95rem;
 }
@@ -709,19 +711,21 @@
     overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: var(--card-shadow);
 }
 
 .relatedCard:hover {
     transform: translateY(-6px);
-    border-color: rgba(227, 24, 55, 0.5);
+    border-color: rgba(200, 57, 43, 0.30);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
 }
 
 .relatedImgWrap {
     width: 100%;
     aspect-ratio: 1/1;
     position: relative;
-    background: #0f1015;
+    background: #F5F0EB;
 }
 
 .relatedImg {
@@ -749,7 +753,7 @@
 .relatedTitle {
     font-size: 0.98rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     margin-bottom: 6px;
 }
 
@@ -767,15 +771,15 @@
 .relatedHexPrice {
     font-size: 0.92rem;
     font-weight: 700;
-    color: #fcd34d;
+    color: var(--secondary-color);
 }
 
-/* Modal Overlay & Checkout */
+/* ===== CHECKOUT MODAL ===== */
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -785,20 +789,20 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
 .checkoutModal {
-    background: #131722;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.10);
     border-radius: var(--radius-lg);
     padding: 32px;
     max-width: 540px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
 }
 
 .modalHeader {
@@ -807,7 +811,7 @@
     justify-content: space-between;
     margin-bottom: 20px;
     padding-bottom: 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .modalTitleWrap {
@@ -819,7 +823,7 @@
 .modalTitleWrap h3 {
     font-size: 1.35rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
 }
 
 .modalClose {
@@ -833,8 +837,8 @@
 .orderSummaryCard {
     display: flex;
     gap: 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 14px;
     margin-bottom: 20px;
@@ -845,12 +849,13 @@
     height: 64px;
     object-fit: cover;
     border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
 }
 
 .orderMeta h4 {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     margin-bottom: 2px;
 }
 
@@ -874,14 +879,14 @@
 .hexTotal {
     font-size: 1.05rem;
     font-weight: 800;
-    color: #fcd34d;
+    color: var(--secondary-color);
 }
 
 .sectionSubTitle {
     display: block;
     font-size: 0.88rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     margin-bottom: 10px;
 }
 
@@ -896,8 +901,8 @@
 }
 
 .currencyBtn {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #fff;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--radius-sm);
     padding: 10px;
     text-align: left;
@@ -909,13 +914,14 @@
 }
 
 .currencyBtn:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.20);
 }
 
 .activeCurrency {
-    background: rgba(247, 164, 0, 0.15) !important;
-    border-color: #f7a400 !important;
-    box-shadow: 0 0 12px rgba(247, 164, 0, 0.25);
+    background: rgba(212, 135, 10, 0.08) !important;
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 0 3px rgba(212, 135, 10, 0.12);
 }
 
 .curTop {
@@ -923,7 +929,7 @@
     align-items: center;
     gap: 6px;
     font-size: 0.85rem;
-    color: #fff;
+    color: var(--text-main);
 }
 
 .curBalance {
@@ -933,12 +939,13 @@
 
 .curDiscount {
     font-size: 0.7rem;
-    color: #f7a400;
+    color: var(--secondary-color);
     font-weight: 700;
 }
 
 .walletCheckCard {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 12px 14px;
     margin-bottom: 20px;
@@ -953,20 +960,20 @@
 }
 
 .walletCheckHeader strong {
-    color: #fff;
+    color: var(--text-main);
 }
 
 .walletCheckAddr {
     font-family: monospace;
-    color: #00E676;
+    color: #16a34a;
     font-size: 0.78rem;
 }
 
 .insufficientAlert {
     margin-top: 10px;
-    background: rgba(227, 24, 55, 0.15);
-    border: 1px solid #e31837;
-    color: #ff4d6d;
+    background: rgba(200, 57, 43, 0.08);
+    border: 1px solid rgba(200, 57, 43, 0.30);
+    color: var(--primary-color);
     padding: 8px 12px;
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
@@ -977,7 +984,7 @@
 }
 
 .inlineFaucetBtn {
-    background: #e31837;
+    background: var(--primary-color);
     border: none;
     color: #fff;
     font-size: 0.75rem;
@@ -998,17 +1005,23 @@
 }
 
 .checkoutInput {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #fff;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
-    color: #fff;
+    color: var(--text-main);
     font-size: 0.88rem;
     outline: none;
+    width: 100%;
+}
+
+.checkoutInput::placeholder {
+    color: var(--text-muted);
 }
 
 .checkoutInput:focus {
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(200, 57, 43, 0.10);
 }
 
 .fullWidth {
@@ -1016,9 +1029,9 @@
 }
 
 .errorBanner {
-    background: rgba(227, 24, 55, 0.2);
-    border: 1px solid #e31837;
-    color: #ff4d6d;
+    background: rgba(200, 57, 43, 0.08);
+    border: 1px solid rgba(200, 57, 43, 0.30);
+    color: var(--primary-color);
     padding: 10px 14px;
     border-radius: var(--radius-sm);
     font-size: 0.88rem;
@@ -1030,7 +1043,7 @@
 
 .executePayBtn {
     width: 100%;
-    background: linear-gradient(135deg, #e31837, #f7a400);
+    background: linear-gradient(135deg, var(--primary-color), #E05A10);
     border: none;
     color: #fff;
     padding: 16px;
@@ -1042,7 +1055,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    box-shadow: 0 4px 20px rgba(227, 24, 55, 0.4);
+    box-shadow: 0 4px 20px rgba(200, 57, 43, 0.35);
     transition: all 0.25s ease;
 }
 
@@ -1053,7 +1066,7 @@
 
 .executePayBtn:not(:disabled):hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(247, 164, 0, 0.5);
+    box-shadow: 0 6px 25px rgba(212, 135, 10, 0.40);
 }
 
 /* Receipt View */
@@ -1069,7 +1082,7 @@
 .successTitle {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-main);
     margin-bottom: 6px;
 }
 
@@ -1080,8 +1093,8 @@
 }
 
 .receiptCard {
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 20px;
     margin-bottom: 24px;
@@ -1093,7 +1106,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
     color: var(--text-muted);
 }
@@ -1103,7 +1116,7 @@
 }
 
 .receiptRow strong {
-    color: #fff;
+    color: var(--text-main);
 }
 
 .txHashWrap {
@@ -1114,14 +1127,14 @@
 
 .txHashWrap code {
     font-family: monospace;
-    color: #00E676;
+    color: #16a34a;
     font-size: 0.82rem;
 }
 
 .copyBtn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.06);
     border: none;
-    color: #fff;
+    color: var(--text-sub);
     padding: 4px 6px;
     border-radius: 4px;
     cursor: pointer;
@@ -1135,25 +1148,29 @@
 }
 
 .closeReceiptBtn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    color: var(--text-main);
     padding: 12px;
     border-radius: var(--radius-full);
     font-size: 0.95rem;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
+.closeReceiptBtn:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
     .productSplit {
         flex-direction: column;
         gap: 36px;
     }
-
     .imageSection {
         max-width: 100%;
     }
-
     .relatedGrid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1163,33 +1180,26 @@
     .specRow {
         flex-direction: column;
     }
-
     .specKey {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--border-color);
     }
-
     .weightSelector {
         grid-template-columns: 1fr;
     }
-
     .currencyOptions {
         grid-template-columns: 1fr;
     }
-
     .formGrid {
         grid-template-columns: 1fr;
     }
-
     .purchaseActions {
         flex-direction: column;
     }
-
     .inputRow {
         flex-direction: column;
     }
-
     .nameInput {
         width: 100%;
     }

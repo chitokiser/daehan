@@ -3,14 +3,12 @@
 import { useState, useMemo } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
-import { products, vndToHex } from "@/data/products";
-import { useUserWallet } from "@/context/UserWalletContext";
-import { Search, SlidersHorizontal, Sparkles, Truck, ShieldCheck, PhoneCall, ShoppingBag, Check, Coins, Wallet } from "lucide-react";
+import { products } from "@/data/products";
+import { Search, SlidersHorizontal, Sparkles, Truck, ShieldCheck, PhoneCall, ShoppingBag, Check } from "lucide-react";
 
 const CATEGORIES = ["전체보기", "배추김치", "무김치", "별미김치", "계절김치", "스페셜"];
 
 export default function Shop() {
-    const { wallet, isLoggedIn } = useUserWallet();
     const [selectedCategory, setSelectedCategory] = useState("전체보기");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name">("default");
@@ -47,46 +45,27 @@ export default function Shop() {
             {/* Header section */}
             <header className={styles.header}>
                 <div className={styles.headerBadge}>
-                    <Sparkles size={14} color="#e31837" /> 100% 당일 생산 & 하노이 콜드체인 직배송
+                    <Sparkles size={14} color="#C8392B" /> 100% 당일 생산 & 하노이 콜드체인 직배송
                 </div>
                 <h1 className={`${styles.title} text-gradient`}>DAEHAN KIMCHI SHOP</h1>
                 <p className={styles.description}>
                     30년 전통의 발효 비법과 HACCP 기준 위생 관리 환경에서 정성껏 담근 대한김치의 15가지 정통 라인업.<br />
-                    신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 일반 결제(VND/계좌이체) 및 포인트로 간편 결제할 수 있습니다.
+                    신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 VND 직불 및 대한포인트로 간편 결제할 수 있습니다.
                 </p>
-
-                {/* K-MOA Crypto & Web3 Banner */}
-                <div className={styles.hexNoticeBar}>
-                    <div className={styles.hexNoticeItem}>
-                        <Coins size={18} color="#fcd34d" />
-                        <span><strong>결제 안내:</strong> 일반 결제(VND/계좌이체) 또는 포인트 결제 시 5% 대한포인트 즉시 적립</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Link href="/kmoa-guide" style={{ color: '#fcd34d', fontSize: '0.82rem', textDecoration: 'underline', fontWeight: 600 }}>
-                            포인트 결제 안내
-                        </Link>
-                        {isLoggedIn && (
-                            <div className={styles.hexBalancePill}>
-                                <Wallet size={14} color="#00E676" />
-                                <span>내 충전머니 잔액: <strong>{wallet.hexTokenBalance.toLocaleString()} HEX</strong></span>
-                            </div>
-                        )}
-                    </div>
-                </div>
 
                 <div className={styles.deliveryBanner}>
                     <div className={styles.bannerItem}>
-                        <Truck size={18} color="#f7a400" />
+                        <Truck size={18} color="#D4870A" />
                         <span><strong>10kg 이상 주문 시</strong> 하노이 시내 무료배송</span>
                     </div>
                     <div className={styles.bannerDivider}></div>
                     <div className={styles.bannerItem}>
-                        <ShieldCheck size={18} color="#00E676" />
+                        <ShieldCheck size={18} color="#16a34a" />
                         <span><strong>식당·업소·단체 정기납품</strong> 특별 도매가 공급</span>
                     </div>
                     <div className={styles.bannerDivider}></div>
                     <div className={styles.bannerItem}>
-                        <PhoneCall size={18} color="#2979FF" />
+                        <PhoneCall size={18} color="#2563eb" />
                         <span><strong>주문 문의</strong> Zalo / Kakao : 0702116617</span>
                     </div>
                 </div>
@@ -96,8 +75,8 @@ export default function Shop() {
             <div className={`${styles.filterBar} container`}>
                 <div className={styles.categoryTabs}>
                     {CATEGORIES.map(cat => {
-                        const count = cat === "전체보기" 
-                            ? products.length 
+                        const count = cat === "전체보기"
+                            ? products.length
                             : products.filter(p => p.category === cat).length;
                         return (
                             <button
@@ -147,8 +126,8 @@ export default function Shop() {
                 {filteredProducts.length === 0 ? (
                     <div className={styles.emptyState}>
                         <p>검색 결과에 맞는 김치가 없습니다.</p>
-                        <button 
-                            className="btn-primary" 
+                        <button
+                            className="btn-primary"
                             onClick={() => { setSelectedCategory("전체보기"); setSearchQuery(""); }}
                             style={{ marginTop: '16px' }}
                         >
@@ -156,71 +135,58 @@ export default function Shop() {
                         </button>
                     </div>
                 ) : (
-                    filteredProducts.map(product => {
-                        const hexPrice = vndToHex(product.price);
-                        return (
-                            <Link href={`/shop/${product.id}`} key={product.id} className={styles.cardLink}>
-                                <article className={styles.productCard}>
-                                    <div className={styles.imageWrapper}>
-                                        {product.badge && (
-                                            <span className={`${styles.badge} ${product.badge.includes('HOT') ? styles.hotBadge : ''}`}>
-                                                {product.badge}
-                                            </span>
-                                        )}
-                                        <span className={styles.categoryTag}>{product.category}</span>
-                                        <img 
-                                            src={product.image} 
-                                            alt={product.name} 
-                                            className={styles.productImage}
-                                            loading="lazy"
-                                        />
-                                        <div className={styles.weightTag}>{product.weight}</div>
-                                        <div className={styles.hexTokenTag}>
-                                            <Coins size={12} /> {hexPrice} HEX
-                                        </div>
+                    filteredProducts.map(product => (
+                        <Link href={`/shop/${product.id}`} key={product.id} className={styles.cardLink}>
+                            <article className={styles.productCard}>
+                                <div className={styles.imageWrapper}>
+                                    {product.badge && (
+                                        <span className={`${styles.badge} ${product.badge.includes('HOT') ? styles.hotBadge : ''}`}>
+                                            {product.badge}
+                                        </span>
+                                    )}
+                                    <span className={styles.categoryTag}>{product.category}</span>
+                                    <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        className={styles.productImage}
+                                        loading="lazy"
+                                    />
+                                    <div className={styles.weightTag}>{product.weight}</div>
+                                </div>
+
+                                <div className={styles.info}>
+                                    <div className={styles.titleHeader}>
+                                        <h2 className={styles.productName}>{product.koreanName}</h2>
+                                        <span className={styles.englishName}>{product.englishName}</span>
+                                    </div>
+                                    <p className={styles.productDesc}>{product.desc}</p>
+
+                                    <div className={styles.featurePills}>
+                                        {product.features.slice(0, 2).map((f, i) => (
+                                            <span key={i} className={styles.featurePill}>{f}</span>
+                                        ))}
                                     </div>
 
-                                    <div className={styles.info}>
-                                        <div className={styles.titleHeader}>
-                                            <h2 className={styles.productName}>{product.koreanName}</h2>
-                                            <span className={styles.englishName}>{product.englishName}</span>
+                                    <div className={styles.footer}>
+                                        <div className={styles.priceContainer}>
+                                            <span className={styles.price}>{product.priceFormatted}</span>
+                                            <span className={styles.priceLabel}>소매 1Kg 기준</span>
                                         </div>
-                                        <p className={styles.productDesc}>{product.desc}</p>
-                                        
-                                        <div className={styles.featurePills}>
-                                            {product.features.slice(0, 2).map((f, i) => (
-                                                <span key={i} className={styles.featurePill}>{f}</span>
-                                            ))}
-                                        </div>
-
-                                        <div className={styles.footer}>
-                                            <div className={styles.priceContainer}>
-                                                <div className={styles.dualPrice}>
-                                                    <span className={styles.price}>{product.priceFormatted}</span>
-                                                    <span className={styles.hexPriceBadge}>🪙 {hexPrice} HEX</span>
-                                                </div>
-                                                <span className={styles.priceLabel}>소매 1Kg 기준</span>
-                                            </div>
-                                            <button 
-                                                className={`${styles.addToCartBtn} ${addedId === product.id ? styles.addedBtn : ''}`}
-                                                onClick={(e) => handleAddToCart(e, product.id)}
-                                            >
-                                                {addedId === product.id ? (
-                                                    <>
-                                                        <Check size={16} /> 담김!
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <ShoppingBag size={16} /> 담기
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
+                                        <button
+                                            className={`${styles.addToCartBtn} ${addedId === product.id ? styles.addedBtn : ''}`}
+                                            onClick={(e) => handleAddToCart(e, product.id)}
+                                        >
+                                            {addedId === product.id ? (
+                                                <><Check size={16} /> 담김!</>
+                                            ) : (
+                                                <><ShoppingBag size={16} /> 담기</>
+                                            )}
+                                        </button>
                                     </div>
-                                </article>
-                            </Link>
-                        );
-                    })
+                                </div>
+                            </article>
+                        </Link>
+                    ))
                 )}
             </div>
 
@@ -229,17 +195,17 @@ export default function Shop() {
                 <div className={styles.wholesaleContent}>
                     <div className={styles.wholesaleText}>
                         <span className="badge">B2B & WHOLESALE</span>
-                        <h3>식당 / 기업 / 단체 대량 주문 & K-MOA 결제 안내</h3>
+                        <h3>식당 / 기업 / 단체 대량 주문 안내</h3>
                         <p>
                             하노이 내 한식당, 호텔, 기업체 급식 및 마트에 정기적으로 10kg, 20kg, 50kg 단위로 신선하게 냉장 납품합니다.<br />
-                            정기 계약 시 맞춤형 숙성도 조절 및 <strong>K-MOA 가맹점 충전머니 B2B 간편 정산</strong> 혜택을 제공합니다.
+                            정기 계약 시 맞춤형 숙성도 조절 및 대한포인트 추가 적립 혜택을 제공합니다.
                         </p>
                     </div>
                     <div className={styles.wholesaleActions}>
-                        <a 
-                            href="https://zalo.me/0702116617" 
-                            target="_blank" 
-                            rel="noreferrer" 
+                        <a
+                            href="https://zalo.me/0702116617"
+                            target="_blank"
+                            rel="noreferrer"
                             className="btn-primary"
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                         >
