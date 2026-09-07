@@ -15,6 +15,9 @@ export interface UserProfile {
     dpPoints?: number;
     phone?: string;
     createdAt?: string;
+    onChainWalletAddress?: string;
+    hexTokenBalance?: number;
+    kcaPoints?: number;
 }
 
 export interface WalletState {
@@ -69,6 +72,7 @@ export interface AdminStats {
     operatorCount: number;
     superAdminCount: number;
     recentOrders: MemberOrder[];
+    totalHexSales?: number;
 }
 
 interface PaymentParams {

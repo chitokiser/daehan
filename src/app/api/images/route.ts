@@ -453,10 +453,10 @@ export async function GET(request: Request) {
     });
 
     if (sort === "popular") {
-        // 오늘 아티클은 항상 맨 위 유지
-        const [today, ...rest] = filtered[0]?.isToday ? filtered : [null, ...filtered];
+        const todayItem = filtered.find(a => a.isToday);
+        const rest = filtered.filter(a => !a.isToday);
         rest.sort((a, b) => b.likes - a.likes);
-        filtered = today ? [today, ...rest] : rest;
+        filtered = todayItem ? [todayItem, ...rest] : rest;
     } else {
         // 최신순: 오늘 아티클은 항상 맨 위
         const todayItem = filtered.find(a => a.isToday);

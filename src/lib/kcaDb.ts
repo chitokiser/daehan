@@ -74,7 +74,6 @@ const usersDb: Record<string, UserWalletData> = {
         vndBalance: 85000000,
         dpPoints: 50000,
         role: "SUPER_ADMIN",
-        phone: "0702116617",
         createdAt: "2026-08-01T00:00:00Z",
         avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
     },

@@ -9,7 +9,7 @@ import { useUserWallet } from "@/context/UserWalletContext";
 import { 
     Star, Truck, ShieldCheck, Award, Sparkles, Check,
     ArrowLeft, Heart, Plus, Minus, PackageCheck,
-    CreditCard, ArrowRight, CheckCircle2, AlertCircle, ShoppingCart
+    CreditCard, ArrowRight, CheckCircle2, AlertCircle, ShoppingCart, Copy
 } from "lucide-react";
 import ShareButtons from "@/components/ShareButtons";
 
