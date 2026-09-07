@@ -99,10 +99,11 @@ export default function MyPage() {
 
                     <div className={`${styles.assetCard} ${styles.assetKm}`}>
                         <div className={styles.assetHeader}>💎 충전머니</div>
-                        <div className={styles.assetValue}>
+                        <div className={styles.balanceVal}>
                             {wallet.hexBalance.toLocaleString()}
-                            <span className={styles.assetUnit}>KM</span>
+                            <span className={styles.balanceUnit}>머니</span>
                         </div>
+                        <div className={styles.balanceLabel}>가맹점 충전머니</div>
                     </div>
                 </div>
 

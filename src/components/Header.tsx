@@ -116,9 +116,9 @@ export default function Header() {
                                     </div>
 
                                     <div className={styles.balancesBlock}>
-                                        <div className={styles.balanceItem}>
-                                            <span>💎 K-MOA 머니:</span>
-                                            <strong>{wallet.hexBalance?.toLocaleString() || 0} HEX</strong>
+                                        <div className={styles.walletBalanceBadge}>
+                                            <span>💳 충전머니:</span>
+                                            <strong>{wallet.hexBalance?.toLocaleString() || 0} 머니</strong>
                                         </div>
                                         <div className={styles.balanceItem}>
                                             <span>🎟️ 적립 포인트:</span>

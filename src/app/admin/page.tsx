@@ -34,7 +34,7 @@ export default function AdminDashboard() {
     const [selectedMember, setSelectedMember] = useState<any>(null);
     const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-    // K-MOA CRM 상태
+    // 가맹점 CRM 상태
     const [kmoaBalance, setKmoaBalance] = useState<any>(null);
     const [kmoaMembers, setKmoaMembers] = useState<any[]>([]);
     const [kmoaDbLoading, setKmoaDbLoading] = useState(false);
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
     const [kmoaConnStatus, setKmoaConnStatus] = useState<"live"|"demo"|"error"|"offline"|"loading">("loading");
 
 
-    // K-MOA 데이터 로드
+    // 가맹점 데이터 로드
     const loadKmoaData = async () => {
         setKmoaDbLoading(true);
         setKmoaConnStatus("loading");
@@ -119,13 +119,13 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                         <div className={styles.titleRow}>
-                            <h1 className={styles.adminTitle}>대한김치 관리자 센터 (Admin Control)</h1>
+                            <h1 className={styles.adminTitle}>가맹점 관리자 센터 (Admin Control)</h1>
                             <span className={`${styles.currentRoleBadge} ${isSuperAdmin ? styles.superAdminBadge : styles.operatorBadge}`}>
                                 {isSuperAdmin ? "👑 최고 관리자 (Super Admin)" : isOperator ? "🛡️ 운영자 (Operator)" : "일반 회원 (권한 제한)"}
                             </span>
                         </div>
                         <p className={styles.adminSub}>
-                            가맹점 결제 시스템 연동 기반 회원 DB, 운영자 권한 부여 및 결제 관리
+                            결제 시스템 연동 기반 회원 DB, 운영자 권한 부여 및 결제 관리
                         </p>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            {/* K-MOA 실시간 잠액 패널 */}
+            {/* 가맹점 실시간 데이터 패널 */}
             <div className={styles.kmoaPanel}>
                 <div className={styles.kmoaPanelHeader}>
                     <div className={styles.kmoaPanelTitle}>
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
                     <div className={styles.kmoaBalanceCard}>
                         <div className={styles.kmoaBalanceIcon}>🎟️</div>
                         <div>
-                            <div className={styles.kmoaBalanceLabel}>BT (보너스티켓) 재고</div>
+                            <div className={styles.kmoaBalanceLabel}>보너스티켓 재고</div>
                             <div className={styles.kmoaBalanceVal}>
                                 {kmoaBalance ? kmoaBalance.balance?.btBalance?.toLocaleString() : "--"}
                                 <span className={styles.kmoaBalanceUnit}>BT</span>
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
                     <div className={styles.kmoaBalanceCard}>
                         <div className={styles.kmoaBalanceIcon}>💵</div>
                         <div>
-                            <div className={styles.kmoaBalanceLabel}>KM 머니 (결제대금)</div>
+                            <div className={styles.kmoaBalanceLabel}>가맹점 머니 (결제대금)</div>
                             <div className={styles.kmoaBalanceVal}>
                                 {kmoaBalance ? kmoaBalance.balance?.km?.toLocaleString() : "--"}
                                 <span className={styles.kmoaBalanceUnit}>KM</span>
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* K-MOA 단골 회원 CRM 테이블 */}
+            {/* 가맹점 단골 회원 CRM 테이블 */}
             <div className={styles.kmoaCrmSection}>
                 <div className={styles.kmoaCrmHeader}>
                     <h3 className={styles.kmoaCrmTitle}>👥 단골 멤버십 DB</h3>
@@ -258,8 +258,8 @@ export default function AdminDashboard() {
                                 <th>회원명</th>
                                 <th>이메일</th>
                                 <th>레벨</th>
-                                <th>지개 포인트</th>
-                                <th>BT</th>
+                                <th>포인트</th>
+                                <th>보너스티켓</th>
                                 <th>가입일</th>
                             </tr>
                         </thead>
@@ -309,12 +309,12 @@ export default function AdminDashboard() {
                         <DollarSign size={24} color="#00E676" />
                     </div>
                     <div className={styles.kpiMeta}>
-                        <span className={styles.kpiLabel}>총 환산 매출액 (VND)</span>
+                        <span className={styles.kpiLabel}>총 환산 매출액 (통화)</span>
                         <div className={styles.kpiVal} style={{ color: '#00E676' }}>
                             {(adminStats?.totalVndSales || 0).toLocaleString()}
-                            <span className={styles.kpiUnit}>₫</span>
+                            <span className={styles.kpiUnit}>단위</span>
                         </div>
-                        <span className={styles.kpiSub}>1 머니 = 1,000 VND 기준 정산</span>
+                        <span className={styles.kpiSub}>통화 기준 정산</span>
                     </div>
                 </div>
 
@@ -328,7 +328,7 @@ export default function AdminDashboard() {
                             {adminStats?.totalOrders || 0}
                             <span className={styles.kpiUnit}>건 ({adminStats?.pendingShipping || 0}건 대기)</span>
                         </div>
-                        <span className={styles.kpiSub}>하노이 콜드체인 당일/익일 출고</span>
+                        <span className={styles.kpiSub}>물류 시스템 당일/익일 출고</span>
                     </div>
                 </div>
 
@@ -429,10 +429,10 @@ export default function AdminDashboard() {
                                     <th>회원 정보</th>
                                     <th>현재 권한</th>
                                     <th>연동 지갑 주소</th>
-                                    <th>보유 충전머니</th>
+                                    <th>보유 잔액</th>
                                     <th>플랫폼 포인트</th>
-                                    <th>VND 예치금</th>
-                                    <th>대한포인트</th>
+                                    <th>현금 예치금</th>
+                                    <th>기타 포인트</th>
                                     <th>운영자 지정 및 권한 변경</th>
                                 </tr>
                             </thead>
@@ -462,7 +462,9 @@ export default function AdminDashboard() {
                                             </div>
                                         </td>
                                         <td>
-                                            <strong style={{ color: '#fcd34d' }}>{(member.hexTokenBalance || 0).toLocaleString()} 머니</strong>
+                                            <div className={styles.memberLoyalty}>
+                                                <strong style={{ color: '#fcd34d' }}>{(member.hexTokenBalance || 0).toLocaleString()} 충전머니</strong>
+                                            </div>
                                         </td>
                                         <td>
                                             <span style={{ color: '#00E676' }}>{(member.kcaPoints || 0).toLocaleString()} P</span>

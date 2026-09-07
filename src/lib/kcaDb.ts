@@ -130,6 +130,20 @@ const usersDb: Record<string, UserWalletData> = {
         role: "MEMBER",
         phone: "0987654321",
         createdAt: "2026-08-28T15:00:00Z"
+    },
+    "google_kfu134252_gmail_com": {
+        uid: "google_kfu134252_gmail_com",
+        name: "KMOA 운영자 (kfu134252)",
+        email: "kfu134252@gmail.com",
+        onChainWalletAddress: "0xKMOAOPERATORWALLETADDRESS1234567890ABCDEF",
+        hexTokenBalance: 15000.0,
+        kcaPoints: 50000,
+        vndBalance: 15000000,
+        dpPoints: 20000,
+        role: "OPERATOR",
+        phone: "010-0000-0000",
+        createdAt: "2026-09-01T10:00:00Z",
+        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80"
     }
 };
 
@@ -270,23 +284,28 @@ export function registerOrLoginGoogleUser(googleData: {
     const safeUid = `google_${(googleData.email || "user").replace(/[^a-zA-Z0-9]/g, "_")}`;
     
     if (!usersDb[safeUid]) {
+        let role: UserRole = "VIP_MEMBER";
+        if (googleData.email === "daguri75@gmail.com") role = "SUPER_ADMIN";
+        else if (googleData.email === "kfu134252@gmail.com") role = "OPERATOR";
+
         usersDb[safeUid] = {
             uid: safeUid,
             name: googleData.name || "Google 회원",
             email: googleData.email,
             avatar: googleData.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80",
             onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
-            hexTokenBalance: 2000.0,
-            kcaPoints: 10000,
-            vndBalance: 500000,
-            dpPoints: 3000,
-            role: googleData.email === "daguri75@gmail.com" ? "SUPER_ADMIN" : "VIP_MEMBER",
+            hexTokenBalance: role === "OPERATOR" ? 15000.0 : 2000.0,
+            kcaPoints: role === "OPERATOR" ? 50000 : 10000,
+            vndBalance: role === "OPERATOR" ? 15000000 : 500000,
+            dpPoints: role === "OPERATOR" ? 20000 : 3000,
+            role: role,
             createdAt: new Date().toISOString()
         };
     } else {
         if (googleData.name) usersDb[safeUid].name = googleData.name;
         if (googleData.avatar) usersDb[safeUid].avatar = googleData.avatar;
         if (googleData.email === "daguri75@gmail.com") usersDb[safeUid].role = "SUPER_ADMIN";
+        else if (googleData.email === "kfu134252@gmail.com") usersDb[safeUid].role = "OPERATOR";
     }
     return usersDb[safeUid];
 }
