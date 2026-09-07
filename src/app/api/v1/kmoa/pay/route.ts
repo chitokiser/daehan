@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: "주문 번호(orderId)가 누락되었습니다." }, { status: 400 });
         }
 
-        const result = executePayment({
+        const result = await executePayment({
             uid,
             merchantId,
             currency,

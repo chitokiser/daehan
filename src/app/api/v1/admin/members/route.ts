@@ -3,8 +3,8 @@ import { getAllUsers, updateUserRole, updateUserBalance, getAdminStats, UserRole
 
 export async function GET(request: NextRequest) {
     try {
-        const users = getAllUsers();
-        const stats = getAdminStats();
+        const users = await getAllUsers();
+        const stats = await getAdminStats();
 
         return NextResponse.json({
             success: true,
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ success: false, error: "대상 회원 및 권한 정보가 누락되었습니다." }, { status: 400 });
             }
 
-            const result = updateUserRole(adminUid, targetUid, newRole as UserRole);
+            const result = await updateUserRole(adminUid, targetUid, newRole as UserRole);
             if (!result.success) {
                 return NextResponse.json({ success: false, error: result.error }, { status: 403 });
             }
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ success: false, error: "대상 회원 및 잔액 수정 정보가 누락되었습니다." }, { status: 400 });
             }
 
-            const result = updateUserBalance(adminUid, targetUid, updates);
+            const result = await updateUserBalance(adminUid, targetUid, updates);
             if (!result.success) {
                 return NextResponse.json({ success: false, error: result.error }, { status: 403 });
             }

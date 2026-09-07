@@ -9,21 +9,28 @@ export async function POST(req: NextRequest) {
         } catch {
             body = {};
         }
-        const { email, name, avatar, sub } = body;
+        const { email, name, avatar, sub, referrerUid } = body;
 
         const effectiveEmail = email || `user_${Date.now()}@gmail.com`;
         const effectiveName = name || "Google 인증 회원";
         const effectiveAvatar = avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80";
 
-        const user = registerOrLoginGoogleUser({
+        const result = await registerOrLoginGoogleUser({
             email: effectiveEmail,
             name: effectiveName,
             avatar: effectiveAvatar,
-            sub
+            sub,
+            referrerUid
         });
 
-        const recentOrders = getUserOrders(user.uid);
-        const recentTransactions = getUserTransactions(user.uid);
+        if (!result.success) {
+            return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+        }
+
+        const user = result.user!;
+
+        const recentOrders = await getUserOrders(user.uid);
+        const recentTransactions = await getUserTransactions(user.uid);
 
         return NextResponse.json({
             success: true,

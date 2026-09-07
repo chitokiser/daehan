@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
         if (!uid) {
             return NextResponse.json({ success: false, error: "회원 UID가 누락되었습니다." }, { status: 400 });
         }
-        if (!currency || !["HEX", "POINT", "VND"].includes(currency)) {
+        if (!currency || !["MONEY", "POINT", "VND"].includes(currency)) {
             return NextResponse.json({ success: false, error: "유효한 통화(HEX, POINT, VND)를 지정해주세요." }, { status: 400 });
         }
         if (!amount || Number(amount) <= 0) {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
         const effectiveOrderId = orderId || `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
         // K-MOA 충전머니(HEX) 또는 포인트 결제인 경우 K-MOA API 서버로 요청 전달
-        if (currency === "HEX" || currency === "POINT") {
+        if (currency === "MONEY" || currency === "POINT") {
             const baseUrl = request.headers.get("origin") || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
             
             const response = await fetch(`${baseUrl}/api/v1/kmoa/pay`, {
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 일반 결제 (VND)
-        const result = executePayment({
+        const result = await executePayment({
             uid,
             merchantId: merchantId || "daehan_kimchi_store",
             currency,

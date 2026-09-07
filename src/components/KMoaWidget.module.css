@@ -1,0 +1,242 @@
+.kmoaWidgetContainer {
+  width: 100%;
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.topCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.cardBase {
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cardBase:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.cardValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.cardSubtext {
+  font-size: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cardActionBtn {
+  border: none;
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: opacity 0.2s ease;
+}
+
+.cardActionBtn:hover {
+  opacity: 0.85;
+}
+
+/* Specific Card Styles */
+.kmCard {
+  background: linear-gradient(135deg, #e3f9e5 0%, #c1f2c7 100%);
+  border: 1px solid #a8e8b2;
+}
+.kmCard .cardTitle, .kmCard .cardValue, .kmCard .cardSubtext {
+  color: #1e702e;
+}
+
+.pointsCard {
+  background: linear-gradient(135deg, #f5eefb 0%, #ecdcf7 100%);
+  border: 1px solid #dbbdf2;
+}
+.pointsCard .cardTitle, .pointsCard .cardValue {
+  color: #6b21a8;
+}
+.pointsBtn {
+  background-color: #7e22ce;
+  color: white;
+}
+
+.btCard {
+  background: linear-gradient(135deg, #fff9e6 0%, #ffedd5 100%);
+  border: 1px solid #fde047;
+}
+.btCard .cardTitle, .btCard .cardValue {
+  color: #b45309;
+}
+.btBtn {
+  background-color: #f59e0b;
+  color: white;
+}
+
+/* Level Section */
+.levelSection {
+  background: linear-gradient(135deg, #3b236d 0%, #2e1a53 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  color: white;
+  box-shadow: 0 8px 24px rgba(46, 26, 83, 0.2);
+}
+
+.levelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.levelInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.levelCircle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border: 2px solid #a78bfa;
+}
+
+.levelName {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.levelTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.expInfo {
+  text-align: right;
+}
+
+.expLabel {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.expValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.progressBarContainer {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6 0%, #c4b5fd 100%);
+  border-radius: 3px;
+  transition: width 1s ease-in-out;
+}
+
+.earnWaysGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.earnWayCard {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.earnWayTitle {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.earnWayValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #a78bfa;
+}
+
+.levelFooter {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.skeletonCard {
+  height: 140px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.skeletonLevel {
+  height: 200px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 768px) {
+  .topCardsGrid {
+    grid-template-columns: 1fr;
+  }
+}

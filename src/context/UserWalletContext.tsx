@@ -16,15 +16,15 @@ export interface UserProfile {
     phone?: string;
     createdAt?: string;
     onChainWalletAddress?: string;
-    hexTokenBalance?: number;
-    kcaPoints?: number;
+    moneyBalance?: number;
+    pointBalance?: number;
 }
 
 export interface WalletState {
     points: number;
     vndBalance: number;
     dpPoints: number;
-    hexBalance: number;
+    moneyBalance: number;
 }
 
 export interface MemberOrder {
@@ -40,7 +40,7 @@ export interface MemberOrder {
     }[];
     totalVnd: number;
     paidAmount: number;
-    currency: "VND" | "HEX" | "POINT";
+    currency: "VND" | "MONEY" | "POINT";
     txId: string;
     shippingAddress: {
         recipient: string;
@@ -56,7 +56,7 @@ export interface WalletTransaction {
     id: string;
     uid: string;
     type: "PAYMENT" | "REWARD" | "REFUND";
-    currency: "VND" | "DP" | "HEX" | "POINT";
+    currency: "VND" | "DP" | "MONEY" | "POINT";
     amount: number;
     description: string;
     status: "CONFIRMED" | "PENDING" | "FAILED";
@@ -78,7 +78,7 @@ export interface AdminStats {
 interface PaymentParams {
     orderId?: string;
     amount: number;
-    currency?: "HEX" | "POINT" | "VND";
+    currency?: "MONEY" | "POINT" | "VND";
     items?: any[];
     shippingAddress?: any;
 }
@@ -100,20 +100,21 @@ interface UserWalletContextType {
     adminStats: AdminStats | null;
     allOrders: MemberOrder[];
     login: (uid?: string) => Promise<void>;
-    loginWithGoogle: (customEmail?: string, customName?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
+    loginWithGoogle: (customEmail?: string, customName?: string, referrerUid?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
     logout: () => void;
     payOrder: (params: PaymentParams) => Promise<PaymentResult>;
     refreshWallet: () => Promise<void>;
     fetchAdminData: () => Promise<void>;
     changeUserRole: (targetUid: string, newRole: UserRole) => Promise<{ success: boolean; error?: string; message?: string }>;
     changeOrderStatus: (orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => Promise<{ success: boolean; error?: string }>;
+    convertPoints: (points: number) => Promise<{ success: boolean; error?: string }>;
 }
 
 const defaultWallet: WalletState = {
     points: 120000,
     vndBalance: 85000000,
     dpPoints: 50000,
-    hexBalance: 95000.0
+    moneyBalance: 95000.0
 };
 
 const defaultUser: UserProfile = {
@@ -128,7 +129,7 @@ const UserWalletContext = createContext<UserWalletContextType | undefined>(undef
 
 export function UserWalletProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<UserProfile | null>(null);
-    const [wallet, setWallet] = useState<WalletState>({ points: 0, vndBalance: 0, dpPoints: 0, hexBalance: 0 });
+    const [wallet, setWallet] = useState<WalletState>({ points: 0, vndBalance: 0, dpPoints: 0, moneyBalance: 0 });
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [orders, setOrders] = useState<MemberOrder[]>([]);
@@ -145,10 +146,10 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             const json = await res.json();
             if (json.success && json.data) {
                 setWallet({
-                    points: json.data.kcaPoints || 0,
+                    points: json.data.pointBalance || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0,
-                    hexBalance: json.data.hexTokenBalance || 0
+                    moneyBalance: json.data.moneyBalance || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
             }
@@ -198,10 +199,10 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     avatar: json.data.avatar
                 });
                 setWallet({
-                    points: json.data.kcaPoints || 0,
+                    points: json.data.pointBalance || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0,
-                    hexBalance: json.data.hexTokenBalance || 0
+                    moneyBalance: json.data.moneyBalance || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
                 setIsLoggedIn(true);
@@ -214,7 +215,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
-    const loginWithGoogle = async (customEmail?: string, customName?: string) => {
+    const loginWithGoogle = async (customEmail?: string, customName?: string, referrerUid?: string) => {
         setIsLoading(true);
         try {
             // localStorage 캐시 무시하고 입력받은 이메일만 사용
@@ -228,7 +229,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             const res = await fetch("/api/v1/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, name, avatar, sub: `google_sub_${Date.now()}` })
+                body: JSON.stringify({ email, name, avatar, sub: `google_sub_${Date.now()}`, referrerUid })
             });
 
             const json = await res.json();
@@ -243,10 +244,10 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 };
                 setUser(loggedUser);
                 setWallet({
-                    points: json.data.kcaPoints || 0,
+                    points: json.data.pointBalance || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0,
-                    hexBalance: json.data.hexTokenBalance || 0
+                    moneyBalance: json.data.moneyBalance || 0
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
                 setIsLoggedIn(true);
@@ -350,6 +351,28 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
+    const convertPoints = async (pointsAmount: number) => {
+        if (!user?.uid) return { success: false, error: "로그인이 필요합니다." };
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/v1/wallet/convert", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ uid: user.uid, points: pointsAmount })
+            });
+            const json = await res.json();
+            if (json.success) {
+                await refreshWallet();
+                return { success: true };
+            }
+            return { success: false, error: json.error || "전환에 실패했습니다." };
+        } catch (e: any) {
+            return { success: false, error: e.message || "서버 통신 오류" };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <UserWalletContext.Provider
             value={{
@@ -368,7 +391,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 refreshWallet,
                 fetchAdminData,
                 changeUserRole,
-                changeOrderStatus
+                changeOrderStatus,
+                convertPoints
             }}
         >
             {children}

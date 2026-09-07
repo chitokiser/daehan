@@ -13,6 +13,9 @@ export default function Header() {
     const [loginModalOpen, setLoginModalOpen] = useState(false);
     const [googleEmailInput, setGoogleEmailInput] = useState("");
     const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+    const [referrerPromptOpen, setReferrerPromptOpen] = useState(false);
+    const [referrerInput, setReferrerInput] = useState("");
+    const [pendingUserInfo, setPendingUserInfo] = useState<{email: string; name: string} | null>(null);
 
     const isSuperAdmin = user?.role === "SUPER_ADMIN";
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
@@ -271,6 +274,56 @@ export default function Header() {
                         </div>
 
 
+                    </div>
+                </div>
+            )}
+
+            {/* Referrer Prompt Modal */}
+            {referrerPromptOpen && (
+                <div className={styles.modalOverlay} style={{ zIndex: 1100 }}>
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <h3>추천인 코드 입력 (필수)</h3>
+                        </div>
+                        <p className={styles.modalDesc} style={{ color: '#E53E3E', fontWeight: 'bold' }}>
+                            대한김치 생태계는 추천인 제도로 운영됩니다.<br/>
+                            가입을 완료하려면 추천인(멘토)의 UID 코드를 입력해주세요.
+                        </p>
+                        <div style={{ marginTop: '15px' }}>
+                            <input
+                                type="text"
+                                placeholder="추천인 UID 코드 입력"
+                                value={referrerInput}
+                                onChange={(e) => setReferrerInput(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    background: '#fff',
+                                    border: '1.5px solid rgba(0,0,0,0.15)',
+                                    borderRadius: '6px',
+                                    padding: '10px 12px',
+                                    color: '#1A0D08',
+                                    fontSize: '0.95rem'
+                                }}
+                            />
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                <button
+                                    className="btn-primary"
+                                    onClick={submitReferrer}
+                                    style={{ flex: 1, padding: '10px' }}
+                                >
+                                    확인 및 가입
+                                </button>
+                                <button
+                                    style={{
+                                        flex: 1, padding: '10px', background: '#e5e7eb',
+                                        color: '#374151', border: 'none', borderRadius: '6px', fontWeight: 'bold'
+                                    }}
+                                    onClick={() => { setReferrerPromptOpen(false); setPendingUserInfo(null); }}
+                                >
+                                    취소
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

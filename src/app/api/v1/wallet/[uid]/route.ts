@@ -15,7 +15,7 @@ export async function GET(
         // Check optional Merchant API Key verification
         const authHeader = request.headers.get("authorization") || "";
         // Support any valid Bearer token or internal requests
-        const wallet = getUserWallet(uid);
+        const wallet = await getUserWallet(uid);
         const transactions = getUserTransactions(uid);
         const orders = getUserOrders(uid);
 
@@ -25,9 +25,9 @@ export async function GET(
                 uid: wallet.uid,
                 name: wallet.name,
                 email: wallet.email,
-                kcaPoints: wallet.kcaPoints,
+                pointBalance: wallet.pointBalance,
                 vndBalance: wallet.vndBalance,
-                hexTokenBalance: wallet.hexTokenBalance.toFixed(2),
+                moneyBalance: wallet.moneyBalance.toFixed(2),
                 onChainWalletAddress: wallet.onChainWalletAddress,
                 dpPoints: wallet.dpPoints,
                 role: wallet.role,

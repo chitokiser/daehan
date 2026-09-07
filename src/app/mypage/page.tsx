@@ -3,10 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useUserWallet } from "@/context/UserWalletContext";
 import styles from "./page.module.css";
+import KMoaWidget from "@/components/KMoaWidget";
 
 export default function MyPage() {
-    const { user, wallet, isLoggedIn, orders, isLoading, refreshWallet } = useUserWallet();
+    const { user, wallet, isLoggedIn, orders, isLoading, refreshWallet, convertPoints } = useUserWallet();
     const [mounted, setMounted] = useState(false);
+    const [convertLoading, setConvertLoading] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -43,6 +45,7 @@ export default function MyPage() {
         }
     };
 
+
     return (
         <main style={{ backgroundColor: "#f9fafb", minHeight: "100vh" }}>
             <div className={styles.container}>
@@ -71,40 +74,9 @@ export default function MyPage() {
                     </div>
                 </div>
 
-                <div className={styles.sectionTitle}>💎 보유 자산 현황</div>
-                <div className={styles.assetGrid}>
-                    <div className={`${styles.assetCard} ${styles.assetPoints}`}>
-                        <div className={styles.assetHeader}>🎟️ 플랫폼 포인트</div>
-                        <div className={styles.assetValue}>
-                            {wallet.points.toLocaleString()}
-                            <span className={styles.assetUnit}>P</span>
-                        </div>
-                    </div>
-                    
-                    <div className={`${styles.assetCard} ${styles.assetDp}`}>
-                        <div className={styles.assetHeader}>⭐ 대한포인트(DP)</div>
-                        <div className={styles.assetValue}>
-                            {wallet.dpPoints.toLocaleString()}
-                            <span className={styles.assetUnit}>DP</span>
-                        </div>
-                    </div>
-
-                    <div className={`${styles.assetCard} ${styles.assetVnd}`}>
-                        <div className={styles.assetHeader}>💵 결제 대금 (현금성)</div>
-                        <div className={styles.assetValue}>
-                            {wallet.vndBalance.toLocaleString()}
-                            <span className={styles.assetUnit}>₫</span>
-                        </div>
-                    </div>
-
-                    <div className={`${styles.assetCard} ${styles.assetKm}`}>
-                        <div className={styles.assetHeader}>💎 충전머니</div>
-                        <div className={styles.balanceVal}>
-                            {wallet.hexBalance.toLocaleString()}
-                            <span className={styles.balanceUnit}>머니</span>
-                        </div>
-                        <div className={styles.balanceLabel}>가맹점 충전머니</div>
-                    </div>
+                {/* 자사 마이페이지 영역 내 K-MOA 모듈 연동 (Native) */}
+                <div className="reward-section" style={{ width: '100%' }}>
+                    <KMoaWidget />
                 </div>
 
                 <div className={styles.ordersSection}>

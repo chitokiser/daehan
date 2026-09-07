@@ -3,7 +3,7 @@ import { getAllOrders, updateOrderStatus } from "@/lib/kcaDb";
 
 export async function GET(request: NextRequest) {
     try {
-        const orders = getAllOrders();
+        const orders = await getAllOrders();
         return NextResponse.json({ success: true, data: orders });
     } catch (error: any) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: "주문번호 및 변경 상태가 필요합니다." }, { status: 400 });
         }
 
-        const result = updateOrderStatus(orderId, status);
+        const result = await updateOrderStatus(orderId, status);
         if (!result.success) {
             return NextResponse.json({ success: false, error: result.error }, { status: 400 });
         }
