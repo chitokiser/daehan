@@ -150,7 +150,7 @@ export default function Home() {
               <div className={styles.shortVideoCard} key={videoId}>
                 <iframe
                   className={styles.shortVideoIframe}
-                  src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+                  src={`https://www.youtube.com/embed/${videoId}?rel=0&controls=0&modestbranding=1&showinfo=0`}
                   title="YouTube video player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

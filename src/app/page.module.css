@@ -374,6 +374,7 @@
 
 .shortVideoIframe {
   width: 100%;
-  height: 100%;
+  height: calc(100% + 70px);
+  margin-top: -70px;
   border: none;
 }
