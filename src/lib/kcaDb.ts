@@ -139,7 +139,7 @@ export async function registerOrLoginGoogleUser(googleData: {
             vndBalance: role === "OPERATOR" ? 15000000 : 500000,
             dpPoints: role === "OPERATOR" ? 20000 : 3000,
             role: role,
-            referrerUid: validReferrer || undefined,
+            ...(validReferrer && { referrerUid: validReferrer }),
             mentees: [],
             createdAt: new Date().toISOString()
         };
