@@ -4,12 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { useUserWallet } from "@/context/UserWalletContext";
-import { User, LogOut, ChevronDown, ShieldAlert, Wallet } from "lucide-react";
+import { User, LogOut, ChevronDown, ShieldAlert, Wallet, Menu, X } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
     const { user, wallet, isLoggedIn, login, loginWithGoogle, logout, isLoading } = useUserWallet();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [loginModalOpen, setLoginModalOpen] = useState(false);
     const [googleEmailInput, setGoogleEmailInput] = useState("");
     const [showEmailPrompt, setShowEmailPrompt] = useState(false);
@@ -33,6 +34,7 @@ export default function Header() {
                     if (loginRes.success) {
                         setLoginModalOpen(false);
                         setDropdownOpen(false);
+                        setMobileMenuOpen(false);
                         alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
                     } else {
                         alert(`로그인 실패: ${loginRes.error}`);
@@ -64,6 +66,7 @@ export default function Header() {
         if (res.success) {
             setLoginModalOpen(false);
             setDropdownOpen(false);
+            setMobileMenuOpen(false);
             alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
         } else {
             alert(`로그인 실패: ${res.error}`);
@@ -74,12 +77,20 @@ export default function Header() {
         await login(uid);
         setLoginModalOpen(false);
         setDropdownOpen(false);
+        setMobileMenuOpen(false);
     };
+
+    const navLinks = [
+        { href: "/about", label: "소개" },
+        { href: "/service", label: "서비스(웹진)" },
+        { href: "/shop", label: "쇼핑몰" },
+        { href: "/mypage", label: "마이페이지" }
+    ];
 
     return (
         <>
             <header className={styles.header}>
-                <Link href="/" className={styles.logoLink}>
+                <Link href="/" className={styles.logoLink} onClick={() => setMobileMenuOpen(false)}>
                     <img
                         src="/images/logo1.png"
                         alt="대한김치"
@@ -88,10 +99,9 @@ export default function Header() {
                 </Link>
 
                 <nav className={styles.nav}>
-                    <Link href="/about" className={styles.navLink}>소개</Link>
-                    <Link href="/service" className={styles.navLink}>서비스(웹진)</Link>
-                    <Link href="/shop" className={styles.navLink}>쇼핑몰</Link>
-                    <Link href="/mypage" className={styles.navLink}>마이페이지</Link>
+                    {navLinks.map(link => (
+                        <Link key={link.href} href={link.href} className={styles.navLink}>{link.label}</Link>
+                    ))}
                     {isOperator && (
                         <Link href="/admin" className={`${styles.navLink} ${styles.adminNavLink}`}>
                             <ShieldAlert size={15} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
@@ -186,8 +196,38 @@ export default function Header() {
                             </button>
                         </div>
                     )}
+                    
+                    <button className={styles.mobileMenuBtn} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
                 </div>
             </header>
+
+            {/* Mobile Navigation Overlay */}
+            {mobileMenuOpen && (
+                <div className={styles.mobileNavOverlay}>
+                    {navLinks.map(link => (
+                        <Link 
+                            key={link.href} 
+                            href={link.href} 
+                            className={styles.mobileNavLink}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            {link.label}
+                        </Link>
+                    ))}
+                    {isOperator && (
+                        <Link 
+                            href="/admin" 
+                            className={`${styles.mobileNavLink} ${styles.adminNavLink}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            <ShieldAlert size={15} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                            관리자 모드
+                        </Link>
+                    )}
+                </div>
+            )}
 
             {/* Login / User Switch Modal */}
             {loginModalOpen && (
