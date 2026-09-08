@@ -364,11 +364,13 @@
 
 .shortVideoCard {
   flex: 0 0 280px;
-  height: 500px;
+  height: 500px; /* Fallback */
+  aspect-ratio: 9 / 16;
+  height: auto;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  scroll-snap-align: start;
+  scroll-snap-align: center;
   background: #000;
 }
 
@@ -377,4 +379,18 @@
   height: calc(100% + 70px);
   margin-top: -70px;
   border: none;
+}
+
+@media (max-width: 600px) {
+  .shortsSection {
+    padding: 60px 16px;
+  }
+  .shortsGrid {
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+  .shortVideoCard {
+    flex: 0 0 80vw;
+    border-radius: 12px;
+  }
 }
