@@ -453,8 +453,9 @@ export async function faucetWallet(uid: string, moneyAmount: number = 500): Prom
 
 export async function getUserTransactions(uid: string): Promise<WalletTransaction[]> {
     const db = getDb();
-    const snapshot = await db.collection(TRANSACTIONS_COL).where("uid", "==", uid).orderBy("timestamp", "desc").get();
-    return snapshot.docs.map(doc => doc.data() as WalletTransaction);
+    const snapshot = await db.collection(TRANSACTIONS_COL).where("uid", "==", uid).get();
+    const docs = snapshot.docs.map(doc => doc.data() as WalletTransaction);
+    return docs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 export async function getAllTransactions(): Promise<WalletTransaction[]> {
@@ -465,8 +466,9 @@ export async function getAllTransactions(): Promise<WalletTransaction[]> {
 
 export async function getUserOrders(uid: string): Promise<MemberOrder[]> {
     const db = getDb();
-    const snapshot = await db.collection(ORDERS_COL).where("uid", "==", uid).orderBy("createdAt", "desc").get();
-    return snapshot.docs.map(doc => doc.data() as MemberOrder);
+    const snapshot = await db.collection(ORDERS_COL).where("uid", "==", uid).get();
+    const docs = snapshot.docs.map(doc => doc.data() as MemberOrder);
+    return docs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export async function getAllOrders(): Promise<MemberOrder[]> {
