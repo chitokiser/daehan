@@ -38,6 +38,29 @@ export default function WebzineServicePage() {
             .finally(() => setKmoaLoading(false));
     }, []);
 
+    const handleShare = async (e: React.MouseEvent, wz: KmoaWebzine) => {
+        e.stopPropagation();
+        const shareData = {
+            title: wz.title,
+            text: wz.excerpt,
+            url: window.location.origin + `/service?article=${wz.webzineId}`
+        };
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.error("Share failed", err);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareData.url);
+                alert("링크가 클립보드에 복사되었습니다!");
+            } catch (err) {
+                alert("공유 기능을 지원하지 않는 브라우저입니다.");
+            }
+        }
+    };
+
     return (
         <div className={styles.webzineContainer}>
             {/* Header Hero */}
@@ -90,8 +113,12 @@ export default function WebzineServicePage() {
                                         <span className={styles.kmoaStatChip}>
                                             <ThumbsUp size={11} /> {wz.likeCount}
                                         </span>
-                                        <span className={styles.kmoaStatChip}>
-                                            <Share2 size={11} /> {wz.shareCount}
+                                        <span 
+                                            className={styles.kmoaStatChip} 
+                                            onClick={(e) => handleShare(e, wz)}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <Share2 size={11} /> 공유하기
                                         </span>
                                     </div>
                                     <div className={styles.kmoaWhitelabelBadge}>
