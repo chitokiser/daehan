@@ -2,7 +2,10 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
-if (!getApps().length) {
+let isInitialized = false;
+
+export function initFirebaseAdmin() {
+    if (isInitialized || getApps().length > 0) return;
     try {
         if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             let keyStr = process.env.FIREBASE_SERVICE_ACCOUNT_KEY.trim();
@@ -10,6 +13,8 @@ if (!getApps().length) {
             if (keyStr.startsWith("'") && keyStr.endsWith("'")) {
                 keyStr = keyStr.slice(1, -1);
             }
+            // 이스케이프된 개행문자 처리
+            keyStr = keyStr.replace(/\\n/g, '\n');
             const serviceAccount = JSON.parse(keyStr);
             initializeApp({
                 credential: cert(serviceAccount)
@@ -18,10 +23,19 @@ if (!getApps().length) {
             console.warn("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set. Admin features will fail.");
             initializeApp();
         }
+        isInitialized = true;
     } catch (error) {
-        console.error('Firebase admin initialization error', error);
+        console.error('Firebase admin initialization error:', error);
+        throw error;
     }
 }
 
-export const adminDb = getFirestore();
-export const adminAuth = getAuth();
+export function getAdminDb() {
+    initFirebaseAdmin();
+    return getFirestore();
+}
+
+export function getAdminAuth() {
+    initFirebaseAdmin();
+    return getAuth();
+}

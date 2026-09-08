@@ -1,4 +1,4 @@
-import { adminDb } from './firebaseAdmin';
+import { getAdminDb } from './firebaseAdmin';
 import { sendAdminOrderNotification } from "./notifier";
 
 export type UserRole = "SUPER_ADMIN" | "OPERATOR" | "VIP_MEMBER" | "GOLD_MEMBER" | "MEMBER";
@@ -67,8 +67,7 @@ const ORDERS_COL = 'orders';
 
 // Helper to safely interact with firestore or fail gracefully if not configured
 function getDb() {
-    if (!adminDb) throw new Error("Firebase Admin DB is not initialized.");
-    return adminDb;
+    return getAdminDb();
 }
 
 export async function getUserWallet(uid: string): Promise<UserWalletData> {
