@@ -13,8 +13,6 @@ export function initFirebaseAdmin() {
             if (keyStr.startsWith("'") && keyStr.endsWith("'")) {
                 keyStr = keyStr.slice(1, -1);
             }
-            // 이스케이프된 개행문자 처리
-            keyStr = keyStr.replace(/\\n/g, '\n');
             const serviceAccount = JSON.parse(keyStr);
             initializeApp({
                 credential: cert(serviceAccount)
