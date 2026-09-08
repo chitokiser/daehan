@@ -126,6 +126,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Shorts Highlight Section */}
+      <section className={styles.shortsSection}>
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <span className="badge">DAEHAN SHORTS</span>
+            <h2 className="text-gradient" style={{ fontSize: '2.2rem', margin: '16px 0' }}>
+              대한김치 숏폼 하이라이트
+            </h2>
+            <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
+              생생한 대한김치의 제조 과정과 미식 경험을 영상으로 만나보세요.
+            </p>
+          </div>
+          
+          <div className={styles.shortsGrid}>
+            {[
+              "F84Z-uNdCtA",
+              "PJyaRAnAjbM",
+              "s-tMdKDLAns",
+              "egYFkiS4xhM",
+              "Zx4QGyOciZM"
+            ].map(videoId => (
+              <div className={styles.shortVideoCard} key={videoId}>
+                <iframe
+                  className={styles.shortVideoIframe}
+                  src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Trust & HACCP Banner */}
       <section className={`${styles.section} container`}>
         <div className={styles.trustGrid}>
