@@ -40,14 +40,14 @@ export default function ProductDetail() {
 
     // Checkout modal state
     const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
-    const [recipientName, setRecipientName] = useState(user?.name || "최�?준");
+    const [recipientName, setRecipientName] = useState(user?.name || "최민준");
     const [recipientPhone, setRecipientPhone] = useState("0702116617");
     const [recipientAddress, setRecipientAddress] = useState("Hanoi, Nam Tu Liem, My Dinh Song Da, Villa #12");
-    const [deliveryMemo, setDeliveryMemo] = useState("?�선 배송 부?�드립니??");
+    const [deliveryMemo, setDeliveryMemo] = useState("신선 배송 부탁드립니다.");
     const [paymentReceipt, setPaymentReceipt] = useState<any>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
     const [copiedTx, setCopiedTx] = useState(false);
-    const [paymentCurrency, setPaymentCurrency] = useState<"VND" | "HEX">("VND");
+    const [paymentCurrency, setPaymentCurrency] = useState<"VND" | "대한페이">("VND");
 
     // Calculate dynamic pricing
     const unitPriceVnd = product.price;
@@ -68,9 +68,9 @@ export default function ProductDetail() {
     const [reviewerName, setReviewerName] = useState("");
 
     const [reviews, setReviews] = useState([
-        { id: 101, user: "�?�?(VIP ?�원)", stars: 5, date: "2026.08.28", content: `?�노?�에??${product.koreanName} ?��?�??�는 곳을 찾았?�요! ?�?�포?�트까�? 5% 즉시 ?�립?�어 ?�무 만족?�럽?�니??` },
-        { id: 102, user: "?�우?�티* (?��?고객)", stars: 5, date: "2026.08.25", content: "?�국???�프가 만든 진짜 ?�국 김�?맛입?�다. VND 계좌?�체???�인??결제 모두 가?�해???�리?�요." },
-        { id: 103, user: "김*??(골드?�원)", stars: 5, date: "2026.08.19", content: "10kg ?�??주문?�서 ?�당?�서 ?�는???�님??반응??최고?�니?? 콜드체인 배송???�주 ?�벽?�니??" },
+        { id: 101, user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! 대한포인트까지 5% 즉시 적립되어 너무 만족스럽습니다.` },
+        { id: 102, user: "응우옌티* (현지고객)", stars: 5, date: "2026.08.25", content: "한국인 셰프가 만든 진짜 한국 김치 맛입니다. VND 계좌이체나 포인트 결제 모두 가능해서 편리해요." },
+        { id: 103, user: "김*석 (골드회원)", stars: 5, date: "2026.08.19", content: "10kg 대량 주문해서 식당에서 쓰는데 손님들 반응이 최고입니다. 콜드체인 배송도 아주 완벽합니다." },
     ]);
 
     const handleAddToCart = () => {
@@ -95,7 +95,7 @@ export default function ProductDetail() {
             image: product.image
         }];
 
-        const paymentAmount = paymentCurrency === "HEX" ? Math.round(totalPriceVnd / 1000) : totalPriceVnd;
+        const paymentAmount = paymentCurrency === "대한페이" ? Math.round(totalPriceVnd / 1000) : totalPriceVnd;
 
         const res = await payOrder({
             orderId: dynamicOrderId,
@@ -113,7 +113,7 @@ export default function ProductDetail() {
         if (res.success) {
             setPaymentReceipt(res.receipt);
         } else {
-            setPaymentError(res.error || "결제???�패?�습?�다.");
+            setPaymentError(res.error || "결제에 실패했습니다.");
         }
     };
 
@@ -125,14 +125,14 @@ export default function ProductDetail() {
 
     const handleSubmitReview = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!reviewText.trim()) return alert("?�기 ?�용???�성?�주?�요.");
+        if (!reviewText.trim()) return alert("후기 내용을 작성해주세요.");
 
         setReviews([
             {
                 id: Date.now(),
-                user: reviewerName.trim() ? `${reviewerName} (구매고객)` : (user?.name || "??(?�증?�원)"),
+                user: reviewerName.trim() ? `${reviewerName} (구매고객)` : (user?.name || "나 (인증회원)"),
                 stars: rating,
-                date: "방금 ??,
+                date: "방금 전",
                 content: reviewText.trim()
             },
             ...reviews
@@ -140,7 +140,7 @@ export default function ProductDetail() {
 
         setReviewText("");
         setReviewerName("");
-        alert(`?�중???�기가 ?�록?�었?�니?? 500 DP(?�?�포?�트)가 계정??즉시 ?�립?�었?�니??`);
+        alert(`소중한 후기가 등록되었습니다! 500 DP(대한포인트)가 계정에 즉시 적립되었습니다.`);
     };
 
     const renderStars = (count: number) => {
@@ -158,7 +158,8 @@ export default function ProductDetail() {
             {/* Breadcrumb */}
             <div className={styles.breadcrumb}>
                 <Link href="/shop" className={styles.backLink}>
-                    <ArrowLeft size={16} /> ?�체 김�?목록?�로 ?�아가�?                </Link>
+                    <ArrowLeft size={16} /> 전체 김치 목록으로 돌아가기
+                </Link>
                 <span className={styles.breadDivider}>/</span>
                 <span className={styles.breadCurrent}>{product.category}</span>
                 <span className={styles.breadDivider}>/</span>
@@ -179,7 +180,7 @@ export default function ProductDetail() {
                     <button 
                         className={`${styles.likeBtn} ${isLiked ? styles.liked : ''}`} 
                         onClick={() => setIsLiked(!isLiked)}
-                        title="찜하�?
+                        title="찜하기"
                     >
                         <Heart size={20} fill={isLiked ? "#e31837" : "transparent"} color={isLiked ? "#e31837" : "#fff"} />
                     </button>
@@ -189,8 +190,8 @@ export default function ProductDetail() {
                 <div className={styles.infoSection}>
                     <div className={styles.titleArea}>
                         <div className={styles.subMeta}>
-                            <span className={styles.brandName}>DAEHAN KIMCHI ???�?��?�??�???�리미엄 김�?/span>
-                            <span className={styles.ratingBadge}>??4.9 (?�기 {reviews.length}�?</span>
+                            <span className={styles.brandName}>DAEHAN KIMCHI • 대한민국 대표 프리미엄 김치</span>
+                            <span className={styles.ratingBadge}>★ 4.9 (후기 {reviews.length}개)</span>
                         </div>
                         <h1 className={styles.title}>{product.koreanName}</h1>
                         <p className={styles.englishSubtitle}>{product.englishName}</p>
@@ -203,12 +204,12 @@ export default function ProductDetail() {
                                 <span className={styles.finalPrice}>{totalPriceVnd.toLocaleString()} VND</span>
                             </div>
                             {selectedWeight >= 10 && (
-                                <span className={styles.discountTag}>?�?�량 10% ?�별?�인</span>
+                                <span className={styles.discountTag}>대용량 10% 특별할인</span>
                             )}
                         </div>
                         <div className={styles.pointRow}>
                             <Sparkles size={14} color="#D4870A" />
-                            <span>결제 ??<strong>{earnedPoints.toLocaleString()} DP</strong> (5% ?�?�포?�트 마일리�?) 즉시 ?�립</span>
+                            <span>결제 시 <strong>{earnedPoints.toLocaleString()} DP</strong> (5% 대한포인트 마일리지) 즉시 적립</span>
                         </div>
                     </div>
 
@@ -227,15 +228,15 @@ export default function ProductDetail() {
                     {/* Weight options */}
                     <div className={styles.optionSection}>
                         <label className={styles.optionLabel}>
-                            ?�량 ?�택 (Weight Option):
-                            {selectedWeight >= 10 && <span className={styles.freeShippingBadge}>?�� 무료배송 ?�??/span>}
+                            용량 선택 (Weight Option):
+                            {selectedWeight >= 10 && <span className={styles.freeShippingBadge}>🚚 무료배송 대상</span>}
                         </label>
                         <div className={styles.weightSelector}>
                             {[
-                                { weight: 1, label: "?�매 1Kg (기본)", desc: "가?�용 ?�포?? },
-                                { weight: 3, label: "3Kg ?��?리팩", desc: "가??보�??? },
-                                { weight: 5, label: "5Kg ?�속??, desc: "?�기 ?�인 가�? },
-                                { weight: 10, label: "10Kg ?�?�량 (?�매)", desc: "무료배송 + 10%?�인" },
+                                { weight: 1, label: "소매 1Kg (기본)", desc: "가정용 소포장" },
+                                { weight: 3, label: "3Kg 패밀리팩", desc: "가정 보관용" },
+                                { weight: 5, label: "5Kg 실속팩", desc: "인기 다인 가족" },
+                                { weight: 10, label: "10Kg 대용량 (도매)", desc: "무료배송 + 10%할인" },
                             ].map(opt => (
                                 <button
                                     key={opt.weight}
@@ -252,7 +253,7 @@ export default function ProductDetail() {
 
                     {/* Quantity Selector */}
                     <div className={styles.quantitySection}>
-                        <span className={styles.optionLabel}>?�량 (Quantity):</span>
+                        <span className={styles.optionLabel}>수량 (Quantity):</span>
                         <div className={styles.quantityControl}>
                             <button 
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -275,10 +276,10 @@ export default function ProductDetail() {
                         <button 
                             className={styles.hexPayBtn}
                             onClick={handleOpenCheckout}
-                            title="주문???�기 �?결제?�단 ?�택"
+                            title="주문서 열기 및 결제수단 선택"
                         >
                             <CreditCard size={20} />
-                            <span>바로 구매?�기 ({totalPriceVnd.toLocaleString()} VND)</span>
+                            <span>바로 구매하기 ({totalPriceVnd.toLocaleString()} VND)</span>
                         </button>
 
                         <button 
@@ -287,11 +288,11 @@ export default function ProductDetail() {
                         >
                             {cartAdded ? (
                                 <>
-                                    <PackageCheck size={20} /> ?�바구니 ?��?!
+                                    <PackageCheck size={20} /> 장바구니 담김!
                                 </>
                             ) : (
                                 <>
-                                    <ShoppingCart size={18} /> ?�바구니 ?�기
+                                    <ShoppingCart size={18} /> 장바구니 담기
                                 </>
                             )}
                         </button>
@@ -300,57 +301,57 @@ export default function ProductDetail() {
                     {/* Quick Trust badges */}
                     <div className={styles.trustRow}>
                         <div className={styles.trustChip}>
-                            <Truck size={15} /> ?�노???�일/?�일 ?�선배송
+                            <Truck size={15} /> 하노이 당일/익일 신선배송
                         </div>
                         <div className={styles.trustChip}>
-                            <ShieldCheck size={15} /> HACCP ?�심 ?�린�??�산
+                            <ShieldCheck size={15} /> HACCP 안심 클린룸 생산
                         </div>
                         <div className={styles.trustChip}>
-                            <Award size={15} /> 구매 ??5% ?�?�포?�트 ?�립
+                            <Award size={15} /> 구매 시 5% 대한포인트 적립
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ===== ?�셜 공유 ===== */}
+            {/* ===== 소셜 공유 ===== */}
             <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px' }}>
                 <ShareButtons
-                    title={`${product.koreanName} | ?�?��?�?(DAEHAN KIMCHI)`}
+                    title={`${product.koreanName} | 대한김치 (DAEHAN KIMCHI)`}
                     description={product.desc || product.name}
                 />
             </div>
 
             {/* Product Specifications Table */}
             <section className={styles.specSection}>
-                <h2 className={styles.sectionHeading}>?�품 ?�세 ?�보</h2>
+                <h2 className={styles.sectionHeading}>제품 상세 정보</h2>
                 <div className={styles.specGrid}>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>?�품�?/div>
+                        <div className={styles.specKey}>제품명</div>
                         <div className={styles.specVal}>{product.name}</div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>?�품 ?�형</div>
-                        <div className={styles.specVal}>김치류 (비살�?발효 ?�산가공품)</div>
+                        <div className={styles.specKey}>식품 유형</div>
+                        <div className={styles.specVal}>김치류 (비살균 발효 농산가공품)</div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>?�용??�?가�?/div>
+                        <div className={styles.specKey}>내용량 및 가격</div>
                         <div className={styles.specVal}>{selectedWeight}Kg ({totalPriceVnd.toLocaleString()} VND)</div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>지??결제 ?�단</div>
-                        <div className={styles.specVal}>?�� <strong>?�반 결제 (VND / 계좌?�체)</strong>, �?<strong>?�?�포?�트(DP) ?�립 5%</strong></div>
+                        <div className={styles.specKey}>지원 결제 수단</div>
+                        <div className={styles.specVal}>💵 <strong>일반 결제 (VND / 계좌이체)</strong>, ⭐ <strong>대한포인트(DP) 적립 5%</strong></div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>보�? 방법</div>
-                        <div className={styles.specVal}>0~4???�장 보�? (개봉 ??밀?�용기에 ?�아 김치냉?�고 보�? 권장)</div>
+                        <div className={styles.specKey}>보관 방법</div>
+                        <div className={styles.specVal}>0~4℃ 냉장 보관 (개봉 후 밀폐용기에 담아 김치냉장고 보관 권장)</div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>?�통기한</div>
-                        <div className={styles.specVal}>?�조?�로부??90??(?�정 발효 ?�성?�에 ?�라 ??��)</div>
+                        <div className={styles.specKey}>유통기한</div>
+                        <div className={styles.specVal}>제조일로부터 90일 (적정 발효 숙성도에 따라 섭취)</div>
                     </div>
                     <div className={styles.specRow}>
-                        <div className={styles.specKey}>고객?�터 & 주문 문의</div>
-                        <div className={styles.specVal}>?�?��?�?(DAEHAN KIMCHI) ??Kakao/Zalo: 0702116617</div>
+                        <div className={styles.specKey}>고객센터 & 주문 문의</div>
+                        <div className={styles.specVal}>대한김치 (DAEHAN KIMCHI) • Kakao/Zalo: 0702116617</div>
                     </div>
                 </div>
             </section>
@@ -359,21 +360,21 @@ export default function ProductDetail() {
             <section className={styles.reviewSection}>
                 <div className={styles.reviewHeaderMain}>
                     <h2 className={styles.reviewTitle}>
-                        구매 고객 만족 ?�기
-                        <span className={styles.ratingOverview}>(??4.9 / 5.0)</span>
+                        구매 고객 만족 후기
+                        <span className={styles.ratingOverview}>(★ 4.9 / 5.0)</span>
                     </h2>
-                    <span className={styles.reviewCountInfo}>�?{reviews.length}개의 리얼 리뷰</span>
+                    <span className={styles.reviewCountInfo}>총 {reviews.length}개의 리얼 리뷰</span>
                 </div>
 
                 {/* Write form */}
                 <form className={styles.writeForm} onSubmit={handleSubmitReview}>
                     <div className={styles.formHeader}>
-                        <h3 style={{ fontSize: '1.15rem', color: 'var(--text-main)' }}>직접 ?�점 & ?�직 ?�기 ?�성</h3>
-                        <span className={styles.rewardNotice}>?�� ?�기 ?�성 ??500 DP 즉시 ?�립!</span>
+                        <h3 style={{ fontSize: '1.15rem', color: 'var(--text-main)' }}>직접 평점 & 솔직 후기 작성</h3>
+                        <span className={styles.rewardNotice}>🎁 후기 작성 시 500 DP 즉시 적립!</span>
                     </div>
 
                     <div className={styles.ratingSelect} onMouseLeave={() => setHoverRating(0)}>
-                        <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginRight: '8px' }}>별점 ?�택:</span>
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginRight: '8px' }}>별점 선택:</span>
                         {[1, 2, 3, 4, 5].map(star => (
                             <button
                                 key={star}
@@ -391,19 +392,19 @@ export default function ProductDetail() {
                         <input
                             type="text"
                             className={styles.nameInput}
-                            placeholder="?�성???�름"
+                            placeholder="작성자 이름"
                             value={reviewerName}
                             onChange={(e) => setReviewerName(e.target.value)}
                         />
                         <input
                             type="text"
                             className={styles.reviewInput}
-                            placeholder="김치의 �? ?�성?? 배송 �?결제 경험 ???�직???�기�??�겨주세??"
+                            placeholder="김치의 맛, 숙성도, 배송 및 결제 경험 등 솔직한 후기를 남겨주세요!"
                             value={reviewText}
                             onChange={(e) => setReviewText(e.target.value)}
                         />
                         <button type="submit" className="btn-primary" style={{ padding: '10px 24px', flexShrink: 0 }}>
-                            ?�기 ?�록
+                            후기 등록
                         </button>
                     </div>
                 </form>
@@ -427,7 +428,7 @@ export default function ProductDetail() {
 
             {/* Related Products Grid */}
             <section className={styles.relatedSection}>
-                <h2 className={styles.sectionHeading}>?�께 구매?�면 좋�? ?�?��?�??�인??/h2>
+                <h2 className={styles.sectionHeading}>함께 구매하면 좋은 대한김치 라인업</h2>
                 <div className={styles.relatedGrid}>
                     {relatedProducts.map(rel => {
                         return (
@@ -457,9 +458,9 @@ export default function ProductDetail() {
                                 <div className={styles.modalHeader}>
                                     <div className={styles.modalTitleWrap}>
                                         <CreditCard size={22} color="#f7a400" />
-                                        <h3>?�?��?�?주문 �?결제</h3>
+                                        <h3>대한김치 주문 및 결제</h3>
                                     </div>
-                                    <button className={styles.modalClose} onClick={() => setCheckoutModalOpen(false)}>??/button>
+                                    <button className={styles.modalClose} onClick={() => setCheckoutModalOpen(false)}>✕</button>
                                 </div>
 
                                 {/* Order Summary */}
@@ -467,11 +468,11 @@ export default function ProductDetail() {
                                     <img src={product.image} alt={product.name} className={styles.orderThumb} />
                                     <div className={styles.orderMeta}>
                                         <h4>{product.koreanName}</h4>
-                                        <p>?�량: {selectedWeight}Kg ???�량: {quantity}�???주문번호: <code>{dynamicOrderId}</code></p>
+                                        <p>용량: {selectedWeight}Kg • 수량: {quantity}개 • 주문번호: <code>{dynamicOrderId}</code></p>
                                         <div className={styles.orderPrices}>
                                             <span className={styles.vndTotal} style={{ fontSize: '1.15rem', fontWeight: 800 }}>
                                                 {totalPriceVnd.toLocaleString()} VND 
-                                                <span style={{ fontSize: '0.9rem', color: '#f7a400', marginLeft: 8 }}>({Math.round(totalPriceVnd / 1000).toLocaleString()} �Ӵ�)</span>
+                                                <span style={{ fontSize: '0.9rem', color: '#f7a400', marginLeft: 8 }}>({Math.round(totalPriceVnd / 1000).toLocaleString()} 대한페이)</span>
                                             </span>
                                         </div>
                                     </div>
@@ -479,15 +480,15 @@ export default function ProductDetail() {
 
                                 {/* Payment Method */}
                                 <div className={styles.shippingForm} style={{ marginBottom: 16 }}>
-                                    <label className={styles.sectionSubTitle}>결제 ?�단 ?�택:</label>
+                                    <label className={styles.sectionSubTitle}>결제 수단 선택:</label>
                                     <select 
                                         value={paymentCurrency} 
-                                        onChange={(e) => setPaymentCurrency(e.target.value as "VND" | "HEX")}
+                                        onChange={(e) => setPaymentCurrency(e.target.value as "VND" | "대한페이")}
                                         className={`${styles.checkoutInput} ${styles.fullWidth}`}
                                         style={{ marginTop: 8 }}
                                     >
-                                        <option value="VND">?�반 결제 (VND / ?�금 계좌?�체)</option>
-                                        <option value="HEX">������ 머니 (HEX) 결제</option>
+                                        <option value="VND">일반 결제 (VND / 현금 계좌이체)</option>
+                                        <option value="대한페이">대한김치 머니 (대한페이) 결제</option>
                                     </select>
                                 </div>
 
@@ -495,32 +496,32 @@ export default function ProductDetail() {
 
                                 {/* Shipping Address */}
                                 <div className={styles.shippingForm}>
-                                    <label className={styles.sectionSubTitle}>배송지 ?�보 (?�노??콜드체인 직배??:</label>
+                                    <label className={styles.sectionSubTitle}>배송지 정보 (하노이 콜드체인 직배송):</label>
                                     <div className={styles.formGrid}>
                                         <input 
                                             type="text" 
-                                            placeholder="받는 �??�함" 
+                                            placeholder="받는 분 성함" 
                                             value={recipientName}
                                             onChange={e => setRecipientName(e.target.value)}
                                             className={styles.checkoutInput}
                                         />
                                         <input 
                                             type="text" 
-                                            placeholder="?�락�?(Zalo/?��???" 
+                                            placeholder="연락처 (Zalo/휴대폰)" 
                                             value={recipientPhone}
                                             onChange={e => setRecipientPhone(e.target.value)}
                                             className={styles.checkoutInput}
                                         />
                                         <input 
                                             type="text" 
-                                            placeholder="?�노??배송 주소" 
+                                            placeholder="하노이 배송 주소" 
                                             value={recipientAddress}
                                             onChange={e => setRecipientAddress(e.target.value)}
                                             className={`${styles.checkoutInput} ${styles.fullWidth}`}
                                         />
                                         <input 
                                             type="text" 
-                                            placeholder="배송 ?�청?�항 (?�택)" 
+                                            placeholder="배송 요청사항 (선택)" 
                                             value={deliveryMemo}
                                             onChange={e => setDeliveryMemo(e.target.value)}
                                             className={`${styles.checkoutInput} ${styles.fullWidth}`}
@@ -541,10 +542,10 @@ export default function ProductDetail() {
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
-                                        "주문 결제 ?�인 처리 �?.."
+                                        "주문 결제 승인 처리 중..."
                                     ) : (
                                         <>
-                                            ?�� {paymentCurrency === "HEX" ? Math.round(totalPriceVnd / 1000).toLocaleString() + " �Ӵ�" : totalPriceVnd.toLocaleString() + " VND"} 결제?�기
+                                            💳 {paymentCurrency === "대한페이" ? Math.round(totalPriceVnd / 1000).toLocaleString() + " 대한페이" : totalPriceVnd.toLocaleString() + " VND"} 결제하기
                                             <ArrowRight size={18} />
                                         </>
                                     )}
@@ -556,9 +557,9 @@ export default function ProductDetail() {
                                 <div className={styles.successIconWrap}>
                                     <CheckCircle2 size={54} color="#00E676" />
                                 </div>
-                                <h3 className={styles.successTitle}>주문 결제가 ?�료?�었?�니??</h3>
+                                <h3 className={styles.successTitle}>주문 결제가 완료되었습니다!</h3>
                                 <p className={styles.successSub}>
-                                    ?�?��?�??�선 배송 준비�? ?�작?�었?�니??
+                                    대한김치 신선 배송 준비가 시작되었습니다.
                                 </p>
 
                                 <div className={styles.receiptCard}>
@@ -573,19 +574,19 @@ export default function ProductDetail() {
                                         </strong>
                                     </div>
                                     <div className={styles.receiptRow}>
-                                        <span>결제 ???�액</span>
+                                        <span>결제 후 잔액</span>
                                         <span>{paymentReceipt.remainingBalance} {paymentReceipt.currency}</span>
                                     </div>
                                     <div className={styles.receiptRow}>
-                                        <span>?�립???�?�포?�트</span>
-                                        <strong style={{ color: '#f7a400' }}>+{paymentReceipt.earnedDp.toLocaleString()} DP (5% 리워??</strong>
+                                        <span>적립된 대한포인트</span>
+                                        <strong style={{ color: '#f7a400' }}>+{paymentReceipt.earnedDp.toLocaleString()} DP (5% 리워드)</strong>
                                     </div>
                                     <div className={styles.receiptRow}>
-                                        <span>?�랜??�� ID</span>
+                                        <span>트랜잭션 ID</span>
                                         <div className={styles.txHashWrap}>
                                             <code>{paymentReceipt.txHash.slice(0, 10)}...{paymentReceipt.txHash.slice(-8)}</code>
                                             <button className={styles.copyBtn} onClick={() => copyTxHash(paymentReceipt.txHash)}>
-                                                {copiedTx ? "복사??" : <Copy size={13} />}
+                                                {copiedTx ? "복사됨!" : <Copy size={13} />}
                                             </button>
                                         </div>
                                     </div>
@@ -593,13 +594,13 @@ export default function ProductDetail() {
 
                                 <div className={styles.receiptActions}>
                                     <Link href="/mypage" className="btn-primary" style={{ textAlign: 'center', padding: '12px 24px' }}>
-                                        마이?�이지 & 주문?�역 조회
+                                        마이페이지 & 주문내역 조회
                                     </Link>
                                     <button 
                                         className={styles.closeReceiptBtn}
                                         onClick={() => setCheckoutModalOpen(false)}
                                     >
-                                        계속 ?�핑?�기
+                                        계속 쇼핑하기
                                     </button>
                                 </div>
                             </div>
@@ -610,4 +611,3 @@ export default function ProductDetail() {
         </div>
     );
 }
-
