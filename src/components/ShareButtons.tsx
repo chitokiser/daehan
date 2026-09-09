@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, Share2 } from "lucide-react";
 import styles from "./ShareButtons.module.css";
+import { useUserWallet } from "@/context/UserWalletContext";
 
 interface ShareButtonsProps {
     url?: string;
@@ -17,7 +18,25 @@ export default function ShareButtons({
     description = "대한민국 30년 전통 비법 대한김치",
     compact = false,
 }: ShareButtonsProps) {
+    const { user, refreshWallet } = useUserWallet();
     const [copied, setCopied] = useState(false);
+
+    const triggerReward = () => {
+        if (user?.uid) {
+            fetch("/api/v1/rewards", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    actionType: "SHARE_PRODUCT"
+                })
+            }).then(r => r.json()).then(res => {
+                if (res.success) {
+                    refreshWallet();
+                }
+            }).catch(console.error);
+        }
+    };
 
     const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "https://daehankimchi.netlify.app");
     const encodedUrl = encodeURIComponent(shareUrl);
@@ -77,6 +96,7 @@ export default function ShareButtons({
     ];
 
     const handleKakaoShare = () => {
+        triggerReward();
         if (typeof navigator !== "undefined" && navigator.share) {
             navigator.share({ title, url: shareUrl }).catch(() => {});
         } else {
@@ -85,6 +105,7 @@ export default function ShareButtons({
     };
 
     const handleCopy = () => {
+        triggerReward();
         if (typeof navigator !== "undefined") {
             navigator.clipboard.writeText(shareUrl).then(() => {
                 setCopied(true);
@@ -94,6 +115,7 @@ export default function ShareButtons({
     };
 
     const handleShare = (href: string) => {
+        triggerReward();
         window.open(href, "_blank", "noopener,noreferrer,width=640,height=520");
     };
 

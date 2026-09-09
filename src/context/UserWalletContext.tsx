@@ -18,6 +18,8 @@ export interface UserProfile {
     onChainWalletAddress?: string;
     moneyBalance?: number;
     pointBalance?: number;
+    referrerUid?: string;
+    mentees?: string[];
 }
 
 export interface WalletState {
@@ -145,6 +147,11 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             });
             const json = await res.json();
             if (json.success && json.data) {
+                setUser(prev => prev ? {
+                    ...prev,
+                    referrerUid: json.data.referrerUid || prev.referrerUid,
+                    mentees: json.data.mentees || prev.mentees
+                } : prev);
                 setWallet({
                     points: json.data.pointBalance || 0,
                     vndBalance: json.data.vndBalance || 0,
@@ -196,7 +203,9 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     name: json.data.name,
                     email: json.data.email,
                     role: json.data.role,
-                    avatar: json.data.avatar
+                    avatar: json.data.avatar,
+                    referrerUid: json.data.referrerUid,
+                    mentees: json.data.mentees || []
                 });
                 setWallet({
                     points: json.data.pointBalance || 0,
@@ -240,7 +249,9 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     email: json.data.email,
                     role: json.data.role,
                     avatar: json.data.avatar,
-                    phone: json.data.phone
+                    phone: json.data.phone,
+                    referrerUid: json.data.referrerUid,
+                    mentees: json.data.mentees || []
                 };
                 setUser(loggedUser);
                 setWallet({

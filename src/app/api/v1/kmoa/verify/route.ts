@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
         }
 
         // verifyTransaction with txHash="dummy" and orderId instead
-        const result = verifyTransaction("", orderId);
+        const result = await verifyTransaction("", orderId);
 
         if (!result.verified || !result.transaction) {
             return NextResponse.json({ success: false, error: "결제 내역을 찾을 수 없습니다." }, { status: 404 });

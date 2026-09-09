@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { ThumbsUp, Share2, ExternalLink, Eye, X } from "lucide-react";
+import { useUserWallet } from "@/context/UserWalletContext";
 
 // 브랜드 공식 웹진 타입
 interface KmoaWebzine {
@@ -19,10 +20,30 @@ interface KmoaWebzine {
 }
 
 export default function WebzineServicePage() {
+    const { user, refreshWallet } = useUserWallet();
     const [kmoaWebzines, setKmoaWebzines] = useState<KmoaWebzine[]>([]);
     const [kmoaLoading, setKmoaLoading] = useState(true);
     const [kmoaDemo, setKmoaDemo] = useState(false);
     const [kmoaViewer, setKmoaViewer] = useState<KmoaWebzine | null>(null);
+
+    const handleOpenWebzine = (wz: KmoaWebzine) => {
+        setKmoaViewer(wz);
+        if (user?.uid) {
+            fetch("/api/v1/rewards", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    actionType: "READ_WEBZINE",
+                    itemId: wz.webzineId
+                })
+            }).then(r => r.json()).then(res => {
+                if (res.success) {
+                    refreshWallet();
+                }
+            }).catch(console.error);
+        }
+    };
 
     useEffect(() => {
         // 기존 6개에서 12개 정도로 늘려서 넉넉하게 불러오기
@@ -100,7 +121,7 @@ export default function WebzineServicePage() {
                             <div
                                 key={wz.webzineId}
                                 className={styles.kmoaCard}
-                                onClick={() => setKmoaViewer(wz)}
+                                onClick={() => handleOpenWebzine(wz)}
                             >
                                 <div className={styles.kmoaThumbWrap}>
                                     <img

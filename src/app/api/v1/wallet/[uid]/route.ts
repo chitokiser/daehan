@@ -16,8 +16,8 @@ export async function GET(
         const authHeader = request.headers.get("authorization") || "";
         // Support any valid Bearer token or internal requests
         const wallet = await getUserWallet(uid);
-        const transactions = getUserTransactions(uid);
-        const orders = getUserOrders(uid);
+        const transactions = await getUserTransactions(uid);
+        const orders = await getUserOrders(uid);
 
         return NextResponse.json({
             success: true,
@@ -32,6 +32,8 @@ export async function GET(
                 dpPoints: wallet.dpPoints,
                 role: wallet.role,
                 avatar: wallet.avatar,
+                referrerUid: wallet.referrerUid,
+                mentees: wallet.mentees || [],
                 recentTransactions: transactions.slice(0, 5),
                 recentOrders: orders.slice(0, 5)
             }

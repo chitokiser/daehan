@@ -62,11 +62,11 @@ export interface MemberOrder {
 }
 
 const USERS_COL = 'users';
-const TRANSACTIONS_COL = 'transactions';
+export const TRANSACTIONS_COL = 'transactions';
 const ORDERS_COL = 'orders';
 
 // Helper to safely interact with firestore or fail gracefully if not configured
-function getDb() {
+export function getDb() {
     return getAdminDb();
 }
 
@@ -123,9 +123,15 @@ export async function registerOrLoginGoogleUser(googleData: {
             const refSnap = await db.collection(USERS_COL).doc(googleData.referrerUid).get();
             if (refSnap.exists) {
                 validReferrer = googleData.referrerUid;
-            } else if (role === "VIP_MEMBER") {
+            } else {
                 return { success: false, error: "유효하지 않은 추천인 코드입니다." };
             }
+        }
+        
+        // 예외: 특정 관리자 계정은 추천인 없이 가입 가능
+        const isException = role === "SUPER_ADMIN" || role === "OPERATOR";
+        if (!isException && !validReferrer) {
+            return { success: false, error: "대한김치 로열티 시스템 정책에 따라 추천인(멘토) UID 코드가 반드시 필요합니다." };
         }
 
         const newUser: UserWalletData = {
@@ -134,10 +140,10 @@ export async function registerOrLoginGoogleUser(googleData: {
             email: googleData.email,
             avatar: googleData.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80",
             onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
-            moneyBalance: role === "OPERATOR" ? 15000.0 : 2000.0,
-            pointBalance: role === "OPERATOR" ? 50000 : 10000,
-            vndBalance: role === "OPERATOR" ? 15000000 : 500000,
-            dpPoints: role === "OPERATOR" ? 20000 : 3000,
+            moneyBalance: role === "OPERATOR" ? 15000.0 : 0,
+            pointBalance: role === "OPERATOR" ? 50000 : 0,
+            vndBalance: role === "OPERATOR" ? 15000000 : 0,
+            dpPoints: role === "OPERATOR" ? 20000 : 0, // DP는 가입 후 grantDaehanPoint로 지급
             role: role,
             ...(validReferrer && { referrerUid: validReferrer }),
             mentees: [],
@@ -155,6 +161,15 @@ export async function registerOrLoginGoogleUser(googleData: {
             });
         }
         await batch.commit();
+        
+        // DP 리워드 지급 (신규회원 1000 DP, 추천인 500 DP)
+        await grantDaehanPoint(safeUid, 1000, "신규 회원가입 보상 (1,000 DP)", "REWARD");
+        newUser.dpPoints = (newUser.dpPoints || 0) + 1000;
+        
+        if (validReferrer) {
+            await grantDaehanPoint(validReferrer, 500, `친구 추천 보상 (${newUser.name} 가입)`, "REFERRAL_BONUS");
+        }
+        
         return { success: true, user: newUser };
     } else {
         const updates: any = {};
@@ -564,3 +579,44 @@ export async function convertPointsToKm(uid: string, pointsAmount: number): Prom
     
     return { success: true, newPoints: user.pointBalance - pointsAmount, newKm: user.moneyBalance + moneyAmount };
 }
+
+export async function grantDaehanPoint(uid: string, amount: number, description: string, type: "REWARD" | "REFERRAL_BONUS" | "FAUCET" = "REWARD"): Promise<{ success: boolean; newBalance?: number; error?: string }> {
+    const db = getDb();
+    const userRef = db.collection(USERS_COL).doc(uid);
+    
+    try {
+        const newBalance = await db.runTransaction(async (transaction) => {
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists) throw new Error("사용자를 찾을 수 없습니다.");
+            
+            const user = userDoc.data() as UserWalletData;
+            const updatedDp = (user.dpPoints || 0) + amount;
+            
+            transaction.update(userRef, { dpPoints: updatedDp });
+            
+            const txId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const txRef = db.collection(TRANSACTIONS_COL).doc(txId);
+            
+            transaction.set(txRef, {
+                id: txId,
+                uid,
+                merchantId: "daehan_loyalty",
+                type,
+                currency: "DP",
+                amount,
+                description,
+                status: "CONFIRMED",
+                txHash: `0x${Math.random().toString(16).substring(2)}`,
+                timestamp: new Date().toISOString()
+            });
+            
+            return updatedDp;
+        });
+        
+        return { success: true, newBalance };
+    } catch (e: any) {
+        console.error("Failed to grant DP:", e);
+        return { success: false, error: e.message };
+    }
+}
+

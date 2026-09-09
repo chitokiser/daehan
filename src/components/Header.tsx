@@ -36,6 +36,10 @@ export default function Header() {
                         setDropdownOpen(false);
                         setMobileMenuOpen(false);
                         alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
+                    } else if (loginRes.error?.includes("추천인") || loginRes.error?.includes("멘토")) {
+                        setPendingUserInfo({ email: userInfo.email, name: userInfo.name || "Google 회원" });
+                        setLoginModalOpen(false);
+                        setReferrerPromptOpen(true);
                     } else {
                         alert(`로그인 실패: ${loginRes.error}`);
                     }
@@ -68,8 +72,35 @@ export default function Header() {
             setDropdownOpen(false);
             setMobileMenuOpen(false);
             alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
+        } else if (res.error?.includes("추천인") || res.error?.includes("멘토")) {
+            setPendingUserInfo({ email: emailToUse, name: "회원" });
+            setLoginModalOpen(false);
+            setReferrerPromptOpen(true);
         } else {
             alert(`로그인 실패: ${res.error}`);
+        }
+    };
+
+    const submitReferrer = async () => {
+        if (!referrerInput.trim()) {
+            alert("추천인 UID 코드를 입력해주세요.");
+            return;
+        }
+        if (!pendingUserInfo) {
+            alert("회원 정보가 없습니다. 다시 로그인해 주세요.");
+            setReferrerPromptOpen(false);
+            return;
+        }
+        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, referrerInput.trim());
+        if (loginRes.success) {
+            setReferrerPromptOpen(false);
+            setPendingUserInfo(null);
+            setReferrerInput("");
+            setDropdownOpen(false);
+            setMobileMenuOpen(false);
+            alert(`🎉 대한김치 회원 가입 및 로그인이 완료되었습니다! (1,000 DP 적립)`);
+        } else {
+            alert(`추천인 확인 실패: ${loginRes.error}`);
         }
     };
 
@@ -131,7 +162,7 @@ export default function Header() {
                                     <div className={styles.balancesBlock}>
                                         <div className={styles.walletBalanceBadge}>
                                             <span>💳 충전머니:</span>
-                                            <strong>{wallet.hexBalance?.toLocaleString() || 0} 머니</strong>
+                                            <strong>{wallet.moneyBalance?.toLocaleString() || 0} 머니</strong>
                                         </div>
                                         <div className={styles.balanceItem}>
                                             <span>🎟️ 적립 포인트:</span>

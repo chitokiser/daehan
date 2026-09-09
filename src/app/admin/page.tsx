@@ -463,11 +463,11 @@ export default function AdminDashboard() {
                                         </td>
                                         <td>
                                             <div className={styles.memberLoyalty}>
-                                                <strong style={{ color: '#fcd34d' }}>{(member.hexTokenBalance || 0).toLocaleString()} 충전머니</strong>
+                                                <strong style={{ color: '#fcd34d' }}>{(member.moneyBalance || 0).toLocaleString()} 충전머니</strong>
                                             </div>
                                         </td>
                                         <td>
-                                            <span style={{ color: '#00E676' }}>{(member.kcaPoints || 0).toLocaleString()} P</span>
+                                            <span style={{ color: '#00E676' }}>{(member.points || 0).toLocaleString()} P</span>
                                         </td>
                                         <td>
                                             <span>{(member.vndBalance || 0).toLocaleString()} ₫</span>

@@ -17,7 +17,7 @@ export default function ProductDetail() {
     const params = useParams();
     const rawId = params?.id as string || "1";
 
-    const { user, wallet, isLoggedIn, payOrder, isLoading } = useUserWallet();
+    const { user, wallet, isLoggedIn, payOrder, isLoading, refreshWallet } = useUserWallet();
 
     // Find product by id, idx, or slug
     const product: Product = useMemo(() => {
@@ -100,7 +100,7 @@ export default function ProductDetail() {
         const res = await payOrder({
             orderId: dynamicOrderId,
             amount: paymentAmount,
-            currency: paymentCurrency,
+            currency: paymentCurrency === "대한페이" ? "MONEY" : paymentCurrency,
             items: orderItems,
             shippingAddress: {
                 recipient: recipientName,
@@ -137,6 +137,22 @@ export default function ProductDetail() {
             },
             ...reviews
         ]);
+
+        if (user?.uid) {
+            fetch("/api/v1/rewards", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    actionType: "WRITE_REVIEW",
+                    itemId: String(product.id)
+                })
+            }).then(r => r.json()).then(res => {
+                if (res.success) {
+                    refreshWallet();
+                }
+            }).catch(console.error);
+        }
 
         setReviewText("");
         setReviewerName("");
