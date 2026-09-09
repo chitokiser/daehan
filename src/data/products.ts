@@ -27,10 +27,10 @@ export const products: Product[] = [
         "englishName": "Traditional Whole Cabbage Kimchi",
         "weight": "1Kg",
         "category": "배추김치",
-        "price": 90000,
-        "priceFormatted": "90,000 VND",
+        "price": 80000,
+        "priceFormatted": "80,000 VND",
         "badge": "BEST",
-        "desc": "신선한 고랭지 배추와 30년 비법 양념으로 정성껏 담근 대한김치의 대표 시그니처 배추김치.",
+        "desc": "신선한 고랭지 배추와 전통 비법 양념으로 정성껏 담근 대한김치의 대표 시그니처 배추김치.",
         "detailDesc": "한국 정통 레시피와 100% 엄선된 식재료를 사용하여 아삭한 배추의 결마다 깊고 시원한 감칠맛 양념이 가득 배어 있습니다. 갓 담근 생김치의 아삭함부터 알맞게 익었을 때의 깊은 풍미까지 식탁을 풍성하게 만듭니다.",
         "features": [
             "엄선된 신선 배추 사용",

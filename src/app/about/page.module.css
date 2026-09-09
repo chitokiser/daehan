@@ -1,117 +1,466 @@
-/* about/page.module.css — 화이트 테마 */
+/* about/page.module.css — 대한김치 회사소개서 프리미엄 디자인 */
 
 .container {
     width: 100%;
     min-height: 100vh;
-    padding-bottom: 80px;
+    padding-bottom: 100px;
     background: var(--bg-color);
 }
 
 .heroSection {
-    padding: 140px 24px 80px;
+    padding: 130px 24px 70px;
     text-align: center;
-    background: linear-gradient(160deg, #FFF8F0, #FFF5EE);
-    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(165deg, #FFF9F3 0%, #FFF0E6 50%, #FFEBE0 100%);
+    border-bottom: 1px solid rgba(227, 24, 55, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.heroBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    border-radius: 30px;
+    background: rgba(227, 24, 55, 0.08);
+    color: #e31837;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(227, 24, 55, 0.2);
 }
 
 .title {
-    font-size: 3rem;
-    font-weight: 700;
-    line-height: 1.3;
-    margin: 20px 0 16px;
-    color: var(--text-main);
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
 }
 
 .subtitle {
-    font-size: 1.2rem;
-    color: var(--text-muted);
-    max-width: 700px;
-    margin: 0 auto;
-    line-height: 1.7;
+    font-size: 1.15rem;
+    color: #555;
+    max-width: 760px;
+    margin: 0 auto 32px;
+    line-height: 1.75;
+    word-break: keep-all;
 }
 
-.featuresSection {
-    padding: 60px 24px;
-}
-
-.featureGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-}
-
-.featureCard {
-    background: var(--surface-color);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 36px 28px;
-    box-shadow: var(--card-shadow);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.featureCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
-    border-color: rgba(200, 57, 43, 0.25);
-}
-
-.iconWrapper {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-}
-
-.featureCard h3 {
-    font-size: 1.3rem;
-    margin-bottom: 12px;
-    color: var(--text-main);
-}
-
-.featureCard p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.facilitySection {
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-subtle);
-    border-bottom: 1px solid var(--border-subtle);
-    padding: 80px 24px;
-    margin-top: 40px;
-}
-
-.statsRow {
+.heroActions {
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 16px;
     flex-wrap: wrap;
 }
 
-.statBox {
-    background: var(--surface-color);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 30px 40px;
-    text-align: center;
-    min-width: 220px;
-    box-shadow: var(--card-shadow);
+.primaryBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #e31837;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(227, 24, 55, 0.25);
+    transition: all 0.25s ease;
+    border: none;
+    cursor: pointer;
 }
 
-.statNum {
-    display: block;
-    font-size: 2.2rem;
+.primaryBtn:hover {
+    background: #c6122d;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(227, 24, 55, 0.35);
+}
+
+.secondaryBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #333;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.secondaryBtn:hover {
+    background: #f8f8f8;
+    border-color: #bbb;
+    transform: translateY(-2px);
+}
+
+/* Tab Navigation Bar */
+.stickyTabNav {
+    position: sticky;
+    top: 70px;
+    z-index: 90;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #eee;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+}
+
+.tabList {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    overflow-x: auto;
+}
+
+.tabLink {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #666;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tabLink:hover {
+    color: #e31837;
+    background: rgba(227, 24, 55, 0.05);
+}
+
+/* Main Content Wrapper */
+.contentWrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px 24px 0;
+}
+
+/* Section styling */
+.sectionCard {
+    background: #fff;
+    border-radius: 20px;
+    padding: 48px 40px;
+    margin-bottom: 50px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f0f0f0;
+    scroll-margin-top: 140px;
+}
+
+.sectionHeader {
+    margin-bottom: 36px;
+    text-align: left;
+}
+
+.sectionTag {
+    display: inline-block;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: #e31837;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin-bottom: 8px;
 }
 
-.statLabel {
-    color: var(--text-muted);
-    font-size: 0.9rem;
+.sectionTitle {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #111;
+    margin: 0;
+    line-height: 1.3;
 }
 
-@media (max-width: 768px) {
-    .title {
+/* CEO Message Styles */
+.ceoLayout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.ceoProfileCard {
+    background: linear-gradient(145deg, #1f242d, #14171d);
+    color: #fff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+}
+
+.ceoAvatarCircle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e31837, #ff5252);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 20px;
+    color: #fff;
+    box-shadow: 0 8px 16px rgba(227, 24, 55, 0.4);
+}
+
+.ceoName {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.ceoTitleText {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 16px;
+}
+
+.ceoBadgeTag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.ceoMessageBody {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: #333;
+}
+
+.ceoMessageBody p {
+    margin-bottom: 20px;
+    word-break: keep-all;
+}
+
+.ceoSignatureBox {
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.signatureTitle {
+    font-size: 0.95rem;
+    color: #777;
+}
+
+.signatureName {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #111;
+    font-family: 'Georgia', serif;
+    font-style: italic;
+}
+
+/* Brand Philosophy Cards */
+.brandGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.brandCard {
+    background: #fcfcfc;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.brandCard:hover {
+    transform: translateY(-4px);
+    background: #fff;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+    border-color: rgba(227, 24, 55, 0.3);
+}
+
+.brandNum {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: rgba(227, 24, 55, 0.15);
+    position: absolute;
+    top: 16px;
+    right: 20px;
+}
+
+.brandIcon {
+    font-size: 2.2rem;
+    margin-bottom: 16px;
+}
+
+.brandCard h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 10px;
+}
+
+.brandCard p {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* HACCP Section */
+.haccpBanner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    background: linear-gradient(135deg, #0d233a, #163656);
+    color: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    align-items: center;
+}
+
+.haccpContent h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.haccpBadgeList {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0 24px;
+}
+
+.haccpBadgeItem {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.haccpMetaGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.haccpMetaItem label {
+    display: block;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 4px;
+}
+
+.haccpMetaItem span {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #4cd964;
+}
+
+.haccpViewerCard {
+    background: #fff;
+    color: #333;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.haccpPreviewImg {
+    width: 100%;
+    max-height: 280px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-bottom: 16px;
+    background: #fafafa;
+}
+
+.pdfBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: #007aff;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.pdfBtn:hover {
+    background: #0056b3;
+}
+
+/* Company Overview Table */
+.overviewTableWrapper {
+    overflow-x: auto;
+}
+
+.overviewTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+.overviewTable th,
+.overviewTable td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 0.98rem;
+}
+
+.overviewTable th {
+    width: 22%;
+    background: #fafafa;
+    color: #444;
+    font-weight: 700;
+}
+
+.overviewTable td {
+    color: #222;
+}
+
+@media (max-width: 868px) {
+    .heroTitle {
         font-size: 2.2rem;
+    }
+
+    .ceoLayout {
+        grid-template-columns: 1fr;
+    }
+
+    .haccpBanner {
+        grid-template-columns: 1fr;
+    }
+
+    .sectionCard {
+        padding: 32px 20px;
+    }
+
+    .overviewTable th {
+        width: 32%;
     }
 }

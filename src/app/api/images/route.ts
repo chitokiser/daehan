@@ -78,7 +78,7 @@ const ARTICLE_POOL: ArticleImageItem[] = [
     },
     {
         id: "pool-05", tag: "CHEF'S TABLE", category: "RECIPE",
-        title: "장인의 손끝: 3년 묵은지 김치찜과 하노이 라이스 와인의 페어링",
+        title: "정갈한 손끝: 3년 묵은지 김치찜과 하노이 라이스 와인의 페어링",
         subtitle: "시간이 빚어낸 묵직한 산미와 부드러운 돼지 갈비의 극치",
         excerpt: "3년의 저온 숙성을 거치며 자연 분해된 아미노산이 뿜어내는 깊은 감칠맛. 베트남 현지 찹쌀 증류주(Nếp Mới)와 어우러지는 최고급 만찬 코스를 공개합니다.",
         date: "2026-08-20", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80",

@@ -20,7 +20,7 @@ export default function Home() {
             <br />대한김치 (DAEHAN KIMCHI)
           </h1>
           <p className={`${styles.subtitle} ${styles.fadeInUp} ${styles.delay2}`}>
-            30년 전통의 비법과 현대적인 스마트 발효과학이 융합된 대한김치 프리미엄 미식 라이프스타일.<br />
+            전통의 비법과 현대적인 스마트 발효과학이 융합된 대한김치 프리미엄 미식 라이프스타일.<br />
             당신만의 8각 김치 미각 DNA를 측정하고 최적의 숙성 김치를 경험해보세요.
           </p>
           <div className={`${styles.ctaGroup} ${styles.fadeInUp} ${styles.delay3}`}>
@@ -171,7 +171,7 @@ export default function Home() {
           </div>
           <div className={styles.trustItem}>
             <Award size={36} color="#e50914" />
-            <h4>30년 전통 장인의 레시피</h4>
+            <h4>정성 어린 비법 레시피</h4>
             <p>엄선된 젓갈과 고춧가루의 깊은 감칠맛</p>
           </div>
           <div className={styles.trustItem}>

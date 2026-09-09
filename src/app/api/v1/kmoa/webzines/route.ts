@@ -76,8 +76,8 @@ const DEMO_WEBZINES = [
     },
     {
         webzineId: "demo-wz-008",
-        title: "전통 장인과 AI의 만남, 하노이 스마트 팩토리 르포",
-        excerpt: "100% 자동화 에어샤워, 정밀 세척 시스템, 그리고 AI 비전 검수까지. 30년 전통의 레시피를 완벽하게 재현하는 대한김치 클린룸 팩토리 투어.",
+        title: "전통 손맛과 AI의 만남, 하노이 스마트 팩토리 르포",
+        excerpt: "100% 자동화 에어샤워, 정밀 세척 시스템, 그리고 AI 비전 검수까지. 정통 한국 김치 레시피를 완벽하게 재현하는 대한김치 클린룸 팩토리 투어.",
         thumbnailUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
         viewCount: 410, likeCount: 75, shareCount: 18,
         readUrl: "https://kmoa.netlify.app/kca_webzine.html?id=demo-wz-008",

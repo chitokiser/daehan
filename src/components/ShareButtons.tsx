@@ -15,7 +15,7 @@ interface ShareButtonsProps {
 export default function ShareButtons({
     url,
     title = "대한김치 - 하노이 정통 발효김치",
-    description = "대한민국 30년 전통 비법 대한김치",
+    description = "대한민국 정통 비법 대한김치",
     compact = false,
 }: ShareButtonsProps) {
     const { user, refreshWallet } = useUserWallet();

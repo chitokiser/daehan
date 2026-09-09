@@ -49,7 +49,7 @@ export default function Shop() {
                 </div>
                 <h1 className={`${styles.title} text-gradient`}>DAEHAN KIMCHI SHOP</h1>
                 <p className={styles.description}>
-                    30년 전통의 발효 비법과 HACCP 기준 위생 관리 환경에서 정성껏 담근 대한김치의 15가지 정통 라인업.<br />
+                    한국 정통의 발효 비법과 HACCP 기준 위생 관리 환경에서 정성껏 담근 대한김치의 15가지 정통 라인업.<br />
                     신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 VND 직불 및 대한포인트로 간편 결제할 수 있습니다.
                 </p>
 
