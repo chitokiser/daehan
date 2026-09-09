@@ -126,6 +126,53 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 16:9 Wide Video Showcase Section */}
+      <section className={styles.videoSection}>
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <span className="badge">DAEHAN CINEMATIC & BRAND FILM</span>
+            <h2 className="text-gradient" style={{ fontSize: '2.2rem', margin: '16px 0' }}>
+              대한김치 16:9 시네마틱 브랜드 영상
+            </h2>
+            <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
+              하노이 중심에서 전하는 완벽한 발효과학과 신선한 미식 스토리를 16:9 고화질 영상으로 감상해 보세요.
+            </p>
+          </div>
+
+          <div className={styles.wideVideoGrid}>
+            <div className={styles.wideVideoCard}>
+              <div className={styles.aspect16x9}>
+                <iframe
+                  src="https://www.youtube.com/embed/B3dXKWDrSJo?rel=0&modestbranding=1"
+                  title="대한김치 시네마틱 브랜드 필름 1"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              <div className={styles.videoCardInfo}>
+                <h4>대한김치 브랜드 시네마틱 필름</h4>
+                <p>100% 엄선 농산물과 위생 클린룸에서 탄생하는 프리미엄 발효 이야기</p>
+              </div>
+            </div>
+
+            <div className={styles.wideVideoCard}>
+              <div className={styles.aspect16x9}>
+                <iframe
+                  src="https://www.youtube.com/embed/FTmFWkHBG2M?rel=0&modestbranding=1"
+                  title="대한김치 시네마틱 브랜드 필름 2"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              <div className={styles.videoCardInfo}>
+                <h4>하노이 클린룸 & 발효과학 비하인드</h4>
+                <p>HACCP CODEX 2020 인증 시스템과 정성 어린 김치 제조 공정 공개</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Shorts Highlight Section */}
       <section className={styles.shortsSection}>
         <div className="container">

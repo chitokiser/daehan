@@ -329,6 +329,77 @@
   }
 }
 
+/* ===== 16:9 VIDEO SHOWCASE SECTION ===== */
+.videoSection {
+  padding: 90px 24px;
+  background: linear-gradient(180deg, #FFF9F5 0%, #FFFFFF 100%);
+  border-top: 1px solid var(--border-color);
+}
+
+.wideVideoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.wideVideoCard {
+  background: var(--surface-color);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wideVideoCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  border-color: rgba(227, 24, 55, 0.25);
+}
+
+.aspect16x9 {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  background: #000;
+}
+
+.aspect16x9 iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.videoCardInfo {
+  padding: 24px;
+  background: #fff;
+}
+
+.videoCardInfo h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.videoCardInfo p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .wideVideoGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
 /* ===== SHORTS SECTION ===== */
 .shortsSection {
   padding: 80px 24px;
