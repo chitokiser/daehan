@@ -149,10 +149,6 @@ export default function Home() {
                   allowFullScreen
                 ></iframe>
               </div>
-              <div className={styles.videoCardInfo}>
-                <h4>대한김치 브랜드 시네마틱 필름</h4>
-                <p>100% 엄선 농산물과 위생 클린룸에서 탄생하는 프리미엄 발효 이야기</p>
-              </div>
             </div>
 
             <div className={styles.wideVideoCard}>
@@ -163,10 +159,6 @@ export default function Home() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 ></iframe>
-              </div>
-              <div className={styles.videoCardInfo}>
-                <h4>하노이 클린룸 & 발효과학 비하인드</h4>
-                <p>HACCP CODEX 2020 인증 시스템과 정성 어린 김치 제조 공정 공개</p>
               </div>
             </div>
           </div>
