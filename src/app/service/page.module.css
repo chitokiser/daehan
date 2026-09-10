@@ -160,6 +160,32 @@
     border-radius: 99px;
     letter-spacing: 0.08em;
 }
+.dailyBadge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #C8392B;
+    background: rgba(200, 57, 43, 0.1);
+    border: 1px solid rgba(200, 57, 43, 0.3);
+    padding: 3px 10px;
+    border-radius: 99px;
+    letter-spacing: 0.06em;
+}
+.todayArticleTag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #C8392B, #f7a400);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 99px;
+    box-shadow: 0 4px 12px rgba(200, 57, 43, 0.4);
+    z-index: 2;
+}
 .kmoaSectionDesc {
     font-size: 0.87rem;
     color: var(--text-muted, #6b7280);

@@ -30,6 +30,8 @@ export async function GET(
                 moneyBalance: wallet.moneyBalance.toFixed(2),
                 onChainWalletAddress: wallet.onChainWalletAddress,
                 dpPoints: wallet.dpPoints,
+                level: wallet.level || 1,
+                exp: wallet.exp !== undefined ? wallet.exp : 15000,
                 role: wallet.role,
                 avatar: wallet.avatar,
                 referrerUid: wallet.referrerUid,

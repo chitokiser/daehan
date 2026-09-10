@@ -12,6 +12,8 @@ export interface UserWalletData {
     pointBalance: number;
     vndBalance: number;
     dpPoints: number;
+    level?: number;
+    exp?: number;
     role: UserRole;
     referrerUid?: string;
     mentees?: string[];
@@ -61,9 +63,22 @@ export interface MemberOrder {
     createdAt: string;
 }
 
-const USERS_COL = 'users';
+export interface ChargeRequest {
+    requestId: string;
+    uid: string;
+    userName: string;
+    userEmail: string;
+    amount: number;
+    depositorName: string;
+    status: "PENDING" | "APPROVED" | "REJECTED";
+    createdAt: string;
+    approvedAt?: string;
+}
+
+export const USERS_COL = 'users';
 export const TRANSACTIONS_COL = 'transactions';
-const ORDERS_COL = 'orders';
+export const ORDERS_COL = 'orders';
+export const CHARGE_REQUESTS_COL = 'chargeRequests';
 
 // Helper to safely interact with firestore or fail gracefully if not configured
 export function getDb() {
@@ -81,10 +96,12 @@ export async function getUserWallet(uid: string): Promise<UserWalletData> {
             name: `회원_${uid.slice(-4)}`,
             email: `${uid}@daehankimchi.com`,
             onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
-            moneyBalance: 1000.0,
-            pointBalance: 5000,
-            vndBalance: 300000,
-            dpPoints: 2000,
+            moneyBalance: 0,
+            pointBalance: 0,
+            vndBalance: 0,
+            dpPoints: 0,
+            level: 1,
+            exp: 0,
             role: "MEMBER",
             mentees: [],
             createdAt: new Date().toISOString()
@@ -93,7 +110,12 @@ export async function getUserWallet(uid: string): Promise<UserWalletData> {
         return newUser;
     }
     
-    return docSnap.data() as UserWalletData;
+    const data = docSnap.data() as UserWalletData;
+    return {
+        ...data,
+        level: data.level || 1,
+        exp: data.exp !== undefined ? data.exp : 0
+    };
 }
 
 export async function registerOrLoginGoogleUser(googleData: {
@@ -112,26 +134,59 @@ export async function registerOrLoginGoogleUser(googleData: {
     if (!docSnap.exists) {
         let role: UserRole = "VIP_MEMBER";
         if (googleData.email === "daguri75@gmail.com") role = "SUPER_ADMIN";
-        else if (googleData.email === "kfu134252@gmail.com") role = "OPERATOR";
 
-        if (role === "VIP_MEMBER" && !googleData.referrerUid) {
-            return { success: false, error: "자체 다단계 보상 시스템 규정에 따라 추천인(멘토) 코드가 반드시 필요합니다." };
-        }
-        
         let validReferrer: string | null = null;
         if (googleData.referrerUid) {
-            const refSnap = await db.collection(USERS_COL).doc(googleData.referrerUid).get();
-            if (refSnap.exists) {
-                validReferrer = googleData.referrerUid;
+            const inputRef = googleData.referrerUid.trim();
+            
+            // 1. Direct doc lookup by UID
+            const refSnap1 = await db.collection(USERS_COL).doc(inputRef).get();
+            if (refSnap1.exists) {
+                validReferrer = inputRef;
             } else {
-                return { success: false, error: "유효하지 않은 추천인 코드입니다." };
+                // 2. Google UID format match (e.g. "daguri75@gmail.com" -> "google_daguri75_gmail_com")
+                const googleFormattedUid = `google_${inputRef.replace(/[^a-zA-Z0-9]/g, "_")}`;
+                const refSnap2 = await db.collection(USERS_COL).doc(googleFormattedUid).get();
+                if (refSnap2.exists) {
+                    validReferrer = googleFormattedUid;
+                } else {
+                    // 3. Search by email field
+                    const emailSnap = await db.collection(USERS_COL).where("email", "==", inputRef).limit(1).get();
+                    if (!emailSnap.empty) {
+                        validReferrer = emailSnap.docs[0].id;
+                    } else if (inputRef === "daguri75@gmail.com" || inputRef === "daguri75" || inputRef === "admin_super_daehan") {
+                        // 4. Initial Seed Super Admin Fallback (daguri75@gmail.com)
+                        const superAdminUid = "google_daguri75_gmail_com";
+                        await db.collection(USERS_COL).doc(superAdminUid).set({
+                            uid: superAdminUid,
+                            name: "dao hex (최고관리자)",
+                            email: "daguri75@gmail.com",
+                            avatar: "https://lh3.googleusercontent.com/a/default-user",
+                            onChainWalletAddress: "0x700004461261daehanadmin",
+                            moneyBalance: 0,
+                            pointBalance: 0,
+                            vndBalance: 0,
+                            dpPoints: 0,
+                            level: 1,
+                            exp: 0,
+                            role: "SUPER_ADMIN",
+                            mentees: [],
+                            createdAt: new Date().toISOString()
+                        }, { merge: true });
+                        validReferrer = superAdminUid;
+                    }
+                }
+            }
+
+            if (!validReferrer) {
+                return { success: false, error: `입력하신 추천인 [${inputRef}]을 찾을 수 없습니다. 정확한 추천인 이메일(예: daguri75@gmail.com) 또는 코드를 입력해주세요.` };
             }
         }
         
-        // 예외: 특정 관리자 계정은 추천인 없이 가입 가능
-        const isException = role === "SUPER_ADMIN" || role === "OPERATOR";
+        // 예외: 최고 관리자 계정(SUPER_ADMIN: daguri75@gmail.com)만 추천인 없이 가입 가능
+        const isException = role === "SUPER_ADMIN";
         if (!isException && !validReferrer) {
-            return { success: false, error: "대한김치 로열티 시스템 정책에 따라 추천인(멘토) UID 코드가 반드시 필요합니다." };
+            return { success: false, error: "대한김치 로열티 시스템 정책에 따라 추천인(멘토) 이메일 또는 코드가 반드시 필요합니다." };
         }
 
         const newUser: UserWalletData = {
@@ -140,10 +195,10 @@ export async function registerOrLoginGoogleUser(googleData: {
             email: googleData.email,
             avatar: googleData.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80",
             onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
-            moneyBalance: role === "OPERATOR" ? 15000.0 : 0,
-            pointBalance: role === "OPERATOR" ? 50000 : 0,
-            vndBalance: role === "OPERATOR" ? 15000000 : 0,
-            dpPoints: role === "OPERATOR" ? 20000 : 0, // DP는 가입 후 grantDaehanPoint로 지급
+            moneyBalance: 0,
+            pointBalance: 0,
+            vndBalance: 0,
+            dpPoints: 0,
             role: role,
             ...(validReferrer && { referrerUid: validReferrer }),
             mentees: [],
@@ -176,7 +231,6 @@ export async function registerOrLoginGoogleUser(googleData: {
         if (googleData.name) updates.name = googleData.name;
         if (googleData.avatar) updates.avatar = googleData.avatar;
         if (googleData.email === "daguri75@gmail.com") updates.role = "SUPER_ADMIN";
-        else if (googleData.email === "kfu134252@gmail.com") updates.role = "OPERATOR";
         
         if (Object.keys(updates).length > 0) {
             await userRef.update(updates);
@@ -616,6 +670,265 @@ export async function grantDaehanPoint(uid: string, amount: number, description:
         return { success: true, newBalance };
     } catch (e: any) {
         console.error("Failed to grant DP:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function convertDpToMoney(uid: string, dpAmount: number): Promise<{ success: boolean; error?: string; convertedMoney?: number; newDp?: number; newMoney?: number }> {
+    try {
+        const db = getDb();
+        const user = await getUserWallet(uid);
+        const currentDp = user.dpPoints || 0;
+        if (currentDp < dpAmount) return { success: false, error: "DP 잔액이 부족합니다." };
+        if (dpAmount <= 0) return { success: false, error: "전환할 올바른 DP 수량을 입력해 주세요." };
+
+        const userLevel = user.level || 1;
+        // 전환 공식: 전환 머니 = DP * (레벨 / 10)
+        const conversionRate = userLevel / 10;
+        const convertedMoney = Math.floor(dpAmount * conversionRate);
+
+        const newDp = currentDp - dpAmount;
+        const newMoney = (user.moneyBalance || 0) + convertedMoney;
+
+        const userRef = db.collection(USERS_COL).doc(uid);
+        await userRef.set({
+            dpPoints: newDp,
+            moneyBalance: newMoney
+        }, { merge: true });
+
+        const txId = `tx_convert_dp_${Date.now()}`;
+        try {
+            await db.collection(TRANSACTIONS_COL).doc(txId).set({
+                id: txId,
+                uid,
+                merchantId: "daehan_ecosystem",
+                type: "REWARD",
+                currency: "MONEY",
+                amount: convertedMoney,
+                description: `DP ${dpAmount.toLocaleString()} DP -> 충전머니 ${convertedMoney.toLocaleString()} 머니 전환 (레벨 ${userLevel}, 전환율 ${userLevel * 10}%)`,
+                status: "CONFIRMED",
+                txHash: `0x${Math.random().toString(16).substring(2)}`,
+                timestamp: new Date().toISOString()
+            });
+        } catch {}
+
+        return { success: true, convertedMoney, newDp, newMoney };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function levelUpUser(uid: string): Promise<{ success: boolean; error?: string; newLevel?: number; newExp?: number }> {
+    try {
+        const db = getDb();
+        const user = await getUserWallet(uid);
+        const currentLevel = user.level || 1;
+        const currentExp = user.exp !== undefined ? user.exp : 15000;
+        // 레벨업 공식: 현재레벨 제곱 X 10,000 EXP
+        const requiredExp = Math.pow(currentLevel, 2) * 10000;
+
+        if (currentExp < requiredExp) {
+            return { 
+                success: false, 
+                error: `레벨업에 필요한 EXP가 부족합니다. (필요: ${requiredExp.toLocaleString()} EXP, 보유: ${currentExp.toLocaleString()} EXP)` 
+            };
+        }
+
+        const newLevel = currentLevel + 1;
+        const newExp = currentExp - requiredExp;
+
+        const userRef = db.collection(USERS_COL).doc(uid);
+        await userRef.set({
+            level: newLevel,
+            exp: newExp
+        }, { merge: true });
+
+        return { success: true, newLevel, newExp };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function purgeAllUsersExceptSuperAdmin(): Promise<{ success: boolean; deletedCount: number; error?: string }> {
+    try {
+        const db = getDb();
+        const usersSnap = await db.collection(USERS_COL).get();
+        let deletedCount = 0;
+
+        for (const doc of usersSnap.docs) {
+            const data = doc.data() as UserWalletData;
+            const email = (data.email || "").toLowerCase();
+            const uid = doc.id;
+
+            // Keep daguri75@gmail.com (Super Admin)
+            if (email === "daguri75@gmail.com" || uid === "google_daguri75_gmail_com" || uid === "admin_super_daehan") {
+                await doc.ref.set({
+                    uid: "google_daguri75_gmail_com",
+                    name: "dao hex (최고관리자)",
+                    email: "daguri75@gmail.com",
+                    avatar: data.avatar || "https://lh3.googleusercontent.com/a/default-user",
+                    onChainWalletAddress: "0x700004461261daehanadmin",
+                    moneyBalance: 0,
+                    pointBalance: 0,
+                    vndBalance: 0,
+                    dpPoints: 0,
+                    level: 1,
+                    exp: 0,
+                    role: "SUPER_ADMIN",
+                    mentees: []
+                }, { merge: true });
+            } else {
+                await doc.ref.delete();
+                deletedCount++;
+            }
+        }
+
+        // Ensure root super admin daguri75@gmail.com exists
+        const superAdminUid = "google_daguri75_gmail_com";
+        const superSnap = await db.collection(USERS_COL).doc(superAdminUid).get();
+        if (!superSnap.exists) {
+            await db.collection(USERS_COL).doc(superAdminUid).set({
+                uid: superAdminUid,
+                name: "dao hex (최고관리자)",
+                email: "daguri75@gmail.com",
+                avatar: "https://lh3.googleusercontent.com/a/default-user",
+                onChainWalletAddress: "0x700004461261daehanadmin",
+                moneyBalance: 0,
+                pointBalance: 0,
+                vndBalance: 0,
+                dpPoints: 0,
+                level: 1,
+                exp: 0,
+                role: "SUPER_ADMIN",
+                mentees: [],
+                createdAt: new Date().toISOString()
+            });
+        }
+
+        // Clean up charge requests
+        const reqsSnap = await db.collection(CHARGE_REQUESTS_COL).get();
+        for (const rDoc of reqsSnap.docs) {
+            await rDoc.ref.delete();
+        }
+
+        return { success: true, deletedCount };
+    } catch (e: any) {
+        console.error("Purge error:", e);
+        return { success: false, deletedCount: 0, error: e.message };
+    }
+}
+
+export async function resetAllUserWallets(): Promise<{ success: boolean; updatedCount: number; error?: string }> {
+    const res = await purgeAllUsersExceptSuperAdmin();
+    return { success: res.success, updatedCount: res.deletedCount, error: res.error };
+}
+
+export async function createChargeRequest(uid: string, amount: number, depositorName: string): Promise<{ success: boolean; request?: ChargeRequest; error?: string }> {
+    try {
+        const db = getDb();
+        const user = await getUserWallet(uid);
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        
+        const newReq: ChargeRequest = {
+            requestId,
+            uid,
+            userName: user.name,
+            userEmail: user.email,
+            amount: Number(amount),
+            depositorName,
+            status: "PENDING",
+            createdAt: new Date().toISOString()
+        };
+
+        await db.collection(CHARGE_REQUESTS_COL).doc(requestId).set(newReq);
+        return { success: true, request: newReq };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getUserChargeRequests(uid: string): Promise<ChargeRequest[]> {
+    try {
+        const db = getDb();
+        const snap = await db.collection(CHARGE_REQUESTS_COL).get();
+        const requests = snap.docs
+            .map(doc => doc.data() as ChargeRequest)
+            .filter(r => r.uid === uid);
+        return requests.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    } catch {
+        return [];
+    }
+}
+
+export async function getAllChargeRequests(): Promise<ChargeRequest[]> {
+    try {
+        const db = getDb();
+        const snap = await db.collection(CHARGE_REQUESTS_COL).get();
+        const requests = snap.docs.map(doc => doc.data() as ChargeRequest);
+        return requests.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    } catch {
+        return [];
+    }
+}
+
+export async function approveChargeRequest(requestId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const db = getDb();
+        const reqRef = db.collection(CHARGE_REQUESTS_COL).doc(requestId);
+        const reqSnap = await reqRef.get();
+        if (!reqSnap.exists) return { success: false, error: "신청 건을 찾을 수 없습니다." };
+
+        const reqData = reqSnap.data() as ChargeRequest;
+        if (reqData.status !== "PENDING") return { success: false, error: "이미 처리 완료된 신청 건입니다." };
+
+        // 1. Update ChargeRequest status
+        await reqRef.set({
+            status: "APPROVED",
+            approvedAt: new Date().toISOString()
+        }, { merge: true });
+
+        // 2. Add moneyBalance to user
+        const userRef = db.collection(USERS_COL).doc(reqData.uid);
+        const userDoc = await userRef.get();
+        if (userDoc.exists) {
+            const userData = userDoc.data() as UserWalletData;
+            const newMoney = (userData.moneyBalance || 0) + reqData.amount;
+            await userRef.set({ moneyBalance: newMoney }, { merge: true });
+        }
+
+        // 3. Log transaction
+        const txId = `tx_charge_${Date.now()}`;
+        try {
+            await db.collection(TRANSACTIONS_COL).doc(txId).set({
+                id: txId,
+                uid: reqData.uid,
+                merchantId: "daehan_bank_charge",
+                type: "FAUCET",
+                currency: "MONEY",
+                amount: reqData.amount,
+                description: `계좌 입금 확인 머니 충전 완료 (입금자: ${reqData.depositorName})`,
+                status: "CONFIRMED",
+                txHash: `0x${Math.random().toString(16).substring(2)}`,
+                timestamp: new Date().toISOString()
+            });
+        } catch {}
+
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function rejectChargeRequest(requestId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const db = getDb();
+        const reqRef = db.collection(CHARGE_REQUESTS_COL).doc(requestId);
+        await reqRef.set({
+            status: "REJECTED",
+            approvedAt: new Date().toISOString()
+        }, { merge: true });
+        return { success: true };
+    } catch (e: any) {
         return { success: false, error: e.message };
     }
 }

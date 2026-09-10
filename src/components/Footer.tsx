@@ -29,7 +29,6 @@ export default function Footer() {
                         <h4>SERVICE</h4>
                         <Link href="/shop">김치 상품 몰</Link>
                         <Link href="/service">제품 서비스</Link>
-                        <a href="/docu/HACCP_Certificate.pdf" target="_blank" rel="noopener noreferrer">HACCP 인증서(PDF)</a>
                     </div>
                     <div className={styles.linkColumn}>
                         <h4>SUPPORT</h4>

@@ -16,7 +16,14 @@ export default function Header() {
     const [showEmailPrompt, setShowEmailPrompt] = useState(false);
     const [referrerPromptOpen, setReferrerPromptOpen] = useState(false);
     const [referrerInput, setReferrerInput] = useState("");
-    const [pendingUserInfo, setPendingUserInfo] = useState<{email: string; name: string} | null>(null);
+    const [pendingUserInfo, setPendingUserInfo] = useState<{email: string; name: string; avatar?: string} | null>(null);
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [agreePrivacy, setAgreePrivacy] = useState(false);
+
+    const handleAgreeAll = (checked: boolean) => {
+        setAgreeTerms(checked);
+        setAgreePrivacy(checked);
+    };
 
     const isSuperAdmin = user?.role === "SUPER_ADMIN";
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
@@ -30,14 +37,15 @@ export default function Header() {
                 const userInfo = await res.json();
                 
                 if (userInfo.email) {
-                    const loginRes = await loginWithGoogle(userInfo.email, userInfo.name);
+                    // 구글 프로필 사진 그대로 전달 (userInfo.picture)
+                    const loginRes = await loginWithGoogle(userInfo.email, userInfo.name, undefined, userInfo.picture);
                     if (loginRes.success) {
                         setLoginModalOpen(false);
                         setDropdownOpen(false);
                         setMobileMenuOpen(false);
                         alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
                     } else if (loginRes.error?.includes("추천인") || loginRes.error?.includes("멘토")) {
-                        setPendingUserInfo({ email: userInfo.email, name: userInfo.name || "Google 회원" });
+                        setPendingUserInfo({ email: userInfo.email, name: userInfo.name || "Google 회원", avatar: userInfo.picture });
                         setLoginModalOpen(false);
                         setReferrerPromptOpen(true);
                     } else {
@@ -66,14 +74,15 @@ export default function Header() {
             return;
         }
 
-        const res = await loginWithGoogle(emailToUse);
+        const avatarUrl = `https://unavatar.io/google/${emailToUse}`;
+        const res = await loginWithGoogle(emailToUse, undefined, undefined, avatarUrl);
         if (res.success) {
             setLoginModalOpen(false);
             setDropdownOpen(false);
             setMobileMenuOpen(false);
             alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
         } else if (res.error?.includes("추천인") || res.error?.includes("멘토")) {
-            setPendingUserInfo({ email: emailToUse, name: "회원" });
+            setPendingUserInfo({ email: emailToUse, name: "회원", avatar: avatarUrl });
             setLoginModalOpen(false);
             setReferrerPromptOpen(true);
         } else {
@@ -83,7 +92,11 @@ export default function Header() {
 
     const submitReferrer = async () => {
         if (!referrerInput.trim()) {
-            alert("추천인 UID 코드를 입력해주세요.");
+            alert("추천인(멘토) 이메일 또는 코드를 입력해주세요.");
+            return;
+        }
+        if (!agreeTerms || !agreePrivacy) {
+            alert("이용약관 및 개인정보 처리방침에 모두 동의해 주세요 (필수).");
             return;
         }
         if (!pendingUserInfo) {
@@ -91,11 +104,13 @@ export default function Header() {
             setReferrerPromptOpen(false);
             return;
         }
-        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, referrerInput.trim());
+        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, referrerInput.trim(), pendingUserInfo.avatar);
         if (loginRes.success) {
             setReferrerPromptOpen(false);
             setPendingUserInfo(null);
             setReferrerInput("");
+            setAgreeTerms(false);
+            setAgreePrivacy(false);
             setDropdownOpen(false);
             setMobileMenuOpen(false);
             alert(`🎉 대한김치 회원 가입 및 로그인이 완료되었습니다! (1,000 DP 적립)`);
@@ -146,6 +161,11 @@ export default function Header() {
                         <div className={styles.walletBar}>
                             {/* User Profile Trigger */}
                             <div className={styles.userTrigger} onClick={() => setDropdownOpen(!dropdownOpen)}>
+                                <img 
+                                    src={user.avatar || `https://unavatar.io/google/${user.email}`} 
+                                    alt={user.name} 
+                                    className={styles.headerAvatar} 
+                                />
                                 <span className={styles.userName}>{user.name.split(" ")[0]}</span>
                                 <ChevronDown size={14} className={`${styles.chevron} ${dropdownOpen ? styles.open : ''}`} />
                             </div>
@@ -154,9 +174,16 @@ export default function Header() {
                             {dropdownOpen && (
                                 <div className={styles.dropdownMenu}>
                                     <div className={styles.dropdownHeader}>
-                                        <p className={styles.dropdownUserName}>{user.name}</p>
-                                        <p className={styles.dropdownEmail}>{user.email}</p>
-                                        <span className={`${styles.roleBadge} ${isSuperAdmin ? styles.superBadge : ''}`}>{user.role}</span>
+                                        <img 
+                                            src={user.avatar || `https://unavatar.io/google/${user.email}`} 
+                                            alt={user.name} 
+                                            className={styles.dropdownAvatar} 
+                                        />
+                                        <div>
+                                            <p className={styles.dropdownUserName}>{user.name}</p>
+                                            <p className={styles.dropdownEmail}>{user.email}</p>
+                                            <span className={`${styles.roleBadge} ${isSuperAdmin ? styles.superBadge : ''}`}>{user.role}</span>
+                                        </div>
                                     </div>
 
                                     <div className={styles.balancesBlock}>
@@ -349,21 +376,24 @@ export default function Header() {
                 </div>
             )}
 
-            {/* Referrer Prompt Modal */}
+            {/* Referrer & Terms Agreement Prompt Modal */}
             {referrerPromptOpen && (
                 <div className={styles.modalOverlay} style={{ zIndex: 1100 }}>
-                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: '440px' }}>
                         <div className={styles.modalHeader}>
-                            <h3>추천인 코드 입력 (필수)</h3>
+                            <h3>회원가입 & 약관 동의 (필수)</h3>
                         </div>
-                        <p className={styles.modalDesc} style={{ color: '#E53E3E', fontWeight: 'bold' }}>
+                        <p className={styles.modalDesc} style={{ color: '#E53E3E', fontWeight: 'bold', fontSize: '0.86rem', lineHeight: '1.5' }}>
                             대한김치 생태계는 추천인 제도로 운영됩니다.<br/>
-                            가입을 완료하려면 추천인(멘토)의 UID 코드를 입력해주세요.
+                            가입을 완료하려면 추천인의 <strong>이메일</strong>(예: <code>daguri75@gmail.com</code>) 또는 <strong>UID 코드</strong>를 입력해주세요.
                         </p>
-                        <div style={{ marginTop: '15px' }}>
+                        <div style={{ marginTop: '14px' }}>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)', marginBottom: '4px' }}>
+                                👤 추천인(멘토) 이메일 또는 UID 코드:
+                            </label>
                             <input
                                 type="text"
-                                placeholder="추천인 UID 코드 입력"
+                                placeholder="추천인 이메일 또는 UID 입력 (예: daguri75@gmail.com)"
                                 value={referrerInput}
                                 onChange={(e) => setReferrerInput(e.target.value)}
                                 style={{
@@ -376,20 +406,95 @@ export default function Header() {
                                     fontSize: '0.95rem'
                                 }}
                             />
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+
+                            {/* 약관 동의 체크박스 섹션 */}
+                            <div style={{
+                                background: '#FAFAF8',
+                                border: '1px solid rgba(0,0,0,0.1)',
+                                borderRadius: '8px',
+                                padding: '12px 14px',
+                                marginTop: '14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '10px'
+                            }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '8px', color: 'var(--text-main)' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={agreeTerms && agreePrivacy}
+                                        onChange={(e) => handleAgreeAll(e.target.checked)}
+                                        style={{ width: '16px', height: '16px', accentColor: '#C8392B', cursor: 'pointer' }}
+                                    />
+                                    <span>모든 약관에 전체 동의합니다</span>
+                                </label>
+
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.84rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#333' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={agreeTerms}
+                                            onChange={(e) => setAgreeTerms(e.target.checked)}
+                                            style={{ width: '15px', height: '15px', accentColor: '#C8392B', cursor: 'pointer' }}
+                                        />
+                                        <span><strong style={{ color: '#C8392B' }}>[필수]</strong> 이용약관 동의</span>
+                                    </label>
+                                    <a 
+                                        href="/terms" 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        style={{ color: '#6B4C38', fontSize: '0.78rem', textDecoration: 'underline', fontWeight: 600 }}
+                                    >
+                                        약관보기 ↗
+                                    </a>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.84rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#333' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={agreePrivacy}
+                                            onChange={(e) => setAgreePrivacy(e.target.checked)}
+                                            style={{ width: '15px', height: '15px', accentColor: '#C8392B', cursor: 'pointer' }}
+                                        />
+                                        <span><strong style={{ color: '#C8392B' }}>[필수]</strong> 개인정보 처리방침 동의</span>
+                                    </label>
+                                    <a 
+                                        href="/privacy" 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        style={{ color: '#6B4C38', fontSize: '0.78rem', textDecoration: 'underline', fontWeight: 600 }}
+                                    >
+                                        약관보기 ↗
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
                                 <button
                                     className="btn-primary"
                                     onClick={submitReferrer}
-                                    style={{ flex: 1, padding: '10px' }}
+                                    disabled={!agreeTerms || !agreePrivacy}
+                                    style={{
+                                        flex: 1,
+                                        padding: '11px',
+                                        fontWeight: 700,
+                                        opacity: (!agreeTerms || !agreePrivacy) ? 0.5 : 1,
+                                        cursor: (!agreeTerms || !agreePrivacy) ? 'not-allowed' : 'pointer'
+                                    }}
                                 >
-                                    확인 및 가입
+                                    확인 및 회원가입
                                 </button>
                                 <button
                                     style={{
-                                        flex: 1, padding: '10px', background: '#e5e7eb',
+                                        flex: 1, padding: '11px', background: '#e5e7eb',
                                         color: '#374151', border: 'none', borderRadius: '6px', fontWeight: 'bold'
                                     }}
-                                    onClick={() => { setReferrerPromptOpen(false); setPendingUserInfo(null); }}
+                                    onClick={() => {
+                                        setReferrerPromptOpen(false);
+                                        setPendingUserInfo(null);
+                                        setAgreeTerms(false);
+                                        setAgreePrivacy(false);
+                                    }}
                                 >
                                     취소
                                 </button>

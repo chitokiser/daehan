@@ -27,7 +27,9 @@ export default function ExtensionErrorShield() {
                 "Cannot redefine property: ethereum",
                 "Cannot redefine property: solana",
                 "solanaInjectedWallet",
-                "coinbaseWalletExtension"
+                "coinbaseWalletExtension",
+                "egjidjbogllichdcondbcbdnbeappgdph",
+                "fldfpgipfncgndfolcbkdeeknbbbnhcc"
             ];
 
             return extensionKeywords.some(
@@ -35,10 +37,20 @@ export default function ExtensionErrorShield() {
             );
         };
 
+        const originalOnError = window.onerror;
+        window.onerror = function(message, source, lineno, colno, error) {
+            if (isExtensionError(message, source, error?.stack)) {
+                return true; // Suppress Next.js dev overlay for Chrome extension errors
+            }
+            if (typeof originalOnError === "function") {
+                return originalOnError.call(window, message, source, lineno, colno, error);
+            }
+            return false;
+        };
+
         const errorHandler = (event: ErrorEvent) => {
             const { message, filename, error } = event;
             if (isExtensionError(message, filename, error?.stack)) {
-                // Suppress browser extension conflict error from bubbling up to React / Next.js overlay
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 return true;
@@ -60,6 +72,7 @@ export default function ExtensionErrorShield() {
         window.addEventListener("unhandledrejection", unhandledRejectionHandler, true);
 
         return () => {
+            window.onerror = originalOnError;
             window.removeEventListener("error", errorHandler, true);
             window.removeEventListener("unhandledrejection", unhandledRejectionHandler, true);
         };

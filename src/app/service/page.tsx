@@ -17,6 +17,7 @@ interface KmoaWebzine {
     readUrl: string;
     whitelabelUrl: string;
     publishedAt: string;
+    isTodayArticle?: boolean;
 }
 
 export default function WebzineServicePage() {
@@ -88,7 +89,7 @@ export default function WebzineServicePage() {
             <header className={styles.header}>
                 <h1 className={`${styles.title} text-gradient`}>FERMENTATION WEBZINE</h1>
                 <p className={styles.description}>
-                    매일 업데이트되는 발효식품의 지혜와 미식 인사이트.
+                    매일 00:00 시각에 맞춰 1개씩 자동 발행/업그레이드되는 대한김치 전용 미식 & 발효 웹진.
                 </p>
             </header>
 
@@ -97,12 +98,10 @@ export default function WebzineServicePage() {
                 <div className={styles.kmoaSectionHeader}>
                     <div className={styles.kmoaTitleRow}>
                         <span className={styles.kmoaLiveDot} />
-                        <h2 className={styles.kmoaSectionTitle}>📰 브랜드 매거진</h2>
-                        {kmoaDemo && (
-                            <span className={styles.demoBadge}>DEMO</span>
-                        )}
+                        <h2 className={styles.kmoaSectionTitle}>📰 브랜드 매거진 (매일 자동 발행)</h2>
+                        <span className={styles.dailyBadge}>DAILY AUTO-UPGRADE</span>
                     </div>
-                    <p className={styles.kmoaSectionDesc}>플랫폼에서 자동 발행된 대한김치 전용 브랜드 매거진 — 클릭하면 가맹점 전용 화이트라벨 뷰어로 열립니다.</p>
+                    <p className={styles.kmoaSectionDesc}>대한김치 실제 제품 및 무균 생산 공정 현장을 바탕으로 매일 1개씩 자동 생성 및 발행되는 브랜드 전용 라이브 매거진입니다.</p>
                 </div>
 
                 {kmoaLoading ? (
@@ -128,8 +127,13 @@ export default function WebzineServicePage() {
                                         src={wz.thumbnailUrl}
                                         alt={wz.title}
                                         className={styles.kmoaThumb}
-                                        onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=800&q=80"; }}
+                                        onError={(e) => { (e.target as HTMLImageElement).src = "/images/products/pogi.jpg"; }}
                                     />
+                                    {wz.isTodayArticle && (
+                                        <div className={styles.todayArticleTag}>
+                                            🔥 오늘 자동 업그레이드 (NEW)
+                                        </div>
+                                    )}
                                     <div className={styles.kmoaStatsOverlay}>
                                         <span className={styles.kmoaStatChip}>
                                             <ThumbsUp size={11} /> {wz.likeCount}

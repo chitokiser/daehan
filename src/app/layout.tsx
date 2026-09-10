@@ -42,6 +42,45 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var isExt = function(msg, src, stack) {
+                  var s = (msg || '') + ' ' + (src || '') + ' ' + (stack || '');
+                  return s.indexOf('chrome-extension:') !== -1 ||
+                         s.indexOf('moz-extension:') !== -1 ||
+                         s.indexOf('inpage.js') !== -1 ||
+                         s.indexOf('extensionPageScript') !== -1 ||
+                         s.indexOf('registerSolana') !== -1 ||
+                         s.indexOf('se is not a function') !== -1 ||
+                         s.indexOf('egjidjbogllichdcondbcbdnbeappgdph') !== -1 ||
+                         s.indexOf('fldfpgipfncgndfolcbkdeeknbbbnhcc') !== -1;
+                };
+                var origOnError = window.onerror;
+                window.onerror = function(msg, src, line, col, err) {
+                  if (isExt(msg, src, err && err.stack)) return true;
+                  if (origOnError) return origOnError.apply(this, arguments);
+                };
+                window.addEventListener('error', function(e) {
+                  if (isExt(e.message, e.filename, e.error && e.error.stack)) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                  }
+                }, true);
+                window.addEventListener('unhandledrejection', function(e) {
+                  var r = e.reason;
+                  if (isExt(r && r.message, '', r && r.stack)) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                  }
+                }, true);
+              })();
+            `
+          }}
+        />
+      </head>
       <body className={`${inter.variable} ${notoSansKr.variable}`}>
         <ExtensionErrorShield />
         <PWAInit />

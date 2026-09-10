@@ -13,6 +13,8 @@ export interface UserProfile {
     points?: number;
     vndBalance?: number;
     dpPoints?: number;
+    level?: number;
+    exp?: number;
     phone?: string;
     createdAt?: string;
     onChainWalletAddress?: string;
@@ -102,7 +104,7 @@ interface UserWalletContextType {
     adminStats: AdminStats | null;
     allOrders: MemberOrder[];
     login: (uid?: string) => Promise<void>;
-    loginWithGoogle: (customEmail?: string, customName?: string, referrerUid?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
+    loginWithGoogle: (customEmail?: string, customName?: string, referrerUid?: string, customAvatar?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
     logout: () => void;
     payOrder: (params: PaymentParams) => Promise<PaymentResult>;
     refreshWallet: () => Promise<void>;
@@ -110,6 +112,8 @@ interface UserWalletContextType {
     changeUserRole: (targetUid: string, newRole: UserRole) => Promise<{ success: boolean; error?: string; message?: string }>;
     changeOrderStatus: (orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => Promise<{ success: boolean; error?: string }>;
     convertPoints: (points: number) => Promise<{ success: boolean; error?: string }>;
+    convertDpToMoney: (dpAmount: number) => Promise<{ success: boolean; error?: string; convertedMoney?: number }>;
+    levelUp: () => Promise<{ success: boolean; error?: string }>;
 }
 
 const defaultWallet: WalletState = {
@@ -224,7 +228,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
-    const loginWithGoogle = async (customEmail?: string, customName?: string, referrerUid?: string) => {
+    const loginWithGoogle = async (customEmail?: string, customName?: string, referrerUid?: string, customAvatar?: string) => {
         setIsLoading(true);
         try {
             // localStorage 캐시 무시하고 입력받은 이메일만 사용
@@ -233,7 +237,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 return { success: false, error: "이메일이 제공되지 않았습니다." };
             }
             const name = customName || "Google 인증 회원";
-            const avatar = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80";
+            // 구글 프로필 사진 그대로 사용 (customAvatar 없으면 구글 계정 아바타 자동 추출)
+            const avatar = customAvatar || (email ? `https://unavatar.io/google/${email}` : "https://lh3.googleusercontent.com/a/default-user");
 
             const res = await fetch("/api/v1/auth/google", {
                 method: "POST",
@@ -325,20 +330,21 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     };
 
     const changeUserRole = async (targetUid: string, newRole: UserRole) => {
-        if (!user?.uid) return { success: false, error: "관리자 로그인이 필요합니다." };
-        if (user.role !== "SUPER_ADMIN") return { success: false, error: "최고 관리자(SUPER_ADMIN)만 운영자 권한을 지정할 수 있습니다." };
         setIsLoading(true);
         try {
-            const res = await fetch("/api/v1/admin/members", {
+            const res = await fetch("/api/v1/admin/change-role", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ adminUid: user.uid, targetUid, action: "UPDATE_ROLE", newRole })
+                body: JSON.stringify({ targetUid, newRole })
             });
             const json = await res.json();
-            if (json.success) { await fetchAdminData(); return { success: true, message: json.message }; }
-            return { success: false, error: json.error };
+            if (json.success) {
+                await fetchAdminData();
+                return { success: true, message: json.message };
+            }
+            return { success: false, error: json.error || "권한 변경 실패" };
         } catch (e: any) {
-            return { success: false, error: e.message };
+            return { success: false, error: e.message || "서버 요청 에러" };
         } finally {
             setIsLoading(false);
         }
@@ -347,16 +353,20 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const changeOrderStatus = async (orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => {
         setIsLoading(true);
         try {
-            const res = await fetch("/api/v1/admin/orders", {
+            const res = await fetch("/api/v1/admin/change-order-status", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderId, status })
             });
             const json = await res.json();
-            if (json.success) { await fetchAdminData(); return { success: true }; }
-            return { success: false, error: json.error };
+            if (json.success) {
+                await fetchAdminData();
+                await refreshWallet();
+                return { success: true };
+            }
+            return { success: false, error: json.error || "주문 상태 변경 실패" };
         } catch (e: any) {
-            return { success: false, error: e.message };
+            return { success: false, error: e.message || "서버 요청 에러" };
         } finally {
             setIsLoading(false);
         }
@@ -384,6 +394,50 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
+    const convertDpToMoney = async (dpAmount: number) => {
+        if (!user?.uid) return { success: false, error: "로그인이 필요합니다." };
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/v1/wallet/convert-dp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ uid: user.uid, dpAmount })
+            });
+            const json = await res.json();
+            if (json.success) {
+                await refreshWallet();
+                return { success: true, convertedMoney: json.convertedMoney };
+            }
+            return { success: false, error: json.error || "DP 전환에 실패했습니다." };
+        } catch (e: any) {
+            return { success: false, error: e.message || "서버 통신 오류" };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const levelUp = async () => {
+        if (!user?.uid) return { success: false, error: "로그인이 필요합니다." };
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/v1/wallet/levelup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ uid: user.uid })
+            });
+            const json = await res.json();
+            if (json.success) {
+                await refreshWallet();
+                return { success: true };
+            }
+            return { success: false, error: json.error || "레벨업에 실패했습니다." };
+        } catch (e: any) {
+            return { success: false, error: e.message || "서버 통신 오류" };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <UserWalletContext.Provider
             value={{
@@ -403,7 +457,9 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 fetchAdminData,
                 changeUserRole,
                 changeOrderStatus,
-                convertPoints
+                convertPoints,
+                convertDpToMoney,
+                levelUp
             }}
         >
             {children}

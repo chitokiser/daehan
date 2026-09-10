@@ -192,7 +192,27 @@
     to   { opacity: 1; transform: translateY(0); }
 }
 
+.headerAvatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.dropdownAvatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
 .dropdownHeader {
+    display: flex;
+    align-items: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     padding-bottom: 12px;
     margin-bottom: 12px;

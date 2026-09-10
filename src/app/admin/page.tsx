@@ -27,12 +27,16 @@ export default function AdminDashboard() {
         isLoading 
     } = useUserWallet();
 
-    const [activeTab, setActiveTab] = useState<"members" | "orders" | "analytics" | "api" | "kmoa_crm">("members");
+    const [activeTab, setActiveTab] = useState<"charges" | "members" | "orders" | "analytics" | "api" | "kmoa_crm">("charges");
     const [memberSearch, setMemberSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState<string>("ALL");
     const [orderFilter, setOrderFilter] = useState<string>("ALL");
     const [selectedMember, setSelectedMember] = useState<any>(null);
     const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+    // 계좌입금 충전 신청 상태
+    const [chargeRequests, setChargeRequests] = useState<any[]>([]);
+    const [loadingCharges, setLoadingCharges] = useState(false);
 
     // 가맹점 CRM 상태
     const [kmoaBalance, setKmoaBalance] = useState<any>(null);
@@ -63,18 +67,83 @@ export default function AdminDashboard() {
     };
 
 
-    useEffect(() => { loadKmoaData(); }, []);
+    // 계좌입금 충전 신청 목록 조회
+    const fetchChargeRequests = async () => {
+        setLoadingCharges(true);
+        try {
+            const res = await fetch("/api/v1/admin/charge-requests");
+            const data = await res.json();
+            if (data.success) {
+                setChargeRequests(data.requests || []);
+            }
+        } catch (e) {
+            console.error("Failed to fetch charge requests", e);
+        } finally {
+            setLoadingCharges(false);
+        }
+    };
+
+    const handleApproveCharge = async (requestId: string) => {
+        if (!confirm("입금을 확인하셨습니까? 승인 시 해당 회원에게 충전머니가 입금됩니다.")) return;
+        try {
+            const res = await fetch("/api/v1/admin/charge-requests", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ requestId, action: "APPROVE" })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setActionMessage(`충전 요청이 승인되었습니다. (${data.request?.amount?.toLocaleString()} 머니 충전 완료)`);
+                setTimeout(() => setActionMessage(null), 3000);
+                fetchChargeRequests();
+                fetchAdminData();
+            } else {
+                alert(data.error || "승인 처리 중 오류가 발생했습니다.");
+            }
+        } catch (e) {
+            alert("승인 요청 중 에러가 발생했습니다.");
+        }
+    };
+
+    const handleRejectCharge = async (requestId: string) => {
+        if (!confirm("해당 충전 요청을 거절하시겠습니까?")) return;
+        try {
+            const res = await fetch("/api/v1/admin/charge-requests", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ requestId, action: "REJECT" })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setActionMessage("충전 요청이 거절 처리되었습니다.");
+                setTimeout(() => setActionMessage(null), 3000);
+                fetchChargeRequests();
+            } else {
+                alert(data.error || "거절 처리 중 오류가 발생했습니다.");
+            }
+        } catch (e) {
+            alert("거절 요청 중 에러가 발생했습니다.");
+        }
+    };
+
+    useEffect(() => { 
+        loadKmoaData(); 
+        fetchChargeRequests();
+    }, []);
 
 
     const isSuperAdmin = user?.role === "SUPER_ADMIN";
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
 
     // Filter members
-    const filteredMembers = allMembers.filter(m => {
-        const matchesSearch = 
-            m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
-            m.email.toLowerCase().includes(memberSearch.toLowerCase()) ||
-            (m.onChainWalletAddress && m.onChainWalletAddress.toLowerCase().includes(memberSearch.toLowerCase()));
+    const filteredMembers = (allMembers || []).filter(m => {
+        if (!m) return false;
+        const nameStr = (m.name || "").toLowerCase();
+        const emailStr = (m.email || "").toLowerCase();
+        const addrStr = (m.onChainWalletAddress || "").toLowerCase();
+        const searchStr = memberSearch.toLowerCase();
+
+        const matchesSearch = nameStr.includes(searchStr) || emailStr.includes(searchStr) || addrStr.includes(searchStr);
         const matchesRole = roleFilter === "ALL" || m.role === roleFilter;
         return matchesSearch && matchesRole;
     });
@@ -348,32 +417,166 @@ export default function AdminDashboard() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className={styles.tabNav}>
-                <button 
-                    className={`${styles.navTabBtn} ${activeTab === "members" ? styles.activeNavTab : ''}`}
-                    onClick={() => setActiveTab("members")}
-                >
-                    <Users size={16} /> 👥 회원 및 운영자 권한 관리
-                </button>
-                <button 
-                    className={`${styles.navTabBtn} ${activeTab === "orders" ? styles.activeNavTab : ''}`}
-                    onClick={() => setActiveTab("orders")}
-                >
-                    <ShoppingBag size={16} /> 📦 주문 및 배송 상태 관리 ({allOrders.length})
-                </button>
-                <button 
-                    className={`${styles.navTabBtn} ${activeTab === "analytics" ? styles.activeNavTab : ''}`}
-                    onClick={() => setActiveTab("analytics")}
-                >
-                    <Coins size={16} /> 📊 매출 & 정산 대시보드
-                </button>
-                <button 
-                    className={`${styles.navTabBtn} ${activeTab === "api" ? styles.activeNavTab : ''}`}
-                    onClick={() => setActiveTab("api")}
-                >
-                    <Key size={16} /> ⚙️ 가맹점 API 연동 정보
-                </button>
-            </div>
+            {(() => {
+                const pendingChargeCount = chargeRequests.filter(r => r.status === "PENDING").length;
+                return (
+                    <div className={styles.tabNav}>
+                        <button 
+                            className={`${styles.navTabBtn} ${activeTab === "charges" ? styles.activeNavTab : ''}`}
+                            onClick={() => setActiveTab("charges")}
+                        >
+                            <Wallet size={16} /> 💳 계좌입금 충전 신청 관리 {pendingChargeCount > 0 && <span style={{ background: '#ef4444', color: '#fff', borderRadius: '99px', padding: '1px 7px', fontSize: '0.75rem', marginLeft: '6px' }}>{pendingChargeCount}건 대기</span>}
+                        </button>
+                        <button 
+                            className={`${styles.navTabBtn} ${activeTab === "members" ? styles.activeNavTab : ''}`}
+                            onClick={() => setActiveTab("members")}
+                        >
+                            <Users size={16} /> 👥 회원 및 운영자 권한 관리
+                        </button>
+                        <button 
+                            className={`${styles.navTabBtn} ${activeTab === "orders" ? styles.activeNavTab : ''}`}
+                            onClick={() => setActiveTab("orders")}
+                        >
+                            <ShoppingBag size={16} /> 📦 주문 및 배송 상태 관리 ({allOrders.length})
+                        </button>
+                        <button 
+                            className={`${styles.navTabBtn} ${activeTab === "analytics" ? styles.activeNavTab : ''}`}
+                            onClick={() => setActiveTab("analytics")}
+                        >
+                            <Coins size={16} /> 📊 매출 & 정산 대시보드
+                        </button>
+                        <button 
+                            className={`${styles.navTabBtn} ${activeTab === "api" ? styles.activeNavTab : ''}`}
+                            onClick={() => setActiveTab("api")}
+                        >
+                            <Key size={16} /> ⚙️ 가맹점 API 연동 정보
+                        </button>
+                    </div>
+                );
+            })()}
+
+            {/* TAB 0: BANK DEPOSIT CHARGE REQUESTS */}
+            {activeTab === "charges" && (
+                <section className={styles.panelSection}>
+                    <div className={styles.panelHeader}>
+                        <div>
+                            <h2 className={styles.panelHeading}>💳 회원 계좌 입금 충전 신청 관리</h2>
+                            <p className={styles.panelDesc}>
+                                회원이 신한은행 계좌 (<code>700004461261 KIM YONG JIN</code>)로 입금 후 요청한 건을 확인하고 <strong>승인</strong>하면 회원의 충전머니가 즉시 증액됩니다.
+                            </p>
+                        </div>
+                        <button className={styles.refreshBtn} onClick={fetchChargeRequests} disabled={loadingCharges}>
+                            <RefreshCw size={14} className={loadingCharges ? styles.spinning : ''} />
+                            새로고침
+                        </button>
+                    </div>
+
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.adminTable}>
+                            <thead>
+                                <tr>
+                                    <th>신청 일시</th>
+                                    <th>회원 (이름 / 이메일)</th>
+                                    <th>입금자명</th>
+                                    <th>신청 충전 금액</th>
+                                    <th>상태</th>
+                                    <th>입금 확인 및 승인 / 거절</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {chargeRequests.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                                            신청된 계좌입금 충전 내역이 없습니다.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    chargeRequests.map((req) => (
+                                        <tr key={req.id}>
+                                            <td>
+                                                <span className={styles.orderDate}>{new Date(req.createdAt).toLocaleString("ko-KR")}</span>
+                                            </td>
+                                            <td>
+                                                <strong>{req.userName || req.userEmail}</strong>
+                                                <br />
+                                                <code className={styles.memberUid}>{req.userEmail || req.userId}</code>
+                                            </td>
+                                            <td>
+                                                <strong style={{ color: '#38bdf8', fontSize: '0.95rem' }}>{req.depositorName}</strong>
+                                            </td>
+                                            <td>
+                                                <strong style={{ color: '#fcd34d', fontSize: '1.05rem' }}>
+                                                    {Number(req.amount).toLocaleString()} 충전머니
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                {req.status === "PENDING" && (
+                                                    <span style={{ color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 700 }}>
+                                                        🟡 입금확인 대기중
+                                                    </span>
+                                                )}
+                                                {req.status === "APPROVED" && (
+                                                    <span style={{ color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 700 }}>
+                                                        🟢 승인 완료
+                                                    </span>
+                                                )}
+                                                {req.status === "REJECTED" && (
+                                                    <span style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 700 }}>
+                                                        🔴 거절됨
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>
+                                                {req.status === "PENDING" ? (
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button
+                                                            onClick={() => handleApproveCharge(req.id)}
+                                                            style={{
+                                                                background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                                                                color: '#fff',
+                                                                border: 'none',
+                                                                padding: '6px 12px',
+                                                                borderRadius: '6px',
+                                                                cursor: 'pointer',
+                                                                fontWeight: 700,
+                                                                fontSize: '0.82rem',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px'
+                                                            }}
+                                                        >
+                                                            <CheckCircle2 size={14} /> 입금 확인 & 승인
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRejectCharge(req.id)}
+                                                            style={{
+                                                                background: 'rgba(239,68,68,0.15)',
+                                                                color: '#ef4444',
+                                                                border: '1px solid rgba(239,68,68,0.3)',
+                                                                padding: '6px 10px',
+                                                                borderRadius: '6px',
+                                                                cursor: 'pointer',
+                                                                fontWeight: 600,
+                                                                fontSize: '0.82rem'
+                                                            }}
+                                                        >
+                                                            거절
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                                                        {req.updatedAt ? new Date(req.updatedAt).toLocaleString("ko-KR") : "처리 완료"}
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            )}
 
             {/* TAB 1: MEMBERS & OPERATOR APPOINTMENT */}
             {activeTab === "members" && (

@@ -3,19 +3,39 @@
 import React, { useEffect, useState } from "react";
 import { useUserWallet } from "@/context/UserWalletContext";
 import styles from "./page.module.css";
-import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag } from "lucide-react";
+import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag, ArrowRightLeft, TrendingUp, Zap, Building, Landmark, CreditCard } from "lucide-react";
 
 export default function MyPage() {
-    const { user, wallet, isLoggedIn, orders, isLoading, refreshWallet } = useUserWallet();
+    const { user, wallet, isLoggedIn, orders, refreshWallet, convertDpToMoney, levelUp } = useUserWallet();
     const [mounted, setMounted] = useState(false);
     const [copiedUid, setCopiedUid] = useState(false);
+    const [convertDpInput, setConvertDpInput] = useState<string>("");
+    const [convertLoading, setConvertLoading] = useState(false);
+    const [levelUpLoading, setLevelUpLoading] = useState(false);
+    const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+    // 충전머니 계좌 입금 신청 상태
+    const [chargeAmountInput, setChargeAmountInput] = useState<string>("");
+    const [depositorNameInput, setDepositorNameInput] = useState<string>("");
+    const [chargeLoading, setChargeLoading] = useState(false);
+    const [userRequests, setUserRequests] = useState<any[]>([]);
+
+    const fetchUserChargeRequests = async () => {
+        if (!user?.uid) return;
+        try {
+            const res = await fetch(`/api/v1/wallet/charge-request?uid=${user.uid}`);
+            const json = await res.json();
+            if (json.success) setUserRequests(json.requests || []);
+        } catch {}
+    };
 
     useEffect(() => {
         setMounted(true);
         if (isLoggedIn) {
             refreshWallet();
+            fetchUserChargeRequests();
         }
-    }, [isLoggedIn, refreshWallet]);
+    }, [isLoggedIn, refreshWallet, user?.uid]);
 
     if (!mounted) return null;
 
@@ -53,13 +73,148 @@ export default function MyPage() {
         }
     };
 
+    // Level & EXP 계산 (레벨업 공식 = 현재레벨² X 10,000 EXP)
+    const userLevel = user.level || 1;
+    const userExp = user.exp !== undefined ? user.exp : 0;
+    const requiredExp = Math.pow(userLevel, 2) * 10000;
+    const expProgressPercent = Math.min(100, Math.floor((userExp / requiredExp) * 100));
+    const canLevelUp = userExp >= requiredExp;
+
+    // DP -> 충전머니 전환 비율 계산 (전환 공식 = DP X 레벨 / 10)
+    const conversionRate = userLevel / 10;
+    const inputDpNum = parseInt(convertDpInput) || 0;
+    const previewConvertedMoney = Math.floor(inputDpNum * conversionRate);
+
+    const handleConvertDp = async () => {
+        if (inputDpNum <= 0) {
+            setMessage({ text: "전환할 DP 수량을 입력해 주세요.", type: "error" });
+            return;
+        }
+        if (inputDpNum > wallet.dpPoints) {
+            setMessage({ text: "보유하신 DP 잔액보다 많은 수량입니다.", type: "error" });
+            return;
+        }
+
+        setConvertLoading(true);
+        setMessage(null);
+        const res = await convertDpToMoney(inputDpNum);
+        setConvertLoading(false);
+
+        if (res.success) {
+            setMessage({ 
+                text: `🎉 전환 성공! ${inputDpNum.toLocaleString()} DP가 ${res.convertedMoney?.toLocaleString()} 충전머니로 안전하게 전환되었습니다!`, 
+                type: "success" 
+            });
+            setConvertDpInput("");
+        } else {
+            setMessage({ text: res.error || "전환 처리 실패", type: "error" });
+        }
+    };
+
+    const handleLevelUp = async () => {
+        if (!canLevelUp) return;
+        setLevelUpLoading(true);
+        setMessage(null);
+        const res = await levelUp();
+        setLevelUpLoading(false);
+
+        if (res.success) {
+            setMessage({ 
+                text: `🚀 축하합니다! 레벨업 완료 (현재 Lv.${userLevel + 1})! DP 전환율이 ${(userLevel + 1) * 10}%로 대폭 상승했습니다!`, 
+                type: "success" 
+            });
+        } else {
+            setMessage({ text: res.error || "레벨업 실패", type: "error" });
+        }
+    };
+
+    const handleCreateChargeRequest = async () => {
+        const amt = parseInt(chargeAmountInput);
+        if (!amt || amt <= 0) {
+            setMessage({ text: "충전 신청할 금액을 입력해 주세요.", type: "error" });
+            return;
+        }
+        if (!depositorNameInput.trim()) {
+            setMessage({ text: "입금자명을 입력해 주세요.", type: "error" });
+            return;
+        }
+
+        setChargeLoading(true);
+        setMessage(null);
+        try {
+            const res = await fetch("/api/v1/wallet/charge-request", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    amount: amt,
+                    depositorName: depositorNameInput.trim()
+                })
+            });
+            const json = await res.json();
+            if (json.success) {
+                setMessage({ 
+                    text: `✅ 계좌 입금 충전 신청 완료! (신청 금액: ${amt.toLocaleString()} 머니). 관리자가 신한은행 계좌 입금 확인 후 즉시 승인됩니다.`, 
+                    type: "success" 
+                });
+                setChargeAmountInput("");
+                fetchUserChargeRequests();
+            } else {
+                setMessage({ text: json.error || "신청에 실패했습니다.", type: "error" });
+            }
+        } catch (e: any) {
+            setMessage({ text: e.message || "서버 통신 오류", type: "error" });
+        } finally {
+            setChargeLoading(false);
+        }
+    };
+
+    const handleResetWallets = async () => {
+        const res = await fetch("/api/v1/admin/reset-wallets", { method: "POST" });
+        const json = await res.json();
+        if (json.success) {
+            setMessage({ text: "🧹 모든 유저의 지갑 자산(DP, 충전머니, EXP)이 0으로 성공적으로 초기화되었습니다!", type: "success" });
+            await refreshWallet();
+        } else {
+            setMessage({ text: json.error || "초기화 실패", type: "error" });
+        }
+    };
+
+    const handleGrantTestDp = async (dpAmount: number) => {
+        if (!user?.uid) return;
+        const res = await fetch("/api/v1/wallet/grant-test", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uid: user.uid, dpAmount })
+        });
+        const json = await res.json();
+        if (json.success) {
+            setMessage({ text: `🎁 테스트용 +${dpAmount.toLocaleString()} DP가 즉시 적립되었습니다!`, type: "success" });
+            await refreshWallet();
+        }
+    };
+
+    const handleGrantTestExp = async (expAmount: number) => {
+        if (!user?.uid) return;
+        const res = await fetch("/api/v1/wallet/grant-test", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uid: user.uid, expAmount })
+        });
+        const json = await res.json();
+        if (json.success) {
+            setMessage({ text: `⚡ 테스트용 +${expAmount.toLocaleString()} EXP가 획득되었습니다!`, type: "success" });
+            await refreshWallet();
+        }
+    };
+
     const rewardRules = [
-        { icon: <Gift size={16} color="#d97706" />, action: "신규 회원가입", reward: "1,000 DP" },
-        { icon: <UserCheck size={16} color="#2563eb" />, action: "친구 추천 (멘토)", reward: "500 DP" },
-        { icon: <ShoppingBag size={16} color="#dc2626" />, action: "상품 구매", reward: "구매액 5% DP" },
-        { icon: <MessageSquare size={16} color="#16a34a" />, action: "리뷰 작성", reward: "500 DP" },
-        { icon: <Share2 size={16} color="#9333ea" />, action: "상품/웹진 공유", reward: "100 DP" },
-        { icon: <BookOpen size={16} color="#0284c7" />, action: "웹진 읽기", reward: "50 DP" },
+        { icon: <Gift size={16} color="#d97706" />, action: "신규 회원가입", reward: "1,000 DP / +1,000 EXP" },
+        { icon: <UserCheck size={16} color="#2563eb" />, action: "친구 추천 (멘토)", reward: "500 DP / +2,000 EXP" },
+        { icon: <ShoppingBag size={16} color="#dc2626" />, action: "상품 구매", reward: "구매액 5% DP / 1% EXP" },
+        { icon: <MessageSquare size={16} color="#16a34a" />, action: "리뷰 작성", reward: "500 DP / +500 EXP" },
+        { icon: <Share2 size={16} color="#9333ea" />, action: "상품/웹진 공유", reward: "100 DP / +100 EXP" },
+        { icon: <BookOpen size={16} color="#0284c7" />, action: "웹진 읽기", reward: "50 DP / +50 EXP" },
     ];
 
     return (
@@ -68,13 +223,96 @@ export default function MyPage() {
                 {/* Header */}
                 <div className={styles.header}>
                     <h1 className={styles.title}>마이페이지</h1>
-                    <p className={styles.subTitle}>대한김치 회원 정보와 지갑 자산, 추천인 시스템 및 주문 내역을 확인하세요.</p>
+                    <p className={styles.subTitle}>대한김치 회원 정보와 지갑 자산(DP & 충전머니), 레벨 성장 시스템 및 주문 내역을 확인하세요.</p>
                 </div>
+
+                {/* 🧪 실시간 테스트 컨트롤러 툴바 */}
+                <div style={{
+                    background: "#ffffff",
+                    borderRadius: "14px",
+                    padding: "1rem 1.25rem",
+                    marginBottom: "1.5rem",
+                    border: "1px dashed #d4870a",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px"
+                }}>
+                    <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>🧪 자산 & 레벨 테스트 도구:</span>
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                        <button
+                            onClick={handleResetWallets}
+                            style={{
+                                background: "#fef2f2",
+                                color: "#dc2626",
+                                border: "1px solid #fca5a5",
+                                borderRadius: "8px",
+                                padding: "7px 14px",
+                                fontSize: "0.8rem",
+                                fontWeight: 800,
+                                cursor: "pointer"
+                            }}
+                        >
+                            🔄 전체 자산 0으로 초기화
+                        </button>
+
+                        <button
+                            onClick={() => handleGrantTestDp(5000)}
+                            style={{
+                                background: "#fffbeb",
+                                color: "#b45309",
+                                border: "1px solid #fde68a",
+                                borderRadius: "8px",
+                                padding: "7px 14px",
+                                fontSize: "0.8rem",
+                                fontWeight: 800,
+                                cursor: "pointer"
+                            }}
+                        >
+                            🎁 테스트용 +5,000 DP 적립
+                        </button>
+
+                        <button
+                            onClick={() => handleGrantTestExp(15000)}
+                            style={{
+                                background: "#eff6ff",
+                                color: "#1d4ed8",
+                                border: "1px solid #bfdbfe",
+                                borderRadius: "8px",
+                                padding: "7px 14px",
+                                fontSize: "0.8rem",
+                                fontWeight: 800,
+                                cursor: "pointer"
+                            }}
+                        >
+                            ⚡ 테스트용 +15,000 EXP 획득
+                        </button>
+                    </div>
+                </div>
+
+                {/* 알림 메시지 배너 */}
+                {message && (
+                    <div style={{
+                        padding: "1rem 1.25rem",
+                        borderRadius: "12px",
+                        marginBottom: "1.5rem",
+                        fontWeight: 700,
+                        fontSize: "0.95rem",
+                        backgroundColor: message.type === "success" ? "#ecfdf5" : "#fef2f2",
+                        color: message.type === "success" ? "#047857" : "#b91c1c",
+                        border: `1px solid ${message.type === "success" ? "#a7f3d0" : "#fecaca"}`
+                    }}>
+                        {message.text}
+                    </div>
+                )}
 
                 {/* Profile Card */}
                 <div className={styles.profileCard}>
                     <img 
-                        src={user.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"} 
+                        src={user.avatar || (user.email ? `https://unavatar.io/google/${user.email}` : "https://lh3.googleusercontent.com/a/default-user")} 
                         alt="Profile" 
                         className={styles.avatar} 
                     />
@@ -82,6 +320,17 @@ export default function MyPage() {
                         <div className={styles.userName}>
                             {user.name} 님
                             <span className={styles.roleBadge}>{user.role}</span>
+                            <span style={{
+                                fontSize: "0.82rem",
+                                fontWeight: 800,
+                                background: "linear-gradient(135deg, #c8392b, #d4870a)",
+                                color: "#fff",
+                                padding: "3px 10px",
+                                borderRadius: "99px",
+                                letterSpacing: "0.05em"
+                            }}>
+                                Lv.{userLevel}
+                            </span>
                         </div>
                         <div className={styles.userEmail}>{user.email}</div>
                         {user.createdAt && (
@@ -92,68 +341,437 @@ export default function MyPage() {
                     </div>
                 </div>
 
-                {/* 💳 자체 지갑 자산 섹션 */}
+                {/* ⭐ 레벨 & EXP 경험치 성장 시스템 (프로그래시브 막대) */}
+                <section style={{ marginBottom: '2.5rem' }}>
+                    <div className={styles.sectionTitle}>
+                        <TrendingUp size={20} color="#c8392b" /> ⭐ 회원 레벨 & EXP 성장에 따른 혜택
+                    </div>
+                    <div style={{
+                        background: '#ffffff',
+                        borderRadius: '20px',
+                        padding: '1.75rem',
+                        border: '1.5px solid #f3f4f6',
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.04)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                    <span style={{
+                                        fontSize: '1.25rem',
+                                        fontWeight: 800,
+                                        color: '#1a0d08'
+                                    }}>
+                                        현재 레벨: Lv.{userLevel}
+                                    </span>
+                                    <span style={{
+                                        fontSize: '0.78rem',
+                                        fontWeight: 800,
+                                        color: '#c8392b',
+                                        background: 'rgba(200, 57, 43, 0.1)',
+                                        border: '1px solid rgba(200, 57, 43, 0.3)',
+                                        padding: '3px 10px',
+                                        borderRadius: '99px'
+                                    }}>
+                                        전환율: {userLevel * 10}%
+                                    </span>
+                                </div>
+                                <p style={{ fontSize: '0.86rem', color: '#6b7280', margin: 0 }}>
+                                    플랫폼 내 다양한 활동으로 EXP를 쌓아 레벨업하면 DP ➔ 충전머니 전환율이 비례하여 증가합니다.
+                                </p>
+                            </div>
+
+                            {/* 레벨업 버튼 */}
+                            <button
+                                onClick={handleLevelUp}
+                                disabled={!canLevelUp || levelUpLoading}
+                                style={{
+                                    background: canLevelUp ? 'linear-gradient(135deg, #c8392b, #d4870a)' : '#e5e7eb',
+                                    color: canLevelUp ? '#ffffff' : '#9ca3af',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    padding: '12px 22px',
+                                    fontSize: '0.92rem',
+                                    fontWeight: 800,
+                                    cursor: canLevelUp ? 'pointer' : 'not-allowed',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    boxShadow: canLevelUp ? '0 6px 20px rgba(200, 57, 43, 0.3)' : 'none',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <Zap size={16} />
+                                {levelUpLoading ? "레벨업 처리 중..." : canLevelUp ? `🚀 레벨업하기 (Lv.${userLevel} ➔ Lv.${userLevel + 1})` : `다음 레벨까지 ${(requiredExp - userExp).toLocaleString()} EXP 필요`}
+                            </button>
+                        </div>
+
+                        {/* 📊 프로그래시브 바 (Progress Bar) */}
+                        <div style={{ marginTop: '1.25rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>
+                                <span>경험치 진행률 (EXP)</span>
+                                <span>{userExp.toLocaleString()} / {requiredExp.toLocaleString()} EXP ({expProgressPercent}%)</span>
+                            </div>
+                            <div style={{
+                                width: '100%',
+                                height: '16px',
+                                background: '#f3f4f6',
+                                borderRadius: '99px',
+                                overflow: 'hidden',
+                                border: '1px solid #e5e7eb',
+                                position: 'relative'
+                            }}>
+                                <div style={{
+                                    width: `${expProgressPercent}%`,
+                                    height: '100%',
+                                    background: 'linear-gradient(90deg, #c8392b 0%, #d4870a 100%)',
+                                    borderRadius: '99px',
+                                    transition: 'width 0.6s ease'
+                                }} />
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginTop: '6px', textAlign: 'right' }}>
+                                ※ 레벨업 조건 공식: 현재레벨² × 10,000 EXP
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* 💳 자체 지갑 자산 섹션 (DP & 충전머니 2가지 자산만 표시) */}
                 <section style={{ marginBottom: '2.5rem' }}>
                     <div className={styles.sectionTitle}>
                         <Wallet size={20} color="#d97706" /> 💳 대한김치 지갑 자산
                     </div>
-                    <div className={styles.assetGrid}>
-                        {/* 대한포인트 (DP) Card */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        {/* 1. 대한포인트 (DP) Card */}
                         <div className={`${styles.assetCard} ${styles.assetDp}`} style={{ border: '2px solid #f59e0b', background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 100%)' }}>
                             <div className={styles.assetHeader}>
-                                <Sparkles size={16} /> ⭐ 대한포인트 (DP)
+                                <Sparkles size={18} /> ⭐ 대한포인트 (DP)
                             </div>
                             <div>
                                 <span className={styles.assetValue}>{wallet.dpPoints.toLocaleString()}</span>
                                 <span className={styles.assetUnit}>DP</span>
                             </div>
-                            <p style={{ fontSize: '0.78rem', color: '#b45309', margin: 0 }}>
-                                대한김치 생태계 전용 대표 적립 포인트
+                            <p style={{ fontSize: '0.82rem', color: '#b45309', margin: 0, fontWeight: 600 }}>
+                                회원 활동을 통해 적립되며, 충전머니로 전환 가능
                             </p>
                         </div>
 
-                        {/* 충전 머니 Card */}
-                        <div className={styles.assetCard}>
-                            <div className={styles.assetHeader}>
-                                💳 충전 머니
+                        {/* 2. 충전 머니 Card */}
+                        <div className={styles.assetCard} style={{ border: '2px solid #10b981', background: 'linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%)' }}>
+                            <div className={styles.assetHeader} style={{ color: '#059669' }}>
+                                💳 충전 머니 (결제 수단)
                             </div>
                             <div>
-                                <span className={styles.assetValue}>{wallet.moneyBalance.toLocaleString()}</span>
-                                <span className={styles.assetUnit}>머니</span>
+                                <span className={styles.assetValue} style={{ color: '#047857' }}>{wallet.moneyBalance.toLocaleString()}</span>
+                                <span className={styles.assetUnit} style={{ color: '#059669' }}>머니</span>
                             </div>
-                            <p style={{ fontSize: '0.78rem', color: '#6b7280', margin: 0 }}>
-                                간편 결제 전용 예치금
-                            </p>
-                        </div>
-
-                        {/* 적립 포인트 Card */}
-                        <div className={`${styles.assetCard} ${styles.assetPoints}`}>
-                            <div className={styles.assetHeader}>
-                                🎟️ 적립 포인트
-                            </div>
-                            <div>
-                                <span className={styles.assetValue}>{wallet.points.toLocaleString()}</span>
-                                <span className={styles.assetUnit}>P</span>
-                            </div>
-                            <p style={{ fontSize: '0.78rem', color: '#047857', margin: 0 }}>
-                                일반 구매 보상 포인트
-                            </p>
-                        </div>
-
-                        {/* VND 잔액 Card */}
-                        <div className={`${styles.assetCard} ${styles.assetVnd}`}>
-                            <div className={styles.assetHeader}>
-                                💵 VND 잔액
-                            </div>
-                            <div>
-                                <span className={styles.assetValue}>{wallet.vndBalance.toLocaleString()}</span>
-                                <span className={styles.assetUnit}>₫</span>
-                            </div>
-                            <p style={{ fontSize: '0.78rem', color: '#1d4ed8', margin: 0 }}>
-                                베트남 동 현금성 잔액
+                            <p style={{ fontSize: '0.82rem', color: '#047857', margin: 0, fontWeight: 600 }}>
+                                쇼핑몰에서 현금처럼 바로 사용 가능한 전용 결제 수단
                             </p>
                         </div>
                     </div>
+
+                    {/* 🔄 DP ➔ 충전머니 전환 (DP 환전소) */}
+                    <div style={{
+                        background: '#ffffff',
+                        borderRadius: '20px',
+                        padding: '1.5rem 1.75rem',
+                        border: '1.5px solid #f3f4f6',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                            <ArrowRightLeft size={18} color="#c8392b" />
+                            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827', margin: 0 }}>
+                                🔄 DP ➔ 충전머니 전환 서비스
+                            </h3>
+                            <span style={{ fontSize: '0.78rem', background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '2px 8px', fontWeight: 700 }}>
+                                현재 레벨 Lv.{userLevel} (전환율 {conversionRate * 100}%)
+                            </span>
+                        </div>
+                        <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1.25rem' }}>
+                            보유하신 DP 포인트를 쇼핑몰 결제용 충전머니로 전환하세요. <strong>공식: 전환 머니 = DP × (레벨 / 10)</strong>
+                        </p>
+
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+                            <div style={{ flex: '1', minWidth: '220px', display: 'flex', gap: '8px' }}>
+                                <input
+                                    type="number"
+                                    placeholder="전환할 DP 수량 입력"
+                                    value={convertDpInput}
+                                    onChange={(e) => setConvertDpInput(e.target.value)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px 14px',
+                                        border: '1px solid #d1d5db',
+                                        borderRadius: '10px',
+                                        fontSize: '0.92rem',
+                                        fontWeight: 700,
+                                        outline: 'none'
+                                    }}
+                                />
+                                <button
+                                    onClick={() => setConvertDpInput(wallet.dpPoints.toString())}
+                                    style={{
+                                        padding: '0 14px',
+                                        background: '#f3f4f6',
+                                        border: '1px solid #d1d5db',
+                                        borderRadius: '10px',
+                                        fontSize: '0.82rem',
+                                        fontWeight: 700,
+                                        color: '#374151',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    전액
+                                </button>
+                            </div>
+
+                            <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#c8392b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span>➔</span>
+                                <span>{previewConvertedMoney.toLocaleString()} 머니 전환 예정</span>
+                            </div>
+
+                            <button
+                                onClick={handleConvertDp}
+                                disabled={convertLoading}
+                                style={{
+                                    padding: '12px 24px',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)'
+                                }}
+                            >
+                                <Zap size={15} />
+                                {convertLoading ? "전환 처리 중..." : "⚡ 충전머니로 전환하기"}
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                {/* 🏦 계좌입금 충전 신청 섹션 */}
+                <section style={{ marginBottom: '2.5rem' }}>
+                    <div className={styles.sectionTitle}>
+                        <Building size={20} color="#1d4ed8" /> 🏦 충전머니 계좌입금 신청 (입금 후 충전 요청)
+                    </div>
+                    
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                        gap: '1.5rem'
+                    }}>
+                        {/* 입금 계좌 안내 카드 */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
+                            color: '#ffffff',
+                            borderRadius: '20px',
+                            padding: '1.75rem',
+                            boxShadow: '0 8px 30px rgba(29, 78, 216, 0.25)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between'
+                        }}>
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                                    <Landmark size={22} color="#fbbf24" />
+                                    <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>입금 지정 계좌 안내</span>
+                                </div>
+                                
+                                <div style={{ background: 'rgba(255, 255, 255, 0.12)', borderRadius: '12px', padding: '14px 16px', backdropFilter: 'blur(8px)', marginBottom: '1.25rem' }}>
+                                    <div style={{ fontSize: '0.82rem', color: '#bfdbfe', marginBottom: '4px' }}>은행 (NGÂN HÀNG)</div>
+                                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginBottom: '10px' }}>SHINHAN BANK (신한은행)</div>
+                                    
+                                    <div style={{ fontSize: '0.82rem', color: '#bfdbfe', marginBottom: '4px' }}>계좌번호 (SỐ TÀI KHOẢN)</div>
+                                    <div style={{ fontSize: '1.3rem', fontWeight: 900, letterSpacing: '0.05em', color: '#fbbf24', fontFamily: 'monospace', marginBottom: '10px' }}>
+                                        700004461261
+                                    </div>
+
+                                    <div style={{ fontSize: '0.82rem', color: '#bfdbfe', marginBottom: '4px' }}>예금주 (TÊN TÀI KHOẢN)</div>
+                                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff' }}>KIM YONG JIN</div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    if (typeof navigator !== "undefined") {
+                                        navigator.clipboard.writeText("700004461261");
+                                        alert("계좌번호(700004461261)가 클립보드에 복사되었습니다!");
+                                    }
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    background: '#ffffff',
+                                    color: '#1d4ed8',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '6px'
+                                }}
+                            >
+                                <Copy size={16} /> 계좌번호 복사하기
+                            </button>
+                        </div>
+
+                        {/* 충전 신청 작성 폼 카드 */}
+                        <div style={{
+                            background: '#ffffff',
+                            borderRadius: '20px',
+                            padding: '1.75rem',
+                            border: '1.5px solid #e5e7eb',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between'
+                        }}>
+                            <div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#111827', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <CreditCard size={18} color="#059669" /> 계좌 입금 완료 후 충전 요청
+                                </h3>
+                                <p style={{ fontSize: '0.84rem', color: '#6b7280', marginBottom: '1.25rem' }}>
+                                    위 계좌로 입금하신 후 신청하시면 관리자가 입금 확인 후 충전머니를 바로 승인 충전해 드립니다.
+                                </p>
+
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>
+                                        충전 요청 금액 (머니)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="예: 100000"
+                                        value={chargeAmountInput}
+                                        onChange={(e) => setChargeAmountInput(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 14px',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '0.95rem',
+                                            fontWeight: 700,
+                                            outline: 'none',
+                                            marginBottom: '8px'
+                                        }}
+                                    />
+                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                        {[50000, 100000, 500000, 1000000].map((val) => (
+                                            <button
+                                                key={val}
+                                                type="button"
+                                                onClick={() => setChargeAmountInput(val.toString())}
+                                                style={{
+                                                    padding: '5px 10px',
+                                                    fontSize: '0.76rem',
+                                                    fontWeight: 700,
+                                                    background: '#f3f4f6',
+                                                    border: '1px solid #e5e7eb',
+                                                    borderRadius: '6px',
+                                                    color: '#374151',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                +{val.toLocaleString()}원
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '1.25rem' }}>
+                                    <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>
+                                        입금자 성함 (Tên người gửi)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="입금하신 통장 표시 이름 (예: 김용진)"
+                                        value={depositorNameInput}
+                                        onChange={(e) => setDepositorNameInput(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 14px',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '0.92rem',
+                                            fontWeight: 700,
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleCreateChargeRequest}
+                                disabled={chargeLoading}
+                                style={{
+                                    width: '100%',
+                                    padding: '13px',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    fontSize: '0.95rem',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                                }}
+                            >
+                                <Zap size={16} /> {chargeLoading ? "신청 처리 중..." : "⚡ 입금 완료 및 충전 신청하기"}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 나의 최근 충전 신청 현황 목록 */}
+                    {userRequests.length > 0 && (
+                        <div style={{ marginTop: '1.5rem', background: '#ffffff', borderRadius: '16px', padding: '1.25rem', border: '1.5px solid #e5e7eb' }}>
+                            <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#111827', marginBottom: '1rem' }}>
+                                📋 내 계좌 입금 충전 신청 이력 ({userRequests.length}건)
+                            </h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {userRequests.map((req: any) => (
+                                    <div key={req.requestId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f9fafb', borderRadius: '10px', border: '1px solid #f3f4f6' }}>
+                                        <div>
+                                            <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#111827' }}>
+                                                {req.amount.toLocaleString()} 머니
+                                            </span>
+                                            <span style={{ fontSize: '0.78rem', color: '#6b7280', marginLeft: '10px' }}>
+                                                (입금자: {req.depositorName} | {new Date(req.createdAt).toLocaleDateString("ko-KR")})
+                                            </span>
+                                        </div>
+                                        <div>
+                                            {req.status === "PENDING" && (
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#fef3c7', color: '#d97706', padding: '4px 10px', borderRadius: '99px' }}>
+                                                    🟡 입금 확인 대기중
+                                                </span>
+                                            )}
+                                            {req.status === "APPROVED" && (
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#dcfce7', color: '#15803d', padding: '4px 10px', borderRadius: '99px' }}>
+                                                    🟢 승인 완료 (머니 충전됨)
+                                                </span>
+                                            )}
+                                            {req.status === "REJECTED" && (
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#fee2e2', color: '#b91c1c', padding: '4px 10px', borderRadius: '99px' }}>
+                                                    🔴 거절됨
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </section>
 
                 {/* 👥 추천인 & 멘티 관리 섹션 */}
@@ -168,7 +786,7 @@ export default function MyPage() {
                                 <Award size={18} color="#d97706" /> 내 추천인 UID 코드
                             </h3>
                             <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1rem' }}>
-                                신규 가입하는 회원에게 아래 코드를 공유하세요. 추천 가입 시 <strong>500 DP</strong>가 즉시 적립됩니다.
+                                신규 가입하는 회원에게 아래 코드를 공유하세요. 추천 가입 시 <strong>500 DP / +2,000 EXP</strong>가 즉시 적립됩니다.
                             </p>
                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                 <input 
@@ -242,19 +860,19 @@ export default function MyPage() {
                     </div>
                 </section>
 
-                {/* 🎁 대한김치 포인트 적립 안내 표 */}
+                {/* 🎁 대한김치 포인트 & EXP 적립 안내 표 */}
                 <section style={{ marginBottom: '2.5rem' }}>
                     <div className={styles.sectionTitle}>
-                        <Gift size={20} color="#dc2626" /> 🎁 대한김치 로열티 적립 혜택
+                        <Gift size={20} color="#dc2626" /> 🎁 대한김치 로열티 & EXP 적립 혜택
                     </div>
                     <div style={{ background: '#fff', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e5e7eb', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                             {rewardRules.map((rule, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: '#f9fafb', borderRadius: '10px', border: '1px solid #f3f4f6' }}>
                                     <div>{rule.icon}</div>
                                     <div>
                                         <div style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: 600 }}>{rule.action}</div>
-                                        <div style={{ fontSize: '0.95rem', color: '#111827', fontWeight: 800 }}>{rule.reward}</div>
+                                        <div style={{ fontSize: '0.9rem', color: '#111827', fontWeight: 800 }}>{rule.reward}</div>
                                     </div>
                                 </div>
                             ))}

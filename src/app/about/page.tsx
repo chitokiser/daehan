@@ -41,6 +41,7 @@ export default function AboutPage() {
                 <div className={styles.tabList}>
                     <a href="#ceo" className={styles.tabLink}>대표 인사말</a>
                     <a href="#brand" className={styles.tabLink}>브랜드 핵심가치</a>
+                    <a href="#process" className={styles.tabLink}>스마트 제조공정 (8단계)</a>
                     <a href="#haccp" className={styles.tabLink}>HACCP 위생 인증</a>
                     <a href="#company" className={styles.tabLink}>기업 정보 개요</a>
                 </div>
@@ -136,6 +137,92 @@ export default function AboutPage() {
                             <div className={styles.brandIcon}>🥬</div>
                             <h4>13종+ 다양한 전문 라인업</h4>
                             <p>포기김치, 맛김치, 깍두기, 총각김치, 열무김치, 갓김치, 파김치 등 식탁의 모든 취향을 충족하는 풍성한 메뉴를 자랑합니다.</p>
+                        </div>
+                    </div>
+                </section>
+
+
+                {/* 3. Manufacturing Process Section (스마트 제조 공정 8단계) */}
+                <section id="process" className={styles.sectionCard}>
+                    <div className={styles.sectionHeader}>
+                        <span className={styles.sectionTag}>MANUFACTURING PROCESS</span>
+                        <h2 className={styles.sectionTitle}>대한김치 8단계 스마트 위생 제조공정</h2>
+                        <p style={{ color: '#666', fontSize: '0.98rem', marginTop: '8px', lineHeight: '1.6' }}>
+                            원료 입고부터 세척, 저온 절임, 비법 양념 버무림, HACCP 검사 및 스마트 콜드체인 출하까지 철저한 품질 기준을 준수합니다.
+                        </p>
+                    </div>
+
+                    <div className={styles.processGrid}>
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 01</div>
+                            <div className={styles.processIconWrap}>🌾</div>
+                            <h3 className={styles.processStepTitle}>원재료 엄선 및 입고 검사</h3>
+                            <p className={styles.processStepDesc}>
+                                최상급 배추, 고춧가루, 무, 마늘, 생강 등 100% 신선한 농산물 원료만을 엄격한 잔류농약 및 품질 검사를 거쳐 수급합니다.
+                            </p>
+                        </div>
+
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 02</div>
+                            <div className={styles.processIconWrap}>🔪</div>
+                            <h3 className={styles.processStepTitle}>원료 전처리 및 정밀 절단</h3>
+                            <p className={styles.processStepDesc}>
+                                시든 겉잎을 손수 다듬어 제거한 후, 양념이 균일하게 깊이 스며들 수 있도록 정밀 기계 및 수작업 균등 절단을 실시합니다.
+                            </p>
+                        </div>
+
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 03</div>
+                            <div className={styles.processIconWrap}>🧂</div>
+                            <h3 className={styles.processStepTitle}>천일염 전통 저온 절임</h3>
+                            <p className={styles.processStepDesc}>
+                                청정 해수 천일염을 사용하여 적정 염도와 최적 저온을 유지함으로써, 배추 본연의 아삭하고 쫄깃한 식감을 완성시킵니다.
+                            </p>
+                        </div>
+
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 04</div>
+                            <div className={styles.processIconWrap}>💧</div>
+                            <h3 className={styles.processStepTitle}>3단계 버블 펄스 자동 세척</h3>
+                            <p className={styles.processStepDesc}>
+                                미세 이물질과 잉여 소분을 완전히 씻어내기 위해 애벌 세척 ➔ 미세버블 정밀 세척 ➔ 청정 헹굼 3중 자동 세척을 거칩니다.
+                            </p>
+                        </div>
+
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 05</div>
+                            <div className={styles.processIconWrap}>🌬️</div>
+                            <h3 className={styles.processStepTitle}>저온 탈수실 자연 탈수</h3>
+                            <p className={styles.processStepDesc}>
+                                양념이 묽어지는 현상을 방지하고 배추의 신선함을 보존하기 위해 항온·항습 저온 탈수실에서 정량 탈수를 진행합니다.
+                            </p>
+                        </div>
+
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 06</div>
+                            <div className={styles.processIconWrap}>🌶️</div>
+                            <h3 className={styles.processStepTitle}>대한 비법 버무림 및 혼합</h3>
+                            <p className={styles.processStepDesc}>
+                                한국 정통 비법 육수, 과일 및 천연 고춧가루 양념을 배추 잎 켜켜이 정성스럽고 균일하게 버무려 깊은 풍미를 완성합니다.
+                            </p>
+                        </div>
+
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 07</div>
+                            <div className={styles.processIconWrap}>🛡️</div>
+                            <h3 className={styles.processStepTitle}>HACCP 위생 포장 & X-ray 검사</h3>
+                            <p className={styles.processStepDesc}>
+                                자동 용기·파우치 위생 밀봉 후 CCP(중요관리점) 금속 검출기 및 X-ray 이물 검사기를 통과시켜 안전성을 100% 검증합니다.
+                            </p>
+                        </div>
+
+                        <div className={styles.processCard}>
+                            <div className={styles.processBadge}>STEP 08</div>
+                            <div className={styles.processIconWrap}>🚛</div>
+                            <h3 className={styles.processStepTitle}>0~4℃ 저온 콜드체인 출하</h3>
+                            <p className={styles.processStepDesc}>
+                                유산균이 살아있는 최적의 0~4℃ 콜드체인 전용 냉장 차량으로 하노이 현지 가정 및 식당으로 당일 직배송 출하됩니다.
+                            </p>
                         </div>
                     </div>
                 </section>
