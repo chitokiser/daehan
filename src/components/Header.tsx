@@ -61,7 +61,7 @@ export default function Header() {
                         setDropdownOpen(false);
                         setMobileMenuOpen(false);
                         alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
-                    } else if (loginRes.error?.includes("추천인") || loginRes.error?.includes("멘토")) {
+                    } else if (loginRes.error === "NEW_USER_TERMS_REQUIRED" || loginRes.error?.includes("추천인") || loginRes.error?.includes("멘토")) {
                         setPendingUserInfo({ email: userInfo.email, name: userInfo.name || "Google 회원", avatar: userInfo.picture });
                         setLoginModalOpen(false);
                         setReferrerPromptOpen(true);
@@ -98,7 +98,7 @@ export default function Header() {
             setDropdownOpen(false);
             setMobileMenuOpen(false);
             alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
-        } else if (res.error?.includes("추천인") || res.error?.includes("멘토")) {
+        } else if (res.error === "NEW_USER_TERMS_REQUIRED" || res.error?.includes("추천인") || res.error?.includes("멘토")) {
             setPendingUserInfo({ email: emailToUse, name: "회원", avatar: avatarUrl });
             setLoginModalOpen(false);
             setReferrerPromptOpen(true);
@@ -118,7 +118,8 @@ export default function Header() {
             setReferrerPromptOpen(false);
             return;
         }
-        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, finalReferrer, pendingUserInfo.avatar);
+        // 약관 동의(termsAgreed = true) 파라미터 전달하여 회원 가입 승인
+        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, finalReferrer, pendingUserInfo.avatar, true);
         if (loginRes.success) {
             setReferrerPromptOpen(false);
             setPendingUserInfo(null);
@@ -129,7 +130,7 @@ export default function Header() {
             setMobileMenuOpen(false);
             alert(`🎉 대한김치 회원 가입 및 로그인이 완료되었습니다! (1,000 DP 적립)`);
         } else {
-            alert(`추천인 확인 실패: ${loginRes.error}`);
+            alert(`회원 가입 실패: ${loginRes.error}`);
         }
     };
 

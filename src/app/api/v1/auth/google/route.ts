@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
         } catch {
             body = {};
         }
-        const { email, name, avatar, sub, referrerUid } = body;
+        const { email, name, avatar, sub, referrerUid, termsAgreed } = body;
 
         const effectiveEmail = email || `user_${Date.now()}@gmail.com`;
         const effectiveName = name || "Google 인증 회원";
@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
             name: effectiveName,
             avatar: effectiveAvatar,
             sub,
-            referrerUid
+            referrerUid,
+            termsAgreed
         });
 
         if (!result.success) {

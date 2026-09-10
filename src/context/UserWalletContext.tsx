@@ -104,7 +104,7 @@ interface UserWalletContextType {
     adminStats: AdminStats | null;
     allOrders: MemberOrder[];
     login: (uid?: string) => Promise<void>;
-    loginWithGoogle: (customEmail?: string, customName?: string, referrerUid?: string, customAvatar?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
+    loginWithGoogle: (customEmail?: string, customName?: string, referrerUid?: string, customAvatar?: string, termsAgreed?: boolean) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
     logout: () => void;
     payOrder: (params: PaymentParams) => Promise<PaymentResult>;
     refreshWallet: () => Promise<void>;
@@ -228,7 +228,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
-    const loginWithGoogle = async (customEmail?: string, customName?: string, referrerUid?: string, customAvatar?: string) => {
+    const loginWithGoogle = async (customEmail?: string, customName?: string, referrerUid?: string, customAvatar?: string, termsAgreed?: boolean) => {
         setIsLoading(true);
         try {
             // localStorage 캐시 무시하고 입력받은 이메일만 사용
@@ -243,7 +243,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             const res = await fetch("/api/v1/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, name, avatar, sub: `google_sub_${Date.now()}`, referrerUid })
+                body: JSON.stringify({ email, name, avatar, sub: `google_sub_${Date.now()}`, referrerUid, termsAgreed })
             });
 
             const json = await res.json();

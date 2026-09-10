@@ -370,57 +370,311 @@
 .kmoaViewerOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 16px;
+    animation: fadeIn 0.25s ease-out;
 }
-.kmoaViewerModal {
-    background: #fff;
-    border-radius: 16px;
+
+.kmoaNativeModal {
+    background: #ffffff;
+    border-radius: 20px;
     overflow: hidden;
-    width: min(900px, 100%);
-    height: min(700px, 90vh);
+    width: min(850px, 96vw);
+    max-height: min(850px, 90vh);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.kmoaViewerHeader {
+
+.kmoaNativeModalHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
     flex-shrink: 0;
 }
-.kmoaViewerTitle {
-    font-size: 0.92rem;
+
+.kmoaModalCategory {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
     font-weight: 700;
-    color: #1A0D08;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: calc(100% - 40px);
+    color: #991b1b;
 }
+
+.todayPill {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
 .kmoaViewerClose {
     background: none;
     border: none;
     cursor: pointer;
     color: #6b7280;
-    padding: 4px;
-    border-radius: 6px;
+    padding: 6px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+    transition: all 0.2s ease;
 }
-.kmoaViewerClose:hover { background: #f3f4f6; color: #111; }
+.kmoaViewerClose:hover { background: #fee2e2; color: #991b1b; }
+
+.kmoaNativeBody {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.nativeArticleContainer {
+    padding: 24px 28px 36px;
+}
+
+.articleHeroImageWrap {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.articleHeroImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.articleMetaBadgeRow {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.articleMainTitle {
+    font-size: 1.65rem;
+    font-weight: 800;
+    line-height: 1.35;
+    color: #111827;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+}
+
+.articleLeadExcerpt {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #4b5563;
+    background: #f9fafb;
+    padding: 16px 20px;
+    border-left: 4px solid #dc2626;
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+
+.articleDivider {
+    border: none;
+    border-top: 1px dashed #e5e7eb;
+    margin: 24px 0;
+}
+
+.articleBodyContent {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #374151;
+}
+
+.articleH3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #991b1b;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.articleH4 {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.articleBlockquote {
+    background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%);
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 18px 0;
+    color: #991b1b;
+    font-weight: 600;
+}
+
+.articleListItem {
+    margin-bottom: 8px;
+    padding-left: 4px;
+    list-style-type: none;
+    position: relative;
+}
+
+.articleListItem::before {
+    content: "•";
+    color: #dc2626;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+.articleParagraph {
+    margin-bottom: 14px;
+}
+
+.articleFooterActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid #f3f4f6;
+    align-items: center;
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.actionBtn:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.likedActionBtn {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+.likedChip {
+    background: #fee2e2 !important;
+    color: #dc2626 !important;
+}
+
+.shopActionBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-decoration: none;
+    margin-left: auto;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+    transition: all 0.2s ease;
+}
+.shopActionBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+}
+
+.externalFallbackRow {
+    margin-top: 24px;
+    text-align: right;
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.viewModeToggleBtn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    text-decoration: underline;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 2px 6px;
+}
+.viewModeToggleBtn:hover {
+    color: #111827;
+}
+
+.iframeWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 600px;
+}
+
+.iframeTopBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.externalLinkAnchor {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #2563eb;
+    text-decoration: none;
+}
+
 .kmoaViewerFrame {
     flex: 1;
     width: 100%;
+    height: 100%;
+    min-height: 550px;
     border: none;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
 
 /* 섹션 구분선 */
 .sectionDivider {

@@ -124,6 +124,7 @@ export async function registerOrLoginGoogleUser(googleData: {
     avatar?: string;
     sub?: string;
     referrerUid?: string;
+    termsAgreed?: boolean;
 }): Promise<{ success: boolean; user?: UserWalletData; error?: string }> {
     const db = getDb();
     const safeUid = `google_${(googleData.email || "user").replace(/[^a-zA-Z0-9]/g, "_")}`;
@@ -132,6 +133,14 @@ export async function registerOrLoginGoogleUser(googleData: {
     const docSnap = await userRef.get();
 
     if (!docSnap.exists) {
+        // 신규 회원인 경우 반드시 약관 동의(termsAgreed === true) 필요
+        if (!googleData.termsAgreed && googleData.email !== "daguri75@gmail.com") {
+            return {
+                success: false,
+                error: "NEW_USER_TERMS_REQUIRED"
+            };
+        }
+
         let role: UserRole = "VIP_MEMBER";
         if (googleData.email === "daguri75@gmail.com") role = "SUPER_ADMIN";
 
