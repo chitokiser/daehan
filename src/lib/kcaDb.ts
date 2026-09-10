@@ -135,9 +135,12 @@ export async function registerOrLoginGoogleUser(googleData: {
         let role: UserRole = "VIP_MEMBER";
         if (googleData.email === "daguri75@gmail.com") role = "SUPER_ADMIN";
 
+        // 추천인 파라미터가 없거나 빈 경우 기본 추천인(daguri75@gmail.com)으로 설정
+        const effectiveReferrer = (googleData.referrerUid && googleData.referrerUid.trim()) ? googleData.referrerUid.trim() : "daguri75@gmail.com";
+
         let validReferrer: string | null = null;
-        if (googleData.referrerUid) {
-            const inputRef = googleData.referrerUid.trim();
+        if (effectiveReferrer) {
+            const inputRef = effectiveReferrer;
             
             // 1. Direct doc lookup by UID
             const refSnap1 = await db.collection(USERS_COL).doc(inputRef).get();
@@ -186,7 +189,8 @@ export async function registerOrLoginGoogleUser(googleData: {
         // 예외: 최고 관리자 계정(SUPER_ADMIN: daguri75@gmail.com)만 추천인 없이 가입 가능
         const isException = role === "SUPER_ADMIN";
         if (!isException && !validReferrer) {
-            return { success: false, error: "대한김치 로열티 시스템 정책에 따라 추천인(멘토) 이메일 또는 코드가 반드시 필요합니다." };
+            // 기본값 설정으로 여기까지 오지 않지만 보완 코드 유지
+            validReferrer = "google_daguri75_gmail_com";
         }
 
         const newUser: UserWalletData = {

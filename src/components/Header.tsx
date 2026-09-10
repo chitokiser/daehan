@@ -91,10 +91,7 @@ export default function Header() {
     };
 
     const submitReferrer = async () => {
-        if (!referrerInput.trim()) {
-            alert("추천인(멘토) 이메일 또는 코드를 입력해주세요.");
-            return;
-        }
+        const finalReferrer = referrerInput.trim() || "daguri75@gmail.com";
         if (!agreeTerms || !agreePrivacy) {
             alert("이용약관 및 개인정보 처리방침에 모두 동의해 주세요 (필수).");
             return;
@@ -104,7 +101,7 @@ export default function Header() {
             setReferrerPromptOpen(false);
             return;
         }
-        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, referrerInput.trim(), pendingUserInfo.avatar);
+        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, finalReferrer, pendingUserInfo.avatar);
         if (loginRes.success) {
             setReferrerPromptOpen(false);
             setPendingUserInfo(null);
@@ -370,8 +367,6 @@ export default function Header() {
                                 </div>
                             )}
                         </div>
-
-
                     </div>
                 </div>
             )}
@@ -383,17 +378,35 @@ export default function Header() {
                         <div className={styles.modalHeader}>
                             <h3>회원가입 & 약관 동의 (필수)</h3>
                         </div>
-                        <p className={styles.modalDesc} style={{ color: '#E53E3E', fontWeight: 'bold', fontSize: '0.86rem', lineHeight: '1.5' }}>
+                        <p className={styles.modalDesc} style={{ color: '#4A5568', fontSize: '0.86rem', lineHeight: '1.5' }}>
                             대한김치 생태계는 추천인 제도로 운영됩니다.<br/>
-                            가입을 완료하려면 추천인의 <strong>이메일</strong>(예: <code>daguri75@gmail.com</code>) 또는 <strong>UID 코드</strong>를 입력해주세요.
+                            추천인이 없으신 경우 <strong style={{ color: '#C8392B' }}>[⚡ 자동 추천]</strong> 버튼을 누르시면 <code>daguri75@gmail.com</code> 으로 자동 등록됩니다.
                         </p>
                         <div style={{ marginTop: '14px' }}>
-                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)', marginBottom: '4px' }}>
-                                👤 추천인(멘토) 이메일 또는 UID 코드:
-                            </label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)' }}>
+                                    👤 추천인(멘토) 이메일 또는 UID 코드:
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setReferrerInput("daguri75@gmail.com")}
+                                    style={{
+                                        background: '#FDF2F2',
+                                        color: '#C8392B',
+                                        border: '1px solid #F87171',
+                                        borderRadius: '4px',
+                                        padding: '3px 8px',
+                                        fontSize: '0.76rem',
+                                        fontWeight: 700,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    ⚡ 자동 추천 (daguri75@gmail.com)
+                                </button>
+                            </div>
                             <input
                                 type="text"
-                                placeholder="추천인 이메일 또는 UID 입력 (예: daguri75@gmail.com)"
+                                placeholder="추천인 이메일 입력 (미입력 시 daguri75@gmail.com 자동지정)"
                                 value={referrerInput}
                                 onChange={(e) => setReferrerInput(e.target.value)}
                                 style={{
@@ -406,6 +419,7 @@ export default function Header() {
                                     fontSize: '0.95rem'
                                 }}
                             />
+                        </div>
 
                             {/* 약관 동의 체크박스 섹션 */}
                             <div style={{
