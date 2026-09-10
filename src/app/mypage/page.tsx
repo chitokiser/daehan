@@ -3,12 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useUserWallet } from "@/context/UserWalletContext";
 import styles from "./page.module.css";
-import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag, ArrowRightLeft, TrendingUp, Zap, Building, Landmark, CreditCard } from "lucide-react";
+import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag, ArrowRightLeft, TrendingUp, Zap, Building, Landmark, CreditCard, QrCode } from "lucide-react";
 
 export default function MyPage() {
     const { user, wallet, isLoggedIn, orders, refreshWallet, convertDpToMoney, levelUp } = useUserWallet();
     const [mounted, setMounted] = useState(false);
     const [copiedUid, setCopiedUid] = useState(false);
+    const [copiedLink, setCopiedLink] = useState(false);
     const [convertDpInput, setConvertDpInput] = useState<string>("");
     const [convertLoading, setConvertLoading] = useState(false);
     const [levelUpLoading, setLevelUpLoading] = useState(false);
@@ -65,11 +66,24 @@ export default function MyPage() {
         }
     };
 
+    const originUrl = typeof window !== "undefined" ? window.location.origin : "https://daehankimchi.com";
+    const userRefCode = user?.email || user?.uid || "daguri75@gmail.com";
+    const referralLink = `${originUrl}/?ref=${encodeURIComponent(userRefCode)}`;
+    const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(referralLink)}`;
+
     const copyReferralCode = () => {
         if (typeof navigator !== "undefined" && user?.uid) {
             navigator.clipboard.writeText(user.uid);
             setCopiedUid(true);
             setTimeout(() => setCopiedUid(false), 2000);
+        }
+    };
+
+    const copyReferralLink = () => {
+        if (typeof navigator !== "undefined") {
+            navigator.clipboard.writeText(referralLink);
+            setCopiedLink(true);
+            setTimeout(() => setCopiedLink(false), 2000);
         }
     };
 
@@ -780,51 +794,84 @@ export default function MyPage() {
                         <Users size={20} color="#2563eb" /> 👥 추천인 & 멘티 시스템
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                        {/* 내 추천인 코드 복사 카드 */}
-                        <div style={{ background: '#fff', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e5e7eb', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
-                            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1f2937', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <Award size={18} color="#d97706" /> 내 추천인 UID 코드
+                        {/* 내 자동 추천 QR & 초대전용 링크 카드 */}
+                        <div style={{ background: '#fff', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e5e7eb', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1f2937', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <QrCode size={20} color="#C8392B" /> 내 자동 추천 QR 코드
                             </h3>
-                            <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1rem' }}>
-                                신규 가입하는 회원에게 아래 코드를 공유하세요. 추천 가입 시 <strong>500 DP / +2,000 EXP</strong>가 즉시 적립됩니다.
+                            <p style={{ fontSize: '0.82rem', color: '#4b5563', marginBottom: '1rem', lineHeight: '1.4' }}>
+                                신규 가입자가 이 <strong>QR 코드를 스캔</strong>하거나 <strong>초대 링크</strong>로 들어와 가입하면 <strong style={{ color: '#C8392B' }}>자동으로 나의 멘티</strong>로 지정되며 <strong>500 DP / +2,000 EXP</strong>가 적립됩니다.
                             </p>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                <input 
-                                    type="text" 
-                                    readOnly 
-                                    value={user.uid} 
-                                    style={{ 
-                                        flex: 1, 
-                                        background: '#f3f4f6', 
-                                        border: '1px solid #d1d5db', 
-                                        borderRadius: '8px', 
-                                        padding: '10px 12px', 
-                                        fontSize: '0.88rem', 
-                                        fontFamily: 'monospace', 
-                                        fontWeight: 'bold', 
-                                        color: '#111827' 
-                                    }} 
+                            
+                            {/* QR Code Display Box */}
+                            <div style={{
+                                background: '#fff',
+                                padding: '10px',
+                                borderRadius: '12px',
+                                border: '2px dashed #F87171',
+                                boxShadow: '0 4px 12px rgba(200, 57, 43, 0.08)',
+                                marginBottom: '1rem'
+                            }}>
+                                <img
+                                    src={qrCodeApiUrl}
+                                    alt="대한김치 추천 QR 코드"
+                                    style={{ width: '160px', height: '160px', display: 'block', borderRadius: '6px' }}
                                 />
-                                <button 
-                                    onClick={copyReferralCode}
-                                    style={{ 
-                                        background: copiedUid ? '#16a34a' : '#111827', 
-                                        color: '#fff', 
-                                        border: 'none', 
-                                        borderRadius: '8px', 
-                                        padding: '10px 16px', 
-                                        fontSize: '0.88rem', 
-                                        fontWeight: 700, 
-                                        cursor: 'pointer', 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        gap: '6px',
-                                        transition: 'background 0.2s'
-                                    }}
-                                >
-                                    {copiedUid ? <Check size={16} /> : <Copy size={16} />}
-                                    {copiedUid ? "복사됨!" : "코드 복사"}
-                                </button>
+                            </div>
+
+                            {/* Referral Link & Copy Buttons */}
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
+                                    <input 
+                                        type="text" 
+                                        readOnly 
+                                        value={referralLink} 
+                                        style={{ 
+                                            flex: 1, 
+                                            background: '#f9fafb', 
+                                            border: '1px solid #d1d5db', 
+                                            borderRadius: '8px', 
+                                            padding: '8px 10px', 
+                                            fontSize: '0.82rem', 
+                                            fontWeight: '600', 
+                                            color: '#374151',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }} 
+                                    />
+                                    <button 
+                                        onClick={copyReferralLink}
+                                        style={{ 
+                                            background: copiedLink ? '#16a34a' : '#C8392B', 
+                                            color: '#fff', 
+                                            border: 'none', 
+                                            borderRadius: '8px', 
+                                            padding: '8px 14px', 
+                                            fontSize: '0.82rem', 
+                                            fontWeight: 700, 
+                                            cursor: 'pointer', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '4px',
+                                            whiteSpace: 'nowrap',
+                                            transition: 'background 0.2s'
+                                        }}
+                                    >
+                                        {copiedLink ? <Check size={14} /> : <Copy size={14} />}
+                                        {copiedLink ? "링크 복사됨!" : "초대링크 복사"}
+                                    </button>
+                                </div>
+                                <div style={{ fontSize: '0.76rem', color: '#6B7280', display: 'flex', justifyContent: 'space-between', padding: '0 2px' }}>
+                                    <span>내 추천 ID: <strong style={{ color: '#111827' }}>{userRefCode}</strong></span>
+                                    <a
+                                        href={qrCodeApiUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{ color: '#C8392B', fontWeight: 600, textDecoration: 'underline' }}
+                                    >
+                                        QR 크게 보기 ↗
+                                    </a>
+                                </div>
                             </div>
                         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { useUserWallet } from "@/context/UserWalletContext";
@@ -19,6 +19,23 @@ export default function Header() {
     const [pendingUserInfo, setPendingUserInfo] = useState<{email: string; name: string; avatar?: string} | null>(null);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [agreePrivacy, setAgreePrivacy] = useState(false);
+
+    // URL ?ref= 또는 ?referrer= 파라미터 감지 및 localStorage 자동 저장
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get("ref") || urlParams.get("referrer");
+            if (refCode) {
+                localStorage.setItem("daehan_ref_code", refCode);
+                setReferrerInput(refCode);
+            } else {
+                const savedRef = localStorage.getItem("daehan_ref_code");
+                if (savedRef) {
+                    setReferrerInput(savedRef);
+                }
+            }
+        }
+    }, []);
 
     const handleAgreeAll = (checked: boolean) => {
         setAgreeTerms(checked);
@@ -380,8 +397,13 @@ export default function Header() {
                         </div>
                         <p className={styles.modalDesc} style={{ color: '#4A5568', fontSize: '0.86rem', lineHeight: '1.5' }}>
                             대한김치 생태계는 추천인 제도로 운영됩니다.<br/>
-                            추천인이 없으신 경우 <strong style={{ color: '#C8392B' }}>[⚡ 자동 추천]</strong> 버튼을 누르시면 <code>daguri75@gmail.com</code> 으로 자동 등록됩니다.
+                            QR 코드를 스캔하셨거나 초대 링크를 통해 가입 시 멘토가 자동 설정됩니다.
                         </p>
+                        {referrerInput && (
+                            <div style={{ background: '#EFF6FF', border: '1px solid #93C5FD', borderRadius: '6px', padding: '6px 10px', fontSize: '0.78rem', color: '#1E40AF', fontWeight: 600, marginTop: '8px' }}>
+                                📱 QR 스캔/초대 링크로 멘토 (<strong>{referrerInput}</strong>) 님이 자동 지정되었습니다!
+                            </div>
+                        )}
                         <div style={{ marginTop: '14px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                                 <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)' }}>
