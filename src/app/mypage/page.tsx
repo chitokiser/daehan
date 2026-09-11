@@ -225,7 +225,7 @@ export default function MyPage() {
     const rewardRules = [
         { icon: <Gift size={16} color="#d97706" />, action: "신규 회원가입", reward: "1,000 DP / +1,000 EXP" },
         { icon: <UserCheck size={16} color="#2563eb" />, action: "친구 추천 (멘토)", reward: "500 DP / +2,000 EXP" },
-        { icon: <ShoppingBag size={16} color="#dc2626" />, action: "상품 구매", reward: "구매액 5% DP / 1% EXP" },
+        { icon: <ShoppingBag size={16} color="#dc2626" />, action: "상품 구매", reward: "구매액 10% DP / 1% EXP" },
         { icon: <MessageSquare size={16} color="#16a34a" />, action: "리뷰 작성", reward: "500 DP / +500 EXP" },
         { icon: <Share2 size={16} color="#9333ea" />, action: "상품/웹진 공유", reward: "100 DP / +100 EXP" },
         { icon: <BookOpen size={16} color="#0284c7" />, action: "웹진 읽기", reward: "50 DP / +50 EXP" },

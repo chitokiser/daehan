@@ -429,7 +429,7 @@ export async function executePayment(params: {
         return { success: false, error: "지원하지 않는 통화입니다." };
     }
 
-    const earnedDp = Math.round(amount * (params.currency === "MONEY" ? 50 : 0.05));
+    const earnedDp = Math.round(amount * (params.currency === "MONEY" ? 100 : 0.1));
     updates.dpPoints = (user.dpPoints || 0) + earnedDp;
 
     const txId = `PAY-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;

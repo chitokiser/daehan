@@ -55,7 +55,7 @@ export default function ProductDetail() {
     const discountMultiplier = selectedWeight >= 10 ? 0.9 : 1.0;
     const finalPriceVndPerPack = Math.round(basePriceVnd * discountMultiplier);
     const totalPriceVnd = finalPriceVndPerPack * quantity;
-    const earnedPoints = Math.round(totalPriceVnd * 0.05 / 100) * 100;
+    const earnedPoints = Math.round(totalPriceVnd * 0.1 / 100) * 100;
 
     const dynamicOrderId = useMemo(() => {
         return `ORD-DAEHAN-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -68,7 +68,7 @@ export default function ProductDetail() {
     const [reviewerName, setReviewerName] = useState("");
 
     const [reviews, setReviews] = useState([
-        { id: 101, user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! 대한포인트까지 5% 즉시 적립되어 너무 만족스럽습니다.` },
+        { id: 101, user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! 대한포인트까지 10% 즉시 적립되어 너무 만족스럽습니다.` },
         { id: 102, user: "응우옌티* (현지고객)", stars: 5, date: "2026.08.25", content: "한국인 셰프가 만든 진짜 한국 김치 맛입니다. VND 계좌이체나 포인트 결제 모두 가능해서 편리해요." },
         { id: 103, user: "김*석 (골드회원)", stars: 5, date: "2026.08.19", content: "10kg 대량 주문해서 식당에서 쓰는데 손님들 반응이 최고입니다. 콜드체인 배송도 아주 완벽합니다." },
     ]);
@@ -225,7 +225,7 @@ export default function ProductDetail() {
                         </div>
                         <div className={styles.pointRow}>
                             <Sparkles size={14} color="#D4870A" />
-                            <span>결제 시 <strong>{earnedPoints.toLocaleString()} DP</strong> (5% 대한포인트 마일리지) 즉시 적립</span>
+                            <span>결제 시 <strong>{earnedPoints.toLocaleString()} DP</strong> (10% 대한포인트 마일리지) 즉시 적립</span>
                         </div>
                     </div>
 
@@ -323,7 +323,7 @@ export default function ProductDetail() {
                             <ShieldCheck size={15} /> HACCP 안심 클린룸 생산
                         </div>
                         <div className={styles.trustChip}>
-                            <Award size={15} /> 구매 시 5% 대한포인트 적립
+                            <Award size={15} /> 구매 시 10% 대한포인트 적립
                         </div>
                     </div>
                 </div>
@@ -355,7 +355,7 @@ export default function ProductDetail() {
                     </div>
                     <div className={styles.specRow}>
                         <div className={styles.specKey}>지원 결제 수단</div>
-                        <div className={styles.specVal}>💵 <strong>일반 결제 (VND / 계좌이체)</strong>, ⭐ <strong>대한포인트(DP) 적립 5%</strong></div>
+                        <div className={styles.specVal}>💵 <strong>일반 결제 (VND / 계좌이체)</strong>, ⭐ <strong>대한포인트(DP) 적립 10%</strong></div>
                     </div>
                     <div className={styles.specRow}>
                         <div className={styles.specKey}>보관 방법</div>
@@ -595,7 +595,7 @@ export default function ProductDetail() {
                                     </div>
                                     <div className={styles.receiptRow}>
                                         <span>적립된 대한포인트</span>
-                                        <strong style={{ color: '#f7a400' }}>+{paymentReceipt.earnedDp.toLocaleString()} DP (5% 리워드)</strong>
+                                        <strong style={{ color: '#f7a400' }}>+{paymentReceipt.earnedDp.toLocaleString()} DP (10% 리워드)</strong>
                                     </div>
                                     <div className={styles.receiptRow}>
                                         <span>트랜잭션 ID</span>
