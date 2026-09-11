@@ -190,9 +190,21 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     }, []);
 
     useEffect(() => {
-        refreshWallet();
-        fetchAdminData();
-    }, [refreshWallet, fetchAdminData]);
+        const initAuth = async () => {
+            if (typeof window !== "undefined") {
+                const savedEmail = localStorage.getItem("google_auth_email");
+                const savedName = localStorage.getItem("google_auth_name");
+                if (savedEmail) {
+                    await loginWithGoogle(savedEmail, savedName || undefined);
+                } else {
+                    await login("admin_super_daehan");
+                }
+            } else {
+                await login("admin_super_daehan");
+            }
+        };
+        initAuth();
+    }, []);
 
     const login = async (targetUid: string = "admin_super_daehan") => {
         setIsLoading(true);
@@ -288,6 +300,10 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const logout = () => {
         setUser(null);
         setIsLoggedIn(false);
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("google_auth_email");
+            localStorage.removeItem("google_auth_name");
+        }
     };
 
     const payOrder = async (params: PaymentParams): Promise<PaymentResult> => {
