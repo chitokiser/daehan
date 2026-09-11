@@ -1,0 +1,156 @@
+.pwaInstallContainer {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 480px;
+  z-index: 99999;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px rgba(229, 9, 20, 0.2);
+  color: #ffffff;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 60px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.pwaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.pwaBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pwaIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid #e50914;
+  box-shadow: 0 4px 10px rgba(229, 9, 20, 0.3);
+}
+
+.pwaTitleGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.pwaTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pwaBadge {
+  background: linear-gradient(135deg, #e50914, #b20710);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+.pwaSub {
+  font-size: 0.8rem;
+  color: #a3a3a3;
+  margin-top: 2px;
+}
+
+.closeBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #a3a3a3;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.pwaBody {
+  font-size: 0.85rem;
+  color: #d4d4d4;
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.iosGuide {
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  color: #fca5a5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+.installBtn {
+  width: 100%;
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+  color: #ffffff;
+  border: none;
+  padding: 13px 18px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.4);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.installBtn:active {
+  transform: scale(0.98);
+}
+
+.dismissLink {
+  display: block;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #737373;
+  margin-top: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.dismissLink:hover {
+  color: #a3a3a3;
+}
