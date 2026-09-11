@@ -52,7 +52,7 @@ export interface MemberOrder {
         address: string;
         memo?: string;
     };
-    status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED";
+    status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED";
     createdAt: string;
 }
 
@@ -110,7 +110,7 @@ interface UserWalletContextType {
     refreshWallet: () => Promise<void>;
     fetchAdminData: () => Promise<void>;
     changeUserRole: (targetUid: string, newRole: UserRole) => Promise<{ success: boolean; error?: string; message?: string }>;
-    changeOrderStatus: (orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => Promise<{ success: boolean; error?: string }>;
+    changeOrderStatus: (orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => Promise<{ success: boolean; error?: string }>;
     convertPoints: (points: number) => Promise<{ success: boolean; error?: string }>;
     convertDpToMoney: (dpAmount: number) => Promise<{ success: boolean; error?: string; convertedMoney?: number }>;
     levelUp: () => Promise<{ success: boolean; error?: string }>;
@@ -366,7 +366,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
-    const changeOrderStatus = async (orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => {
+    const changeOrderStatus = async (orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => {
         setIsLoading(true);
         try {
             const res = await fetch("/api/v1/admin/change-order-status", {

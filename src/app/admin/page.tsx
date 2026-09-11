@@ -725,10 +725,11 @@ export default function AdminDashboard() {
                                 className={styles.roleSelect}
                             >
                                 <option value="ALL">전체 주문 보기</option>
-                                <option value="PAID">결제 완료</option>
-                                <option value="PREPARING">상품 준비중</option>
-                                <option value="SHIPPING">배송중</option>
-                                <option value="DELIVERED">배송 완료</option>
+                                <option value="PENDING_PAYMENT">🟡 입금확인 대기중 (계좌이체)</option>
+                                <option value="PAID">🟢 입금승인/결제완료</option>
+                                <option value="PREPARING">👨‍🍳 상품 준비중</option>
+                                <option value="SHIPPING">🚚 하노이 배송중</option>
+                                <option value="DELIVERED">🎁 배송 완료</option>
                             </select>
                         </div>
                     </div>
@@ -742,7 +743,7 @@ export default function AdminDashboard() {
                                     <th>결제 금액 & 수단</th>
                                     <th>배송지 및 수령인</th>
                                     <th>트랜잭션 ID</th>
-                                    <th>주문 상태 변경</th>
+                                    <th>입금 확인 & 주문 상태</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -767,6 +768,11 @@ export default function AdminDashboard() {
                                                 {order.paidAmount.toLocaleString()} {order.currency}
                                             </strong>
                                             <span className={styles.approxSmall}>({order.totalVnd.toLocaleString()} VND)</span>
+                                            {order.currency === "VND" && (
+                                                <div style={{ fontSize: '0.78rem', color: '#60a5fa', fontWeight: 600, marginTop: '4px' }}>
+                                                    🏦 현금 계좌이체
+                                                </div>
+                                            )}
                                         </td>
                                         <td>
                                             <div className={styles.shippingSnippet}>
@@ -778,15 +784,38 @@ export default function AdminDashboard() {
                                             <code className={styles.txCode}>{order.txId}</code>
                                         </td>
                                         <td>
+                                            {order.status === "PENDING_PAYMENT" && (
+                                                <div style={{ marginBottom: '6px' }}>
+                                                    <button
+                                                        onClick={() => handleOrderStatusChange(order.orderId, "PAID")}
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                                                            color: '#fff',
+                                                            border: 'none',
+                                                            padding: '6px 12px',
+                                                            borderRadius: '6px',
+                                                            cursor: 'pointer',
+                                                            fontWeight: 700,
+                                                            fontSize: '0.8rem',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px'
+                                                        }}
+                                                    >
+                                                        <CheckCircle2 size={13} /> 입금 확인 & 승인
+                                                    </button>
+                                                </div>
+                                            )}
                                             <select
                                                 value={order.status}
                                                 onChange={(e) => handleOrderStatusChange(order.orderId, e.target.value)}
                                                 className={`${styles.statusSelect} ${styles[`status_${order.status}`]}`}
                                             >
-                                                <option value="PAID">결제완료</option>
-                                                <option value="PREPARING">숙성/포장준비</option>
-                                                <option value="SHIPPING">하노이 배송중</option>
-                                                <option value="DELIVERED">배송완료</option>
+                                                <option value="PENDING_PAYMENT">🟡 입금확인 대기중</option>
+                                                <option value="PAID">🟢 입금승인/결제완료</option>
+                                                <option value="PREPARING">👨‍🍳 숙성/포장준비</option>
+                                                <option value="SHIPPING">🚚 하노이 배송중</option>
+                                                <option value="DELIVERED">🎁 배송완료</option>
                                             </select>
                                         </td>
                                     </tr>

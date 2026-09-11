@@ -9,7 +9,7 @@ import { useUserWallet } from "@/context/UserWalletContext";
 import { 
     Star, Truck, ShieldCheck, Award, Sparkles, Check,
     ArrowLeft, Heart, Plus, Minus, PackageCheck,
-    CreditCard, ArrowRight, CheckCircle2, AlertCircle, ShoppingCart, Copy
+    CreditCard, ArrowRight, CheckCircle2, AlertCircle, ShoppingCart, Copy, Clock
 } from "lucide-react";
 import ShareButtons from "@/components/ShareButtons";
 
@@ -568,14 +568,24 @@ export default function ProductDetail() {
                                 </button>
                             </>
                         ) : (
-                            /* Success Receipt View */
+                            /* Success / Bank Transfer Receipt View */
                             <div className={styles.receiptView}>
                                 <div className={styles.successIconWrap}>
-                                    <CheckCircle2 size={54} color="#00E676" />
+                                    {paymentReceipt.status === "PENDING_PAYMENT" ? (
+                                        <Clock size={54} color="#f59e0b" />
+                                    ) : (
+                                        <CheckCircle2 size={54} color="#00E676" />
+                                    )}
                                 </div>
-                                <h3 className={styles.successTitle}>주문 결제가 완료되었습니다!</h3>
+                                <h3 className={styles.successTitle}>
+                                    {paymentReceipt.status === "PENDING_PAYMENT" 
+                                        ? "주문이 접수되었습니다! (입금대기)" 
+                                        : "주문 결제가 완료되었습니다!"}
+                                </h3>
                                 <p className={styles.successSub}>
-                                    대한김치 신선 배송 준비가 시작되었습니다.
+                                    {paymentReceipt.status === "PENDING_PAYMENT"
+                                        ? "아래 계좌로 현금 이체해 주시면 관리자 입금 확인 후 배송 절차가 진행됩니다."
+                                        : "대한김치 신선 배송 준비가 시작되었습니다."}
                                 </p>
 
                                 <div className={styles.receiptCard}>
@@ -584,20 +594,49 @@ export default function ProductDetail() {
                                         <strong>{paymentReceipt.orderId}</strong>
                                     </div>
                                     <div className={styles.receiptRow}>
-                                        <span>결제 금액</span>
+                                        <span>주문 금액</span>
                                         <strong style={{ color: '#fcd34d' }}>
                                             {paymentReceipt.paidAmount.toLocaleString()} {paymentReceipt.currency}
                                         </strong>
                                     </div>
                                     <div className={styles.receiptRow}>
-                                        <span>결제 후 잔액</span>
-                                        <span>{paymentReceipt.remainingBalance} {paymentReceipt.currency}</span>
+                                        <span>주문 상태</span>
+                                        <span style={{ 
+                                            color: paymentReceipt.status === "PENDING_PAYMENT" ? '#f59e0b' : '#16a34a',
+                                            fontWeight: 700 
+                                        }}>
+                                            {paymentReceipt.status === "PENDING_PAYMENT" ? "🟡 입금 확인 대기중" : "🟢 결제 완료 (배송준비)"}
+                                        </span>
                                     </div>
                                     <div className={styles.receiptRow}>
-                                        <span>적립된 대한포인트</span>
-                                        <strong style={{ color: '#f7a400' }}>+{paymentReceipt.earnedDp.toLocaleString()} DP (10% 리워드)</strong>
+                                        <span>적립 예정 대한포인트</span>
+                                        <strong style={{ color: '#f7a400' }}>
+                                            +{paymentReceipt.earnedDp.toLocaleString()} DP (10% 적립{paymentReceipt.status === "PENDING_PAYMENT" ? " - 입금승인 시 즉시지급" : ""})
+                                        </strong>
                                     </div>
-                                    <div className={styles.receiptRow}>
+
+                                    {paymentReceipt.bankTransferInfo && (
+                                        <div style={{
+                                            background: 'rgba(245, 158, 11, 0.08)',
+                                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                                            borderRadius: '12px',
+                                            padding: '16px',
+                                            marginTop: '14px',
+                                            textAlign: 'left'
+                                        }}>
+                                            <div style={{ fontWeight: 800, color: '#d97706', marginBottom: '8px', fontSize: '0.95rem' }}>
+                                                🏦 현금 계좌이체 입금 안내
+                                            </div>
+                                            <div style={{ fontSize: '0.88rem', color: 'var(--text-sub)', lineHeight: 1.6 }}>
+                                                • <strong>은행명:</strong> {paymentReceipt.bankTransferInfo.bankName}<br />
+                                                • <strong>계좌번호:</strong> <strong style={{ color: '#e50914', fontSize: '0.98rem' }}>{paymentReceipt.bankTransferInfo.accountNumber}</strong><br />
+                                                • <strong>예금주:</strong> {paymentReceipt.bankTransferInfo.accountHolder}<br />
+                                                • <strong>입금 메모:</strong> <code style={{ background: '#fff', padding: '2px 6px', borderRadius: '4px', border: '1px solid #ccc' }}>{paymentReceipt.bankTransferInfo.memo}</code> (주문번호 필수)
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className={styles.receiptRow} style={{ marginTop: '12px' }}>
                                         <span>트랜잭션 ID</span>
                                         <div className={styles.txHashWrap}>
                                             <code>{paymentReceipt.txHash.slice(0, 10)}...{paymentReceipt.txHash.slice(-8)}</code>

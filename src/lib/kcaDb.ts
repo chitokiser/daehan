@@ -301,15 +301,30 @@ export async function updateUserBalance(adminUid: string, targetUid: string, upd
     return { success: true, user: updated.data() as UserWalletData };
 }
 
-export async function updateOrderStatus(orderId: string, status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED"): Promise<{ success: boolean; error?: string; order?: MemberOrder }> {
+export async function updateOrderStatus(orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED"): Promise<{ success: boolean; error?: string; order?: MemberOrder }> {
     const db = getDb();
     const snapshot = await db.collection(ORDERS_COL).where("orderId", "==", orderId).get();
     if (snapshot.empty) return { success: false, error: "주문을 찾을 수 없습니다." };
     
     const doc = snapshot.docs[0];
+    const existingOrder = doc.data() as any;
+    const oldStatus = existingOrder.status;
+
     await doc.ref.update({ status });
     const updated = await doc.ref.get();
-    return { success: true, order: updated.data() as MemberOrder };
+    const updatedOrder = updated.data() as MemberOrder;
+
+    // 만약 입금대기(PENDING_PAYMENT) 상태에서 결제확인/승인(PAID, PREPARING, SHIPPING, DELIVERED)으로 변경된 경우:
+    if (oldStatus === "PENDING_PAYMENT" && status !== "PENDING_PAYMENT") {
+        const totalVndAmount = existingOrder.totalVnd || existingOrder.paidAmount || 0;
+        const earnedDp = Math.round(totalVndAmount * 0.1);
+        if (earnedDp > 0) {
+            await grantDaehanPoint(existingOrder.uid, earnedDp, `[계좌이체 입금확인 완료] ${orderId} 10% 적립`, "REWARD");
+        }
+        await distributeReferralRewards(existingOrder.uid, totalVndAmount, "VND");
+    }
+
+    return { success: true, order: updatedOrder };
 }
 
 export async function distributeReferralRewards(buyerUid: string, amount: number, currency: "MONEY" | "POINT" | "VND") {
@@ -416,28 +431,33 @@ export async function executePayment(params: {
     }
 
     const updates: any = {};
+    let isPendingBankTransfer = false;
+
     if (params.currency === "MONEY") {
-        if (user.moneyBalance < amount) return { success: false, error: "머니 잔액이 부족합니다." };
-        updates.moneyBalance = Number((user.moneyBalance - amount).toFixed(2));
+        if ((user.moneyBalance || 0) < amount) return { success: false, error: "머니 잔액이 부족합니다." };
+        updates.moneyBalance = Number(((user.moneyBalance || 0) - amount).toFixed(2));
+        const earnedDp = Math.round(amount * 100);
+        updates.dpPoints = (user.dpPoints || 0) + earnedDp;
     } else if (params.currency === "POINT") {
-        if (user.pointBalance < amount) return { success: false, error: "포인트 잔액이 부족합니다." };
-        updates.pointBalance = Math.max(0, user.pointBalance - amount);
+        if ((user.pointBalance || 0) < amount) return { success: false, error: "포인트 잔액이 부족합니다." };
+        updates.pointBalance = Math.max(0, (user.pointBalance || 0) - amount);
+        const earnedDp = Math.round(amount * 0.1);
+        updates.dpPoints = (user.dpPoints || 0) + earnedDp;
     } else if (params.currency === "VND") {
-        if (user.vndBalance < amount) return { success: false, error: "VND 잔액이 부족합니다." };
-        updates.vndBalance = Math.max(0, user.vndBalance - amount);
+        // 일반 결제 (VND / 계좌이체): 지갑 잔액 검사 및 차감 없음! 입금 확인 대기(PENDING_PAYMENT)로 주문 생성
+        isPendingBankTransfer = true;
     } else {
         return { success: false, error: "지원하지 않는 통화입니다." };
     }
-
-    const earnedDp = Math.round(amount * (params.currency === "MONEY" ? 100 : 0.1));
-    updates.dpPoints = (user.dpPoints || 0) + earnedDp;
 
     const txId = `PAY-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const txHash = `pay_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
     const timestamp = new Date().toISOString();
 
     const batch = db.batch();
-    batch.update(userRef, updates);
+    if (Object.keys(updates).length > 0) {
+        batch.update(userRef, updates);
+    }
 
     const txRef = db.collection(TRANSACTIONS_COL).doc(txId);
     batch.set(txRef, {
@@ -448,11 +468,19 @@ export async function executePayment(params: {
         type: "PAYMENT",
         currency: params.currency,
         amount: amount,
-        description: `대한김치 쇼핑몰 결제 (${params.orderId})`,
-        status: "CONFIRMED",
+        description: isPendingBankTransfer ? `대한김치 계좌이체 주문접수 (${params.orderId})` : `대한김치 쇼핑몰 결제 (${params.orderId})`,
+        status: isPendingBankTransfer ? "PENDING" : "CONFIRMED",
         txHash,
         timestamp
     });
+
+    const orderStatus = isPendingBankTransfer ? "PENDING_PAYMENT" : "PAID";
+    const bankTransferInfo = isPendingBankTransfer ? {
+        bankName: "Shinhan Bank Vietnam (신한베트남)",
+        accountNumber: "700-004-461261",
+        accountHolder: "DAEHAN KIMCHI CO., LTD",
+        memo: params.orderId
+    } : null;
 
     if (params.items && params.items.length > 0) {
         const orderRef = db.collection(ORDERS_COL).doc(params.orderId);
@@ -470,24 +498,19 @@ export async function executePayment(params: {
                 phone: user.phone || "0702116617",
                 address: "Hanoi, Vietnam"
             },
-            status: "PAID",
+            bankTransferInfo,
+            status: orderStatus,
             createdAt: timestamp
         };
         batch.set(orderRef, newOrder);
-        // 비동기 알림
         sendAdminOrderNotification(newOrder as MemberOrder).catch(err => console.error(err));
     }
 
     await batch.commit();
 
-    // 멘토 보상
-    await distributeReferralRewards(params.uid, amount, params.currency);
-
-    const remainingBalance = params.currency === "MONEY" 
-        ? updates.moneyBalance 
-        : params.currency === "POINT" 
-            ? updates.pointBalance 
-            : updates.vndBalance;
+    if (!isPendingBankTransfer) {
+        await distributeReferralRewards(params.uid, amount, params.currency);
+    }
 
     return {
         success: true,
@@ -496,11 +519,10 @@ export async function executePayment(params: {
             orderId: params.orderId,
             paidAmount: amount,
             currency: params.currency,
-            remainingBalance,
             txHash,
-            earnedDp,
-            merchantId: params.merchantId || "daehan_kimchi_store",
-            timestamp
+            status: orderStatus,
+            earnedDp: isPendingBankTransfer ? Math.round(amount * 0.1) : Math.round(amount * (params.currency === "MONEY" ? 100 : 0.1)),
+            bankTransferInfo
         }
     };
 }
