@@ -572,7 +572,7 @@ export default function MyPage() {
                 {/* 🏦 계좌입금 충전 신청 섹션 */}
                 <section style={{ marginBottom: '2.5rem' }}>
                     <div className={styles.sectionTitle}>
-                        <Building size={20} color="#1d4ed8" /> 🏦 충전머니 계좌입금 신청 (입금 후 충전 요청)
+                        <Building size={20} color="#1d4ed8" /> 🏦 충전머니 계좌입금 신청 (VND 기준 / 입금 후 충전 요청)
                     </div>
                     
                     <div style={{
@@ -594,12 +594,12 @@ export default function MyPage() {
                             <div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
                                     <Landmark size={22} color="#fbbf24" />
-                                    <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>입금 지정 계좌 안내</span>
+                                    <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>입금 지정 계좌 안내 (VND 전용)</span>
                                 </div>
                                 
                                 <div style={{ background: 'rgba(255, 255, 255, 0.12)', borderRadius: '12px', padding: '14px 16px', backdropFilter: 'blur(8px)', marginBottom: '1.25rem' }}>
                                     <div style={{ fontSize: '0.82rem', color: '#bfdbfe', marginBottom: '4px' }}>은행 (NGÂN HÀNG)</div>
-                                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginBottom: '10px' }}>SHINHAN BANK (신한은행)</div>
+                                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginBottom: '10px' }}>SHINHAN BANK VIETNAM (신한은행 베트남)</div>
                                     
                                     <div style={{ fontSize: '0.82rem', color: '#bfdbfe', marginBottom: '4px' }}>계좌번호 (SỐ TÀI KHOẢN)</div>
                                     <div style={{ fontSize: '1.3rem', fontWeight: 900, letterSpacing: '0.05em', color: '#fbbf24', fontFamily: 'monospace', marginBottom: '10px' }}>
@@ -607,7 +607,10 @@ export default function MyPage() {
                                     </div>
 
                                     <div style={{ fontSize: '0.82rem', color: '#bfdbfe', marginBottom: '4px' }}>예금주 (TÊN TÀI KHOẢN)</div>
-                                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff' }}>KIM YONG JIN</div>
+                                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginBottom: '10px' }}>KIM YONG JIN</div>
+
+                                    <div style={{ fontSize: '0.82rem', color: '#bfdbfe', marginBottom: '4px' }}>입금 통화 (TIỀN TỆ)</div>
+                                    <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#4ade80' }}>🇻🇳 VND (베트남 동 ₫ 전용 계좌)</div>
                                 </div>
                             </div>
 
@@ -654,16 +657,16 @@ export default function MyPage() {
                                     <CreditCard size={18} color="#059669" /> 계좌 입금 완료 후 충전 요청
                                 </h3>
                                 <p style={{ fontSize: '0.84rem', color: '#6b7280', marginBottom: '1.25rem' }}>
-                                    위 계좌로 입금하신 후 신청하시면 관리자가 입금 확인 후 충전머니를 바로 승인 충전해 드립니다.
+                                    신한은행 베트남 계좌로 <strong>VND(동)</strong> 입금 후 신청하시면 관리자가 입금 확인 후 충전머니를 승인해 드립니다.
                                 </p>
 
                                 <div style={{ marginBottom: '1rem' }}>
                                     <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>
-                                        충전 요청 금액 (머니)
+                                        충전 요청 금액 (VND ₫ 기준)
                                     </label>
                                     <input
                                         type="number"
-                                        placeholder="예: 100000"
+                                        placeholder="예: 200000 (VND ₫)"
                                         value={chargeAmountInput}
                                         onChange={(e) => setChargeAmountInput(e.target.value)}
                                         style={{
@@ -678,7 +681,7 @@ export default function MyPage() {
                                         }}
                                     />
                                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                        {[50000, 100000, 500000, 1000000].map((val) => (
+                                        {[100000, 200000, 500000, 1000000].map((val) => (
                                             <button
                                                 key={val}
                                                 type="button"
@@ -694,7 +697,7 @@ export default function MyPage() {
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                +{val.toLocaleString()}원
+                                                +{val.toLocaleString()} VND
                                             </button>
                                         ))}
                                     </div>
@@ -742,7 +745,7 @@ export default function MyPage() {
                                     boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
                                 }}
                             >
-                                <Zap size={16} /> {chargeLoading ? "신청 처리 중..." : "⚡ 입금 완료 및 충전 신청하기"}
+                                <Zap size={16} /> {chargeLoading ? "신청 처리 중..." : "⚡ 입금 완료 및 충전 신청하기 (VND)"}
                             </button>
                         </div>
                     </div>
@@ -758,7 +761,7 @@ export default function MyPage() {
                                     <div key={req.requestId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f9fafb', borderRadius: '10px', border: '1px solid #f3f4f6' }}>
                                         <div>
                                             <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#111827' }}>
-                                                {req.amount.toLocaleString()} 머니
+                                                {req.amount.toLocaleString()} VND (충전머니)
                                             </span>
                                             <span style={{ fontSize: '0.78rem', color: '#6b7280', marginLeft: '10px' }}>
                                                 (입금자: {req.depositorName} | {new Date(req.createdAt).toLocaleDateString("ko-KR")})

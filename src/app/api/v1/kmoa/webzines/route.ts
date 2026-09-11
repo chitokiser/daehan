@@ -271,6 +271,10 @@ const WEBZINE_ARTICLE_POOL = [
     }
 ];
 
+// 커스텀 웹진 저장소 & 삭제목록 (서버 메모리 상 유지)
+const deletedWebzineIds = new Set<string>();
+const customWebzineMap = new Map<string, any>();
+
 // 하루에 하나씩 자동 업그레이드/발행되는 로직
 function getAutoUpgradedWebzines(limitCount: number = 20) {
     const now = new Date();
@@ -280,7 +284,7 @@ function getAutoUpgradedWebzines(limitCount: number = 20) {
     const daysElapsed = Math.floor((now.getTime() - anchorDate.getTime()) / msPerDay);
 
     const poolLen = WEBZINE_ARTICLE_POOL.length;
-    const webzines = [];
+    const rawList = [];
 
     for (let i = 0; i < Math.min(limitCount, poolLen); i++) {
         // 매일 00시 기준, 오늘 아티클 인덱스가 +1 증가하여 상단에 오늘 날짜로 자동 신규 발행
@@ -292,25 +296,35 @@ function getAutoUpgradedWebzines(limitCount: number = 20) {
         pubDate.setHours(9 + ((i * 3) % 8), (i * 17) % 60, 0);
 
         const isToday = i === 0;
+        const webzineId = `auto-wz-d${daysElapsed - i}-${baseArticle.poolId}`;
 
-        webzines.push({
-            webzineId: `auto-wz-d${daysElapsed - i}-${baseArticle.poolId}`,
-            title: baseArticle.title,
-            excerpt: baseArticle.excerpt,
-            content: baseArticle.content,
-            relatedProductId: baseArticle.relatedProductId || "pogi-kimchi-5kg",
-            thumbnailUrl: baseArticle.thumbnailUrl,
+        // 삭제 처리된 항목 건너뛰기
+        if (deletedWebzineIds.has(webzineId)) continue;
+
+        // 수정된 항목이 있는 경우 덮어쓰기
+        const customData = customWebzineMap.get(webzineId);
+
+        rawList.push({
+            webzineId: webzineId,
+            title: customData?.title || baseArticle.title,
+            excerpt: customData?.excerpt || baseArticle.excerpt,
+            content: customData?.content || baseArticle.content,
+            relatedProductId: customData?.relatedProductId || baseArticle.relatedProductId || "pogi-kimchi-5kg",
+            thumbnailUrl: customData?.thumbnailUrl || baseArticle.thumbnailUrl,
             isTodayArticle: isToday,
             publishedAt: pubDate.toISOString(),
-            viewCount: 180 + (poolLen - i) * 35 + ((daysElapsed * 11 + i * 19) % 150),
-            likeCount: 24 + (poolLen - i) * 8 + ((daysElapsed * 5 + i * 7) % 40),
+            viewCount: customData?.viewCount ?? (180 + (poolLen - i) * 35 + ((daysElapsed * 11 + i * 19) % 150)),
+            likeCount: customData?.likeCount ?? (24 + (poolLen - i) * 8 + ((daysElapsed * 5 + i * 7) % 40)),
             shareCount: 6 + (poolLen - i) * 3 + ((daysElapsed * 2 + i) % 18),
             readUrl: `https://kmoa.netlify.app/kca_webzine.html?id=${baseArticle.whitelabelId}`,
             whitelabelUrl: `https://kmoa.netlify.app/kca_webzine.html?id=${baseArticle.whitelabelId}&whitelabel=true`
         });
     }
 
-    return webzines;
+    // 관리자가 신규 생성한 커스텀 아티클들 상단 추가
+    const newCustomWebzines = Array.from(customWebzineMap.values()).filter(item => item.isNew && !deletedWebzineIds.has(item.webzineId));
+
+    return [...newCustomWebzines, ...rawList];
 }
 
 export async function GET(request: Request) {
@@ -318,39 +332,88 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const autoWebzines = getAutoUpgradedWebzines(limit);
 
-    if (!KMOA_API_KEY) {
-        return NextResponse.json({
-            success: true, demo: true, connectionStatus: "live-auto",
-            merchantId: "daehan-kimchi-hanoi", webzineCount: autoWebzines.length,
-            webzines: autoWebzines
-        });
-    }
+    return NextResponse.json({
+        success: true, demo: true, connectionStatus: "live-auto",
+        merchantId: "daehan-kimchi-hanoi", webzineCount: autoWebzines.length,
+        webzines: autoWebzines
+    });
+}
 
+// 웹진 수정 또는 신규 작성 (POST)
+export async function POST(request: Request) {
     try {
-        const res = await fetch(`${KMOA_BASE}/v1/webzines?limit=${limit}`, {
-            headers: { "x-api-key": KMOA_API_KEY },
-            cache: "no-store"
-        });
+        const body = await request.json();
+        const { webzineId, title, excerpt, content, thumbnailUrl, relatedProductId, action } = body;
 
-        const text = await res.text();
-        let data: any;
-        try { data = JSON.parse(text); } catch { data = { success: false, error: text }; }
-
-        if (res.ok && data.success && data.webzines && data.webzines.length > 0) {
-            return NextResponse.json({ ...data, connectionStatus: "live", demo: false });
+        if (!title) {
+            return NextResponse.json({ success: false, error: "제목은 필수입니다." }, { status: 400 });
         }
 
-        return NextResponse.json({
-            success: true, demo: true, connectionStatus: "live-auto",
-            merchantId: "daehan-kimchi-hanoi", webzineCount: autoWebzines.length,
-            webzines: autoWebzines
-        });
+        let targetId = webzineId;
+        const isNew = action === "create" || !webzineId;
 
-    } catch {
+        if (isNew) {
+            targetId = `custom-wz-${Date.now()}`;
+        }
+
+        const existing = customWebzineMap.get(targetId) || {};
+        const updatedItem = {
+            ...existing,
+            webzineId: targetId,
+            title,
+            excerpt: excerpt || "대한김치 전용 미식 & 발효 라이브 매거진",
+            content: content || excerpt || "아티클 내용이 준비 중입니다.",
+            thumbnailUrl: thumbnailUrl || "/images/products/pogi.jpg",
+            relatedProductId: relatedProductId || "pogi-kimchi-5kg",
+            publishedAt: existing.publishedAt || new Date().toISOString(),
+            viewCount: existing.viewCount || 1,
+            likeCount: existing.likeCount || 0,
+            shareCount: existing.shareCount || 0,
+            readUrl: `https://daehankimchi.netlify.app/service?article=${targetId}`,
+            whitelabelUrl: `https://daehankimchi.netlify.app/service?article=${targetId}`,
+            isNew: isNew
+        };
+
+        customWebzineMap.set(targetId, updatedItem);
+        deletedWebzineIds.delete(targetId);
+
         return NextResponse.json({
-            success: true, demo: true, connectionStatus: "live-auto",
-            merchantId: "daehan-kimchi-hanoi", webzineCount: autoWebzines.length,
-            webzines: autoWebzines
+            success: true,
+            message: isNew ? "새 웹진이 등록되었습니다!" : "웹진 내용이 수정되었습니다!",
+            webzine: updatedItem
         });
+    } catch (err: any) {
+        return NextResponse.json({ success: false, error: err.message || "서버 오류가 발생했습니다." }, { status: 500 });
     }
 }
+
+// 웹진 삭제 (DELETE)
+export async function DELETE(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        let webzineId = searchParams.get("webzineId");
+
+        if (!webzineId) {
+            try {
+                const body = await request.json();
+                webzineId = body.webzineId;
+            } catch {}
+        }
+
+        if (!webzineId) {
+            return NextResponse.json({ success: false, error: "webzineId가 전달되지 않았습니다." }, { status: 400 });
+        }
+
+        deletedWebzineIds.add(webzineId);
+        customWebzineMap.delete(webzineId);
+
+        return NextResponse.json({
+            success: true,
+            message: "웹진이 성공적으로 삭제되었습니다.",
+            deletedId: webzineId
+        });
+    } catch (err: any) {
+        return NextResponse.json({ success: false, error: err.message || "삭제 실패" }, { status: 500 });
+    }
+}
+

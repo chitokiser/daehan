@@ -460,9 +460,9 @@ export default function AdminDashboard() {
                 <section className={styles.panelSection}>
                     <div className={styles.panelHeader}>
                         <div>
-                            <h2 className={styles.panelHeading}>💳 회원 계좌 입금 충전 신청 관리</h2>
+                            <h2 className={styles.panelHeading}>💳 회원 계좌 입금 충전 신청 관리 (VND 기준)</h2>
                             <p className={styles.panelDesc}>
-                                회원이 신한은행 계좌 (<code>700004461261 KIM YONG JIN</code>)로 입금 후 요청한 건을 확인하고 <strong>승인</strong>하면 회원의 충전머니가 즉시 증액됩니다.
+                                회원이 신한은행 베트남 계좌 (<code>700004461261 KIM YONG JIN</code>)로 <strong>VND(동)</strong> 입금 후 요청한 건을 확인하고 <strong>승인</strong>하면 회원의 충전머니가 즉시 증액됩니다.
                             </p>
                         </div>
                         <button className={styles.refreshBtn} onClick={fetchChargeRequests} disabled={loadingCharges}>
@@ -478,7 +478,7 @@ export default function AdminDashboard() {
                                     <th>신청 일시</th>
                                     <th>회원 (이름 / 이메일)</th>
                                     <th>입금자명</th>
-                                    <th>신청 충전 금액</th>
+                                    <th>신청 충전 금액 (VND)</th>
                                     <th>상태</th>
                                     <th>입금 확인 및 승인 / 거절</th>
                                 </tr>
@@ -506,7 +506,7 @@ export default function AdminDashboard() {
                                             </td>
                                             <td>
                                                 <strong style={{ color: '#fcd34d', fontSize: '1.05rem' }}>
-                                                    {Number(req.amount).toLocaleString()} 충전머니
+                                                    {Number(req.amount).toLocaleString()} VND
                                                 </strong>
                                             </td>
                                             <td>
