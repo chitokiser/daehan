@@ -1725,7 +1725,7 @@
         justify-content: space-between;
     }
 
-    .articleGrid {
+    .articleGrid, .kmoaGrid, .kmoaSkeletonGrid {
         grid-template-columns: 1fr;
     }
 

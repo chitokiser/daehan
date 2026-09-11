@@ -1164,9 +1164,12 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
+    .detailContainer {
+        padding: 90px 16px 80px;
+    }
     .productSplit {
         flex-direction: column;
-        gap: 36px;
+        gap: 28px;
     }
     .imageSection {
         max-width: 100%;
@@ -1177,6 +1180,19 @@
 }
 
 @media (max-width: 600px) {
+    .title {
+        font-size: 1.8rem;
+    }
+    .finalPrice {
+        font-size: 1.6rem;
+    }
+    .hexPriceHighlight {
+        font-size: 1.1rem;
+        padding: 4px 10px;
+    }
+    .specSection, .reviewSection {
+        padding: 20px 16px;
+    }
     .specRow {
         flex-direction: column;
     }
@@ -1184,6 +1200,10 @@
         width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
+        padding: 10px 14px;
+    }
+    .specVal {
+        padding: 10px 14px;
     }
     .weightSelector {
         grid-template-columns: 1fr;
@@ -1202,5 +1222,13 @@
     }
     .nameInput {
         width: 100%;
+    }
+    .checkoutModal {
+        padding: 20px 16px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .relatedGrid {
+        grid-template-columns: 1fr;
     }
 }

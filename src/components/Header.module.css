@@ -484,7 +484,11 @@
 
 @media (max-width: 768px) {
     .header {
-        padding: 0 16px;
+        padding: 0 14px;
+        height: 64px;
+    }
+    .logoImg {
+        height: 40px;
     }
     .nav {
         display: none;
@@ -492,7 +496,30 @@
     .walletAddr {
         display: none;
     }
+    .userName {
+        font-size: 0.8rem;
+    }
+    .hexChip {
+        padding: 4px 10px;
+        font-size: 0.82rem;
+    }
+    .hexAmount {
+        font-size: 0.82rem;
+    }
     .mobileMenuBtn {
         display: flex;
+        width: 44px;
+        height: 44px;
+    }
+    .mobileNavOverlay {
+        top: 64px;
+        height: calc(100vh - 64px);
+        padding: 20px;
+        overflow-y: auto;
+    }
+    .dropdownMenu {
+        width: calc(100vw - 28px);
+        max-width: 340px;
+        right: -4px;
     }
 }
