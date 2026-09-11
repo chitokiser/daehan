@@ -221,7 +221,7 @@ export default function Home() {
           <div className={styles.trustItem}>
             <HeartHandshake size={36} color="#e50914" />
             <h4>대한포인트 혜택</h4>
-            <p>구매 및 후기 작성 시 즉시 적립 (DP 마일리지)</p>
+            <p>구매 시 10% DP 즉시 적립 및 후기 작성 혜택</p>
           </div>
         </div>
       </section>
