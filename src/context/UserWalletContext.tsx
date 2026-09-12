@@ -181,14 +181,26 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     }, [user?.uid]);
 
+    const safeParseJson = async (res: Response) => {
+        try {
+            const text = await res.text();
+            if (!text || text.trim() === "") {
+                return { success: false, error: `서버에서 빈 응답이 반환되었습니다. (HTTP ${res.status})` };
+            }
+            return JSON.parse(text);
+        } catch {
+            return { success: false, error: `서버 응답 응답 형식 오류 (HTTP ${res.status})` };
+        }
+    };
+
     const fetchAdminData = useCallback(async () => {
         try {
             const [membersRes, ordersRes] = await Promise.all([
                 fetch("/api/v1/admin/members"),
                 fetch("/api/v1/admin/orders")
             ]);
-            const membersJson = await membersRes.json();
-            const ordersJson = await ordersRes.json();
+            const membersJson = await safeParseJson(membersRes);
+            const ordersJson = await safeParseJson(ordersRes);
             if (membersJson.success && membersJson.data) {
                 setAllMembers(membersJson.data.users);
                 setAdminStats(membersJson.data.stats);
@@ -224,7 +236,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             const res = await fetch(`/api/v1/wallet/${targetUid}`, {
                 headers: { "Authorization": "Bearer kca_merchant_sec_daehan2026_99x" }
             });
-            const json = await res.json();
+            const json = await safeParseJson(res);
             if (json.success && json.data) {
                 setUser({
                     uid: json.data.uid,
@@ -273,7 +285,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 body: JSON.stringify({ email, name, avatar, sub: `google_sub_${Date.now()}`, referrerUid, termsAgreed })
             });
 
-            const json = await res.json();
+            const json = await safeParseJson(res);
             if (json.success && json.data) {
                 const loggedUser: UserProfile = {
                     uid: json.data.uid,
@@ -346,7 +358,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 })
             });
 
-            const json = await res.json();
+            const json = await safeParseJson(res);
             if (json.success) {
                 await refreshWallet();
                 await fetchAdminData();
@@ -370,7 +382,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ targetUid, newRole })
             });
-            const json = await res.json();
+            const json = await safeParseJson(res);
             if (json.success) {
                 await fetchAdminData();
                 return { success: true, message: json.message };
@@ -391,7 +403,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderId, status, shippingInfo })
             });
-            const json = await res.json();
+            const json = await safeParseJson(res);
             if (json.success) {
                 await fetchAdminData();
                 await refreshWallet();

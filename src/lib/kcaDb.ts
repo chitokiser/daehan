@@ -233,10 +233,13 @@ export async function registerOrLoginGoogleUser(googleData: {
 
         if (validReferrer) {
             const refDoc = db.collection(USERS_COL).doc(validReferrer);
-            const refData = (await refDoc.get()).data() as UserWalletData;
-            batch.update(refDoc, {
-                mentees: [...(refData.mentees || []), safeUid]
-            });
+            const refSnap = await refDoc.get();
+            if (refSnap.exists) {
+                const refData = refSnap.data() as UserWalletData;
+                batch.update(refDoc, {
+                    mentees: [...(refData?.mentees || []), safeUid]
+                });
+            }
         }
         await batch.commit();
         
