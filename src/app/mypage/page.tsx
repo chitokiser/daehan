@@ -261,9 +261,12 @@ export default function MyPage() {
                 {/* Profile Card */}
                 <div className={styles.profileCard}>
                     <img 
-                        src={user.avatar || (user.email ? `https://unavatar.io/google/${user.email}` : "https://lh3.googleusercontent.com/a/default-user")} 
+                        src={user.avatar && !user.avatar.includes("unavatar.io") ? user.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || "회원")}&background=E31837&color=ffffff&bold=true`} 
                         alt="Profile" 
                         className={styles.avatar} 
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || "회원")}&background=E31837&color=ffffff&bold=true`;
+                        }}
                     />
                     <div className={styles.userInfo}>
                         <div className={styles.userName}>

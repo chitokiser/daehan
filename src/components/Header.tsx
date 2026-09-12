@@ -107,7 +107,7 @@ export default function Header() {
             return;
         }
 
-        const avatarUrl = `https://unavatar.io/google/${emailToUse}`;
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(emailToUse)}&background=E31837&color=ffffff&bold=true`;
         const res = await loginWithGoogle(emailToUse, undefined, undefined, avatarUrl);
         if (res.success) {
             setLoginModalOpen(false);
@@ -144,9 +144,9 @@ export default function Header() {
             setAgreePrivacy(false);
             setDropdownOpen(false);
             setMobileMenuOpen(false);
-            alert(`🎉 대한김치 회원 가입 및 로그인이 완료되었습니다! (1,000 DP 적립)`);
+            alert(`🎉 대한김치 회원 가입 완료! 멘토 [${finalReferrer}]님의 멘티로 등록되었습니다.`);
         } else {
-            alert(`회원 가입 실패: ${loginRes.error}`);
+            alert(`회원가입 실패: ${loginRes.error}`);
         }
     };
 
@@ -166,10 +166,13 @@ export default function Header() {
         <>
             <header className={styles.header}>
                 <Link href="/" className={styles.logoLink} onClick={() => setMobileMenuOpen(false)}>
-                    <img
-                        src="/images/logo1.png"
-                        alt="대한김치"
+                    <img 
+                        src="/images/daehan-kimchi-logo.png" 
+                        alt="대한김치" 
                         className={styles.logoImg}
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/images/logo1.png";
+                        }}
                     />
                 </Link>
 
@@ -191,9 +194,12 @@ export default function Header() {
                             {/* User Profile Trigger */}
                             <div className={styles.userTrigger} onClick={() => setDropdownOpen(!dropdownOpen)}>
                                 <img 
-                                    src={user.avatar || `https://unavatar.io/google/${user.email}`} 
+                                    src={user.avatar && !user.avatar.includes("unavatar.io") ? user.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || "회원")}&background=E31837&color=ffffff&bold=true`} 
                                     alt={user.name} 
                                     className={styles.headerAvatar} 
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || "회원")}&background=E31837&color=ffffff&bold=true`;
+                                    }}
                                 />
                                 <span className={styles.userName}>{user.name.split(" ")[0]}</span>
                                 <ChevronDown size={14} className={`${styles.chevron} ${dropdownOpen ? styles.open : ''}`} />
@@ -204,9 +210,12 @@ export default function Header() {
                                 <div className={styles.dropdownMenu}>
                                     <div className={styles.dropdownHeader}>
                                         <img 
-                                            src={user.avatar || `https://unavatar.io/google/${user.email}`} 
+                                            src={user.avatar && !user.avatar.includes("unavatar.io") ? user.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || "회원")}&background=E31837&color=ffffff&bold=true`} 
                                             alt={user.name} 
                                             className={styles.dropdownAvatar} 
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || "회원")}&background=E31837&color=ffffff&bold=true`;
+                                            }}
                                         />
                                         <div>
                                             <p className={styles.dropdownUserName}>{user.name}</p>

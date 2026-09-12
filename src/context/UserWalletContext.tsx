@@ -263,8 +263,9 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 return { success: false, error: "이메일이 제공되지 않았습니다." };
             }
             const name = customName || "Google 인증 회원";
-            // 구글 프로필 사진 그대로 사용 (customAvatar 없으면 구글 계정 아바타 자동 추출)
-            const avatar = customAvatar || (email ? `https://unavatar.io/google/${email}` : "https://lh3.googleusercontent.com/a/default-user");
+            const avatar = (customAvatar && !customAvatar.includes("unavatar.io")) 
+                ? customAvatar 
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(name || email)}&background=E31837&color=ffffff&bold=true`;
 
             const res = await fetch("/api/v1/auth/google", {
                 method: "POST",
