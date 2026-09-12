@@ -66,7 +66,7 @@ export default function MyPage() {
         }
     };
 
-    const originUrl = typeof window !== "undefined" ? window.location.origin : "https://daehankimchi.com";
+    const originUrl = "https://daehankimchi.netlify.app";
     const userRefCode = user?.email || user?.uid || "daguri75@gmail.com";
     const referralLink = `${originUrl}/?ref=${encodeURIComponent(userRefCode)}`;
     const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(referralLink)}`;

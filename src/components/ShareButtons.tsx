@@ -38,7 +38,8 @@ export default function ShareButtons({
         }
     };
 
-    const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "https://daehankimchi.netlify.app");
+    const rawUrl = url || (typeof window !== "undefined" ? window.location.href : "https://daehankimchi.netlify.app");
+    const shareUrl = rawUrl.replace(/^http:\/\/localhost:\d+/, "https://daehankimchi.netlify.app");
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedTitle = encodeURIComponent(title);
     const encodedDesc = encodeURIComponent(`${description} | ${shareUrl}`);
