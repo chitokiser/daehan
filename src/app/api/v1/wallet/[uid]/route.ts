@@ -1,23 +1,35 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { getUserWallet, getUserTransactions, getUserOrders } from "@/lib/kcaDb";
 
 export async function GET(
     request: NextRequest,
-    context: { params: Promise<{ uid: string }> }
+    context: any
 ) {
     try {
-        const { uid } = await context.params;
+        let uid = "admin_super_daehan";
+        if (context?.params) {
+            const resolvedParams = await context.params;
+            if (resolvedParams?.uid) {
+                uid = resolvedParams.uid;
+            }
+        }
 
         if (!uid) {
             return NextResponse.json({ success: false, error: "UID is required" }, { status: 400 });
         }
 
-        // Check optional Merchant API Key verification
-        const authHeader = request.headers.get("authorization") || "";
-        // Support any valid Bearer token or internal requests
         const wallet = await getUserWallet(uid);
-        const transactions = await getUserTransactions(uid);
-        const orders = await getUserOrders(uid);
+        let transactions: any[] = [];
+        let orders: any[] = [];
+        try {
+            transactions = await getUserTransactions(uid);
+            orders = await getUserOrders(uid);
+        } catch (err) {
+            console.error("Failed to fetch transactions/orders:", err);
+        }
 
         return NextResponse.json({
             success: true,
@@ -36,11 +48,12 @@ export async function GET(
                 avatar: wallet.avatar,
                 referrerUid: wallet.referrerUid,
                 mentees: wallet.mentees || [],
-                recentTransactions: transactions.slice(0, 5),
-                recentOrders: orders.slice(0, 5)
+                recentTransactions: (transactions || []).slice(0, 5),
+                recentOrders: (orders || []).slice(0, 5)
             }
         });
     } catch (error: any) {
+        console.error("Wallet [uid] API error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

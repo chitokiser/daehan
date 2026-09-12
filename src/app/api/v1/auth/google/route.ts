@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { registerOrLoginGoogleUser, getUserTransactions, getUserOrders } from "@/lib/kcaDb";
 
@@ -5,7 +8,8 @@ export async function POST(req: NextRequest) {
     try {
         let body: any = {};
         try {
-            body = await req.json();
+            const rawText = await req.text();
+            body = rawText ? JSON.parse(rawText) : {};
         } catch {
             body = {};
         }
@@ -30,8 +34,14 @@ export async function POST(req: NextRequest) {
 
         const user = result.user!;
 
-        const recentOrders = await getUserOrders(user.uid);
-        const recentTransactions = await getUserTransactions(user.uid);
+        let recentOrders: any[] = [];
+        let recentTransactions: any[] = [];
+        try {
+            recentOrders = await getUserOrders(user.uid);
+            recentTransactions = await getUserTransactions(user.uid);
+        } catch (err) {
+            console.error("Failed to fetch user orders/transactions:", err);
+        }
 
         return NextResponse.json({
             success: true,
@@ -43,6 +53,7 @@ export async function POST(req: NextRequest) {
             }
         });
     } catch (e: any) {
+        console.error("Auth google API error:", e);
         return NextResponse.json({
             success: false,
             error: e.message || "Google 로그인 처리 중 서버 오류가 발생했습니다."
