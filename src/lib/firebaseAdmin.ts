@@ -31,7 +31,7 @@ export function initFirebaseAdmin(): boolean {
 export function getAdminDb() {
     const ok = initFirebaseAdmin();
     if (!ok && getApps().length === 0) {
-        throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is missing or invalid");
+        return null as any;
     }
     return getFirestore();
 }
@@ -39,7 +39,7 @@ export function getAdminDb() {
 export function getAdminAuth() {
     const ok = initFirebaseAdmin();
     if (!ok && getApps().length === 0) {
-        throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is missing or invalid");
+        return null as any;
     }
     return getAuth();
 }

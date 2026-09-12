@@ -219,7 +219,12 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 const savedEmail = localStorage.getItem("google_auth_email");
                 const savedName = localStorage.getItem("google_auth_name");
                 if (savedEmail) {
-                    await loginWithGoogle(savedEmail, savedName || undefined);
+                    const res = await loginWithGoogle(savedEmail, savedName || undefined);
+                    if (!res || !res.success) {
+                        localStorage.removeItem("google_auth_email");
+                        localStorage.removeItem("google_auth_name");
+                        await login("admin_super_daehan");
+                    }
                 } else {
                     await login("admin_super_daehan");
                 }
@@ -258,9 +263,16 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
                 setIsLoggedIn(true);
                 await fetchAdminData();
+            } else {
+                setUser(defaultUser);
+                setWallet(defaultWallet);
+                setIsLoggedIn(true);
             }
         } catch (e) {
             console.error("Login failed:", e);
+            setUser(defaultUser);
+            setWallet(defaultWallet);
+            setIsLoggedIn(true);
         } finally {
             setIsLoading(false);
         }
