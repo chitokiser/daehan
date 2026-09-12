@@ -126,18 +126,18 @@ interface UserWalletContextType {
 }
 
 const defaultWallet: WalletState = {
-    points: 120000,
-    vndBalance: 85000000,
-    dpPoints: 50000,
-    moneyBalance: 95000.0
+    points: 0,
+    vndBalance: 0,
+    dpPoints: 0,
+    moneyBalance: 0
 };
 
 const defaultUser: UserProfile = {
-    uid: "admin_super_daehan",
-    name: "최고관리자",
+    uid: "google_daguri75_gmail_com",
+    name: "dao hex (최고관리자)",
     email: "daguri75@gmail.com",
     role: "SUPER_ADMIN",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
+    avatar: "https://ui-avatars.com/api/?name=daguri75&background=E31837&color=ffffff&bold=true"
 };
 
 const UserWalletContext = createContext<UserWalletContextType | undefined>(undefined);
@@ -223,19 +223,19 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     if (!res || !res.success) {
                         localStorage.removeItem("google_auth_email");
                         localStorage.removeItem("google_auth_name");
-                        await login("admin_super_daehan");
+                        await login("google_daguri75_gmail_com");
                     }
                 } else {
-                    await login("admin_super_daehan");
+                    await login("google_daguri75_gmail_com");
                 }
             } else {
-                await login("admin_super_daehan");
+                await login("google_daguri75_gmail_com");
             }
         };
         initAuth();
     }, []);
 
-    const login = async (targetUid: string = "admin_super_daehan") => {
+    const login = async (targetUid: string = "google_daguri75_gmail_com") => {
         setIsLoading(true);
         try {
             const res = await fetch(`/api/v1/wallet/${targetUid}`, {

@@ -8,7 +8,7 @@ export async function GET(
     context: any
 ) {
     try {
-        let uid = "admin_super_daehan";
+        let uid = "google_daguri75_gmail_com";
         if (context?.params) {
             const resolvedParams = await context.params;
             if (resolvedParams?.uid) {
