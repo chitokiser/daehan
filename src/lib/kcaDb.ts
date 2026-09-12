@@ -106,6 +106,48 @@ class InMemoryCollection {
         }
     }
 
+    private getQuery(items: any[]) {
+        const createQuery = (currentItems: any[]): any => {
+            const docs: InMemoryDoc[] = currentItems.map((item: any) => ({
+                id: item.uid || item.id || item.orderId || item.requestId,
+                data: () => item,
+                ref: this.doc(item.uid || item.id || item.orderId || item.requestId)
+            }));
+
+            return {
+                empty: docs.length === 0,
+                docs,
+                size: docs.length,
+                get: async () => ({
+                    empty: docs.length === 0,
+                    docs,
+                    size: docs.length
+                }),
+                orderBy: (field: string, dir: "asc" | "desc" = "asc") => {
+                    const sorted = [...currentItems].sort((a, b) => {
+                        const valA = a[field] ?? "";
+                        const valB = b[field] ?? "";
+                        if (dir === "desc") return valB > valA ? 1 : valB < valA ? -1 : 0;
+                        return valA > valB ? 1 : valA < valB ? -1 : 0;
+                    });
+                    return createQuery(sorted);
+                },
+                limit: (n: number) => {
+                    return createQuery(currentItems.slice(0, n));
+                },
+                where: (field: string, op: string, value: any) => {
+                    const filtered = currentItems.filter((item: any) => {
+                        if (op === "==") return item[field] === value;
+                        return false;
+                    });
+                    return createQuery(filtered);
+                }
+            };
+        };
+
+        return createQuery(items);
+    }
+
     doc(id: string) {
         const col = InMemoryCollection.store[this.name];
         return {
@@ -134,42 +176,22 @@ class InMemoryCollection {
 
     where(field: string, op: string, value: any) {
         const col = InMemoryCollection.store[this.name];
-        const docs: InMemoryDoc[] = Object.values(col).filter((item: any) => {
-            if (op === "==") return item[field] === value;
-            return false;
-        }).map((item: any) => ({
-            id: item.uid || item.id || item.orderId || item.requestId,
-            data: () => item,
-            ref: this.doc(item.uid || item.id || item.orderId || item.requestId)
-        }));
+        return this.getQuery(Object.values(col)).where(field, op, value);
+    }
 
-        return {
-            get: async () => ({
-                empty: docs.length === 0,
-                docs,
-                size: docs.length
-            }),
-            limit: (n: number) => ({
-                get: async () => ({
-                    empty: docs.slice(0, n).length === 0,
-                    docs: docs.slice(0, n),
-                    size: docs.slice(0, n).length
-                })
-            })
-        };
+    orderBy(field: string, dir: "asc" | "desc" = "asc") {
+        const col = InMemoryCollection.store[this.name];
+        return this.getQuery(Object.values(col)).orderBy(field, dir);
+    }
+
+    limit(n: number) {
+        const col = InMemoryCollection.store[this.name];
+        return this.getQuery(Object.values(col)).limit(n);
     }
 
     async get() {
         const col = InMemoryCollection.store[this.name];
-        const docs: InMemoryDoc[] = Object.values(col).map((item: any) => ({
-            id: item.uid || item.id || item.orderId || item.requestId,
-            data: () => item
-        }));
-        return {
-            empty: docs.length === 0,
-            docs,
-            size: docs.length
-        };
+        return this.getQuery(Object.values(col)).get();
     }
 }
 
