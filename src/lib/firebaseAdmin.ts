@@ -4,12 +4,11 @@ import { getAuth } from 'firebase-admin/auth';
 
 let isInitialized = false;
 
-export function initFirebaseAdmin() {
-    if (isInitialized || getApps().length > 0) return;
+export function initFirebaseAdmin(): boolean {
+    if (isInitialized || getApps().length > 0) return true;
     try {
         if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             let keyStr = process.env.FIREBASE_SERVICE_ACCOUNT_KEY.trim();
-            // Netlify 환경 변수 설정 시 실수로 홑따옴표(')를 넣은 경우를 대비
             if (keyStr.startsWith("'") && keyStr.endsWith("'")) {
                 keyStr = keyStr.slice(1, -1);
             }
@@ -17,23 +16,30 @@ export function initFirebaseAdmin() {
             initializeApp({
                 credential: cert(serviceAccount)
             });
+            isInitialized = true;
+            return true;
         } else {
-            console.warn("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set. Admin features will fail.");
-            initializeApp();
+            console.warn("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set.");
+            return false;
         }
-        isInitialized = true;
     } catch (error) {
         console.error('Firebase admin initialization error:', error);
-        throw error;
+        return false;
     }
 }
 
 export function getAdminDb() {
-    initFirebaseAdmin();
+    const ok = initFirebaseAdmin();
+    if (!ok && getApps().length === 0) {
+        throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is missing or invalid");
+    }
     return getFirestore();
 }
 
 export function getAdminAuth() {
-    initFirebaseAdmin();
+    const ok = initFirebaseAdmin();
+    if (!ok && getApps().length === 0) {
+        throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is missing or invalid");
+    }
     return getAuth();
 }

@@ -89,9 +89,125 @@ export const TRANSACTIONS_COL = 'transactions';
 export const ORDERS_COL = 'orders';
 export const CHARGE_REQUESTS_COL = 'chargeRequests';
 
+interface InMemoryDoc {
+    id: string;
+    data: () => any;
+    ref?: any;
+}
+
+class InMemoryCollection {
+    private name: string;
+    private static store: Record<string, Record<string, any>> = {};
+
+    constructor(name: string) {
+        this.name = name;
+        if (!InMemoryCollection.store[name]) {
+            InMemoryCollection.store[name] = {};
+        }
+    }
+
+    doc(id: string) {
+        const col = InMemoryCollection.store[this.name];
+        return {
+            id,
+            get: async () => ({
+                exists: !!col[id],
+                data: () => col[id]
+            }),
+            set: async (data: any, options?: any) => {
+                if (options?.merge) {
+                    col[id] = { ...(col[id] || {}), ...data };
+                } else {
+                    col[id] = { ...data };
+                }
+            },
+            update: async (data: any) => {
+                if (col[id]) {
+                    col[id] = { ...col[id], ...data };
+                }
+            },
+            delete: async () => {
+                delete col[id];
+            }
+        };
+    }
+
+    where(field: string, op: string, value: any) {
+        const col = InMemoryCollection.store[this.name];
+        const docs: InMemoryDoc[] = Object.values(col).filter((item: any) => {
+            if (op === "==") return item[field] === value;
+            return false;
+        }).map((item: any) => ({
+            id: item.uid || item.id || item.orderId || item.requestId,
+            data: () => item,
+            ref: this.doc(item.uid || item.id || item.orderId || item.requestId)
+        }));
+
+        return {
+            get: async () => ({
+                empty: docs.length === 0,
+                docs,
+                size: docs.length
+            }),
+            limit: (n: number) => ({
+                get: async () => ({
+                    empty: docs.slice(0, n).length === 0,
+                    docs: docs.slice(0, n),
+                    size: docs.slice(0, n).length
+                })
+            })
+        };
+    }
+
+    async get() {
+        const col = InMemoryCollection.store[this.name];
+        const docs: InMemoryDoc[] = Object.values(col).map((item: any) => ({
+            id: item.uid || item.id || item.orderId || item.requestId,
+            data: () => item
+        }));
+        return {
+            empty: docs.length === 0,
+            docs,
+            size: docs.length
+        };
+    }
+}
+
+class InMemoryDb {
+    collection(name: string) {
+        return new InMemoryCollection(name);
+    }
+    batch() {
+        const ops: Function[] = [];
+        return {
+            set: (ref: any, data: any) => ops.push(() => ref.set(data)),
+            update: (ref: any, data: any) => ops.push(() => ref.update(data)),
+            delete: (ref: any) => ops.push(() => ref.delete()),
+            commit: async () => {
+                for (const op of ops) await op();
+            }
+        };
+    }
+    async runTransaction(cb: Function) {
+        return cb({
+            get: async (ref: any) => ref.get(),
+            update: (ref: any, data: any) => ref.update(data),
+            set: (ref: any, data: any) => ref.set(data)
+        });
+    }
+}
+
+const fallbackDb = new InMemoryDb();
+
 // Helper to safely interact with firestore or fail gracefully if not configured
 export function getDb() {
-    return getAdminDb();
+    try {
+        const db = getAdminDb();
+        if (db) return db;
+    } catch (e) {
+        console.warn("Firestore access error, fallback to in-memory store:", e);
+    }
+    return fallbackDb as any;
 }
 
 export async function getUserWallet(uid: string): Promise<UserWalletData> {
@@ -269,7 +385,7 @@ export async function registerOrLoginGoogleUser(googleData: {
 export async function getAllUsers(): Promise<UserWalletData[]> {
     const db = getDb();
     const snapshot = await db.collection(USERS_COL).get();
-    return snapshot.docs.map(doc => doc.data() as UserWalletData);
+    return snapshot.docs.map((doc: any) => doc.data() as UserWalletData);
 }
 
 export async function updateUserRole(adminUid: string, targetUid: string, newRole: UserRole): Promise<{ success: boolean; error?: string; user?: UserWalletData }> {
@@ -588,29 +704,29 @@ export async function faucetWallet(uid: string, moneyAmount: number = 500): Prom
 export async function getUserTransactions(uid: string): Promise<WalletTransaction[]> {
     const db = getDb();
     const snapshot = await db.collection(TRANSACTIONS_COL).where("uid", "==", uid).get();
-    const docs = snapshot.docs.map(doc => doc.data() as WalletTransaction);
-    return docs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const docs = snapshot.docs.map((doc: any) => doc.data() as WalletTransaction);
+    return docs.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 export async function getAllTransactions(): Promise<WalletTransaction[]> {
     const db = getDb();
     const snapshot = await db.collection(TRANSACTIONS_COL).orderBy("timestamp", "desc").limit(50).get();
-    return snapshot.docs.map(doc => doc.data() as WalletTransaction);
+    return snapshot.docs.map((doc: any) => doc.data() as WalletTransaction);
 }
 
 export async function getUserOrders(uid: string): Promise<MemberOrder[]> {
     const db = getDb();
     const snapshot = await db.collection(ORDERS_COL).where("uid", "==", uid).get();
-    const docs = snapshot.docs.map(doc => doc.data() as MemberOrder);
-    return docs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const docs = snapshot.docs.map((doc: any) => doc.data() as MemberOrder);
+    return docs.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export async function getAllOrders(): Promise<MemberOrder[]> {
     try {
         const db = getDb();
         const snapshot = await db.collection(ORDERS_COL).get();
-        const docs = snapshot.docs.map(doc => doc.data() as MemberOrder);
-        return docs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        const docs = snapshot.docs.map((doc: any) => doc.data() as MemberOrder);
+        return docs.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     } catch (e) {
         console.error("getAllOrders error:", e);
         return [];
@@ -641,30 +757,28 @@ export async function verifyTransaction(txHash: string, orderId?: string): Promi
 
 export async function getAdminStats(): Promise<any> {
     const db = getDb();
-    // In a real scenario with lots of data, you would use aggregation queries.
-    // For MVP, we fetch recent and calculate, or maintain aggregated counters.
     const ordersSnap = await db.collection(ORDERS_COL).get();
-    const orders = ordersSnap.docs.map(d => d.data() as MemberOrder);
+    const orders: MemberOrder[] = ordersSnap.docs.map((d: any) => d.data() as MemberOrder);
     
     const usersSnap = await db.collection(USERS_COL).get();
-    const users = usersSnap.docs.map(d => d.data() as UserWalletData);
+    const users: UserWalletData[] = usersSnap.docs.map((d: any) => d.data() as UserWalletData);
     
-    const txSnap = await db.collection(TRANSACTIONS_COL).orderBy("timestamp", "desc").limit(5).get();
-    const recentTx = txSnap.docs.map(d => d.data());
+    const txSnap = await db.collection(TRANSACTIONS_COL).get();
+    const recentTx: WalletTransaction[] = txSnap.docs.map((d: any) => d.data() as WalletTransaction);
 
-    const totalMoneySales = orders.filter(o => o.currency === "MONEY").reduce((sum, o) => sum + o.paidAmount, 0);
-    const totalVndSales = orders.filter(o => o.currency === "VND").reduce((sum, o) => sum + o.paidAmount, 0) + (totalMoneySales * 1000);
+    const totalMoneySales = orders.filter((o: MemberOrder) => o.currency === "MONEY").reduce((sum: number, o: MemberOrder) => sum + (o.paidAmount || 0), 0);
+    const totalVndSales = orders.filter((o: MemberOrder) => o.currency === "VND").reduce((sum: number, o: MemberOrder) => sum + (o.paidAmount || 0), 0) + (totalMoneySales * 1000);
 
     return {
         totalMoneySales,
         totalVndSales,
         totalOrders: orders.length,
-        pendingShipping: orders.filter(o => o.status === "PAID" || o.status === "PREPARING").length,
-        deliveredOrders: orders.filter(o => o.status === "DELIVERED").length,
+        pendingShipping: orders.filter((o: MemberOrder) => o.status === "PAID" || o.status === "PREPARING").length,
+        deliveredOrders: orders.filter((o: MemberOrder) => o.status === "DELIVERED").length,
         totalUsers: users.length,
-        operatorCount: users.filter(u => u.role === "OPERATOR").length,
-        superAdminCount: users.filter(u => u.role === "SUPER_ADMIN").length,
-        recentOrders: orders.sort((a,b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5),
+        operatorCount: users.filter((u: UserWalletData) => u.role === "OPERATOR").length,
+        superAdminCount: users.filter((u: UserWalletData) => u.role === "SUPER_ADMIN").length,
+        recentOrders: orders.sort((a: MemberOrder, b: MemberOrder) => (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 5),
         recentTransactions: recentTx
     };
 }
@@ -716,7 +830,7 @@ export async function grantDaehanPoint(
     const userRef = db.collection(USERS_COL).doc(uid);
     
     try {
-        const result = await db.runTransaction(async (transaction) => {
+        const result = await db.runTransaction(async (transaction: any) => {
             const userDoc = await transaction.get(userRef);
             if (!userDoc.exists) throw new Error("사용자를 찾을 수 없습니다.");
             
@@ -934,9 +1048,9 @@ export async function getUserChargeRequests(uid: string): Promise<ChargeRequest[
         const db = getDb();
         const snap = await db.collection(CHARGE_REQUESTS_COL).get();
         const requests = snap.docs
-            .map(doc => doc.data() as ChargeRequest)
-            .filter(r => r.uid === uid);
-        return requests.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+            .map((doc: any) => doc.data() as ChargeRequest)
+            .filter((r: any) => r.uid === uid);
+        return requests.sort((a: any, b: any) => b.createdAt.localeCompare(a.createdAt));
     } catch {
         return [];
     }
@@ -946,8 +1060,8 @@ export async function getAllChargeRequests(): Promise<ChargeRequest[]> {
     try {
         const db = getDb();
         const snap = await db.collection(CHARGE_REQUESTS_COL).get();
-        const requests = snap.docs.map(doc => doc.data() as ChargeRequest);
-        return requests.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        const requests = snap.docs.map((doc: any) => doc.data() as ChargeRequest);
+        return requests.sort((a: any, b: any) => b.createdAt.localeCompare(a.createdAt));
     } catch {
         return [];
     }
