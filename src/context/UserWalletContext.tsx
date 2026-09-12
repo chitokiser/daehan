@@ -223,13 +223,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     if (!res || !res.success) {
                         localStorage.removeItem("google_auth_email");
                         localStorage.removeItem("google_auth_name");
-                        await login("google_daguri75_gmail_com");
                     }
-                } else {
-                    await login("google_daguri75_gmail_com");
                 }
-            } else {
-                await login("google_daguri75_gmail_com");
             }
         };
         initAuth();

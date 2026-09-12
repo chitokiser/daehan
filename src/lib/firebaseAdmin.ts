@@ -30,16 +30,24 @@ export function initFirebaseAdmin(): boolean {
 
 export function getAdminDb() {
     const ok = initFirebaseAdmin();
-    if (!ok && getApps().length === 0) {
+    if (!ok) {
         return null as any;
     }
-    return getFirestore();
+    try {
+        return getFirestore();
+    } catch {
+        return null as any;
+    }
 }
 
 export function getAdminAuth() {
     const ok = initFirebaseAdmin();
-    if (!ok && getApps().length === 0) {
+    if (!ok) {
         return null as any;
     }
-    return getAuth();
+    try {
+        return getAuth();
+    } catch {
+        return null as any;
+    }
 }
