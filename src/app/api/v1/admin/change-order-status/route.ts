@@ -4,13 +4,13 @@ import { updateOrderStatus } from "@/lib/kcaDb";
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { orderId, status } = body;
+        const { orderId, status, shippingInfo } = body;
 
         if (!orderId || !status) {
             return NextResponse.json({ success: false, error: "주문 ID와 변경할 상태값이 필요합니다." }, { status: 400 });
         }
 
-        const result = await updateOrderStatus(orderId, status);
+        const result = await updateOrderStatus(orderId, status, shippingInfo);
         if (!result.success) {
             return NextResponse.json({ success: false, error: result.error }, { status: 400 });
         }

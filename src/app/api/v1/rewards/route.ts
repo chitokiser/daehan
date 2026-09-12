@@ -8,6 +8,13 @@ const REWARD_AMOUNTS = {
     "SHARE_RECIPE": 100
 };
 
+const EXP_AMOUNTS = {
+    "READ_WEBZINE": 50,
+    "SHARE_PRODUCT": 100,
+    "WRITE_REVIEW": 500,
+    "SHARE_RECIPE": 100
+};
+
 const ACTION_DESCRIPTIONS = {
     "READ_WEBZINE": "웹진 읽기 보상",
     "SHARE_PRODUCT": "상품 공유 보상",
@@ -27,6 +34,7 @@ export async function POST(req: NextRequest) {
         }
 
         const amount = REWARD_AMOUNTS[actionType as keyof typeof REWARD_AMOUNTS];
+        const expAmount = EXP_AMOUNTS[actionType as keyof typeof EXP_AMOUNTS] || amount;
         const description = ACTION_DESCRIPTIONS[actionType as keyof typeof ACTION_DESCRIPTIONS];
 
         if (!amount) {
@@ -54,10 +62,15 @@ export async function POST(req: NextRequest) {
         }
 
         const fullDescription = `${description} (${targetItemId}) [${actionType}]`;
-        const result = await grantDaehanPoint(uid, amount, fullDescription, "REWARD");
+        const result = await grantDaehanPoint(uid, amount, fullDescription, "REWARD", expAmount);
 
         if (result.success) {
-            return NextResponse.json({ success: true, message: "포인트가 적립되었습니다.", newBalance: result.newBalance });
+            return NextResponse.json({
+                success: true,
+                message: "포인트와 경험치(EXP)가 적립되었습니다.",
+                newBalance: result.newBalance,
+                newExp: result.newExp
+            });
         } else {
             return NextResponse.json({ success: false, error: result.error }, { status: 500 });
         }

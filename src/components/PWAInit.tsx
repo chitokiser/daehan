@@ -9,6 +9,7 @@ export default function PWAInit() {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [isIos, setIsIos] = useState<boolean>(false);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
+  const [isInstalled, setIsInstalled] = useState<boolean>(false);
 
   useEffect(() => {
     // Service Worker 등록
@@ -25,53 +26,93 @@ export default function PWAInit() {
 
     if (typeof window === "undefined") return;
 
-    // 이미 PWA 독립 앱 상태로 실행 중인지 검사
+    // 1. 이미 PWA 독립 앱 상태(standalone)로 실행 중인지 검사
     const isInStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as any).standalone === true;
 
+    // 2. 이전에 설치 완료된 장치인지 localStorage 검사
+    const alreadyInstalled = localStorage.getItem("daehan_pwa_installed") === "true";
+
+    // 스탠드얼론 모드로 실행된 경우 바로 설치 완료 플래그 저장 및 배너 차단
     if (isInStandalone) {
+      localStorage.setItem("daehan_pwa_installed", "true");
       setIsStandalone(true);
+      setIsInstalled(true);
       return;
     }
+
+    // 이미 설치된 기록이 있는 장치는 배너/모달을 절대 띄우지 않음
+    if (alreadyInstalled) {
+      setIsInstalled(true);
+      return;
+    }
+
+    // 3. 브라우저 지원 시 navigator.getInstalledRelatedApps() 로 이미 설치되어 있는지 추가 확인
+    if ("getInstalledRelatedApps" in navigator) {
+      (navigator as any)
+        .getInstalledRelatedApps()
+        .then((relatedApps: any[]) => {
+          if (relatedApps && relatedApps.length > 0) {
+            localStorage.setItem("daehan_pwa_installed", "true");
+            setIsInstalled(true);
+            setShowBanner(false);
+          }
+        })
+        .catch(() => {});
+    }
+
+    // 4. 어플 설치 완료 이벤트 감지 (설치 성공 시 localStorage 기록 및 배너/모달 차단)
+    const handleAppInstalled = () => {
+      localStorage.setItem("daehan_pwa_installed", "true");
+      setIsInstalled(true);
+      setShowBanner(false);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     // iOS 모바일 기기 감지
     const userAgent = window.navigator.userAgent.toLowerCase();
     const iosDevice = /iphone|ipad|ipod/.test(userAgent);
     setIsIos(iosDevice);
 
-    // 숨김 설정 확인 (사용자가 닫기 누른 후 일정 시간)
+    // 닫기 누른 후 24시간 이내에는 배너를 띄우지 않음
     const isDismissed = localStorage.getItem("daehan_pwa_banner_dismissed");
     const now = Date.now();
     if (isDismissed && now - parseInt(isDismissed, 10) < 86400000) {
-      // 24시간 이내 닫은 경우 배너를 띄우지 않음
-      return;
+      return () => {
+        window.removeEventListener("appinstalled", handleAppInstalled);
+      };
     }
 
-    // Chrome/Android PWA 설치 이벤트 감지
+    // Chrome/Android PWA 설치 가능 프롬프트 감지
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+      // 설치가 완료된 장치인 경우 절대 프롬프트 배너를 띄우지 않음
+      if (localStorage.getItem("daehan_pwa_installed") === "true") return;
+
       setDeferredPrompt(e);
       setShowBanner(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // 모바일 기기이거나 iOS인 경우 PWA 안내 배너 자동 표시
+    // 모바일 기기 안내 배너 표시 (설치 완료된 기록이 없을 때만)
     const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-    if (isMobile && !isInStandalone) {
-      // 1초 뒤 자연스럽게 배너 등장
-      const timer = setTimeout(() => {
-        setShowBanner(true);
+    let timer: NodeJS.Timeout | null = null;
+    if (isMobile && !isInStandalone && !alreadyInstalled) {
+      timer = setTimeout(() => {
+        if (localStorage.getItem("daehan_pwa_installed") !== "true") {
+          setShowBanner(true);
+        }
       }, 1000);
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      };
     }
 
     return () => {
+      if (timer) clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
 
@@ -80,6 +121,11 @@ export default function PWAInit() {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       console.log(`User response to install prompt: ${outcome}`);
+      if (outcome === "accepted") {
+        // 설치 성공 시 localStorage에 설치 상태 저장하여 모달 차단
+        localStorage.setItem("daehan_pwa_installed", "true");
+        setIsInstalled(true);
+      }
       setDeferredPrompt(null);
       setShowBanner(false);
     } else if (isIos) {
@@ -94,7 +140,8 @@ export default function PWAInit() {
     localStorage.setItem("daehan_pwa_banner_dismissed", Date.now().toString());
   };
 
-  if (!showBanner || isStandalone) return null;
+  // 이미 설치되었거나, 스탠드얼론 상태이거나, 설치 완료된 장치에는 절대 모달을 띄우지 않음
+  if (!showBanner || isStandalone || isInstalled) return null;
 
   return (
     <div className={styles.pwaInstallContainer}>
@@ -139,3 +186,4 @@ export default function PWAInit() {
     </div>
   );
 }
+

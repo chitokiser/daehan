@@ -36,6 +36,14 @@ export interface WalletTransaction {
     timestamp: string;
 }
 
+export interface ShippingInfo {
+    courier?: string; // e.g. GrabExpress, Ahamove, GHTK, ShopeeExpress, ViettelPost, 대한김치 직배송 등
+    trackingNumber?: string; // 송장번호 / Mã vận đơn
+    driverPhone?: string; // 기사/택배사 연락처
+    shippedAt?: string; // 출고 일시
+    deliveryMemo?: string; // 배송 특이사항 / 메모
+}
+
 export interface MemberOrder {
     orderId: string;
     uid: string;
@@ -59,7 +67,8 @@ export interface MemberOrder {
         address: string;
         memo?: string;
     };
-    status: "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED";
+    shippingInfo?: ShippingInfo;
+    status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED";
     createdAt: string;
 }
 
@@ -91,18 +100,19 @@ export async function getUserWallet(uid: string): Promise<UserWalletData> {
     
     if (!docSnap.exists) {
         // Create default user if not exists
+        const initialRole: UserRole = uid.includes("operator") ? "OPERATOR" : (uid.includes("admin") || uid.includes("super")) ? "SUPER_ADMIN" : "MEMBER";
         const newUser: UserWalletData = {
             uid,
-            name: `회원_${uid.slice(-4)}`,
+            name: uid.includes("operator") ? "지정 운영자" : uid.includes("admin") ? "최고 관리자" : `회원_${uid.slice(-4)}`,
             email: `${uid}@daehankimchi.com`,
             onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
-            moneyBalance: 0,
-            pointBalance: 0,
-            vndBalance: 0,
-            dpPoints: 0,
+            moneyBalance: 500000,
+            pointBalance: 10000,
+            vndBalance: 10000000,
+            dpPoints: 5000,
             level: 1,
             exp: 0,
-            role: "MEMBER",
+            role: initialRole,
             mentees: [],
             createdAt: new Date().toISOString()
         };
@@ -301,7 +311,11 @@ export async function updateUserBalance(adminUid: string, targetUid: string, upd
     return { success: true, user: updated.data() as UserWalletData };
 }
 
-export async function updateOrderStatus(orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED"): Promise<{ success: boolean; error?: string; order?: MemberOrder }> {
+export async function updateOrderStatus(
+    orderId: string, 
+    status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED",
+    shippingInfo?: ShippingInfo
+): Promise<{ success: boolean; error?: string; order?: MemberOrder }> {
     const db = getDb();
     const snapshot = await db.collection(ORDERS_COL).where("orderId", "==", orderId).get();
     if (snapshot.empty) return { success: false, error: "주문을 찾을 수 없습니다." };
@@ -310,7 +324,16 @@ export async function updateOrderStatus(orderId: string, status: "PENDING_PAYMEN
     const existingOrder = doc.data() as any;
     const oldStatus = existingOrder.status;
 
-    await doc.ref.update({ status });
+    const updatePayload: any = { status };
+    if (shippingInfo) {
+        updatePayload.shippingInfo = {
+            ...(existingOrder.shippingInfo || {}),
+            ...shippingInfo,
+            shippedAt: shippingInfo.shippedAt || new Date().toISOString()
+        };
+    }
+
+    await doc.ref.update(updatePayload);
     const updated = await doc.ref.get();
     const updatedOrder = updated.data() as MemberOrder;
 
@@ -327,76 +350,71 @@ export async function updateOrderStatus(orderId: string, status: "PENDING_PAYMEN
     return { success: true, order: updatedOrder };
 }
 
-export async function distributeReferralRewards(buyerUid: string, amount: number, currency: "MONEY" | "POINT" | "VND") {
+export async function distributeReferralRewards(buyerUid: string, amount: number, currency: "MONEY" | "POINT" | "VND" | "HEX" | "DP") {
     const db = getDb();
     const buyerRef = db.collection(USERS_COL).doc(buyerUid);
     const buyerDoc = await buyerRef.get();
     if (!buyerDoc.exists) return;
     
     const buyer = buyerDoc.data() as UserWalletData;
-    const baseRewardAmount = currency === "VND" ? amount / 1000 : amount;
+    
+    let earnedDp = 0;
+    if (currency === "DP") {
+        earnedDp = amount;
+    } else {
+        earnedDp = Math.round(amount * 0.1);
+    }
 
-    const buyerReward = Math.floor(baseRewardAmount * 0.1);
-    const mentorReward = Math.floor(baseRewardAmount * 0.05);
-    const grandMentorReward = Math.floor(baseRewardAmount * 0.02);
+    if (earnedDp <= 0) return;
+
+    const mentorDp = Math.floor(earnedDp * 0.5); // 멘토 50% (예: 멘티 100 DP -> 멘토 50 DP)
+    const grandMentorDp = Math.floor(earnedDp * 0.2); // 2차 멘토 20% (예: 멘티 100 DP -> 2차 멘토 20 DP)
     const timestamp = new Date().toISOString();
     const batch = db.batch();
 
-    // 1. 본인 보상
-    if (buyerReward > 0) {
-        batch.update(buyerRef, { pointBalance: (buyer.pointBalance || 0) + buyerReward });
-        const txRef = db.collection(TRANSACTIONS_COL).doc();
-        batch.set(txRef, {
-            id: txRef.id,
-            uid: buyerUid,
-            merchantId: "kca_ecosystem",
-            type: "REFERRAL_BONUS",
-            currency: "POINT",
-            amount: buyerReward,
-            description: `자체 결제 리워드 (10%)`,
-            status: "CONFIRMED",
-            txHash: `0x${Math.random().toString(16).substring(2)}`,
-            timestamp
-        });
-    }
-
-    // 2. 멘토 보상
-    if (buyer.referrerUid && mentorReward > 0) {
+    // 멘토 보상 (50% DP & EXP)
+    if (buyer.referrerUid && mentorDp > 0) {
         const mentorRef = db.collection(USERS_COL).doc(buyer.referrerUid);
         const mentorDoc = await mentorRef.get();
         if (mentorDoc.exists) {
             const mentor = mentorDoc.data() as UserWalletData;
-            batch.update(mentorRef, { moneyBalance: (mentor.moneyBalance || 0) + mentorReward });
+            batch.update(mentorRef, { 
+                dpPoints: (mentor.dpPoints || 0) + mentorDp,
+                exp: (mentor.exp !== undefined ? mentor.exp : 0) + mentorDp
+            });
             const txRef = db.collection(TRANSACTIONS_COL).doc();
             batch.set(txRef, {
                 id: txRef.id,
                 uid: mentor.uid,
-                merchantId: "kca_ecosystem",
+                merchantId: "daehan_ecosystem",
                 type: "REFERRAL_BONUS",
-                currency: "MONEY",
-                amount: mentorReward,
-                description: `멘티 [${buyer.name}] 결제에 따른 멘토 리워드 (5%)`,
+                currency: "DP",
+                amount: mentorDp,
+                description: `멘티 [${buyer.name || '회원'}] DP 적립에 따른 멘토 리워드 (50% = ${mentorDp.toLocaleString()} DP)`,
                 status: "CONFIRMED",
                 txHash: `0x${Math.random().toString(16).substring(2)}`,
                 timestamp
             });
 
-            // 3. 멘토의 멘토 보상
-            if (mentor.referrerUid && grandMentorReward > 0) {
+            // 2차 멘토 보상 (20% DP & EXP)
+            if (mentor.referrerUid && grandMentorDp > 0) {
                 const gMentorRef = db.collection(USERS_COL).doc(mentor.referrerUid);
                 const gMentorDoc = await gMentorRef.get();
                 if (gMentorDoc.exists) {
                     const grandMentor = gMentorDoc.data() as UserWalletData;
-                    batch.update(gMentorRef, { moneyBalance: (grandMentor.moneyBalance || 0) + grandMentorReward });
+                    batch.update(gMentorRef, { 
+                        dpPoints: (grandMentor.dpPoints || 0) + grandMentorDp,
+                        exp: (grandMentor.exp !== undefined ? grandMentor.exp : 0) + grandMentorDp
+                    });
                     const txRef2 = db.collection(TRANSACTIONS_COL).doc();
                     batch.set(txRef2, {
                         id: txRef2.id,
                         uid: grandMentor.uid,
-                        merchantId: "kca_ecosystem",
+                        merchantId: "daehan_ecosystem",
                         type: "REFERRAL_BONUS",
-                        currency: "MONEY",
-                        amount: grandMentorReward,
-                        description: `2차 멘티 [${buyer.name}] 결제에 따른 멘토 리워드 (2%)`,
+                        currency: "DP",
+                        amount: grandMentorDp,
+                        description: `2차 멘티 [${buyer.name || '회원'}] DP 적립에 따른 상위 멘토 리워드 (20% = ${grandMentorDp.toLocaleString()} DP)`,
                         status: "CONFIRMED",
                         txHash: `0x${Math.random().toString(16).substring(2)}`,
                         timestamp
@@ -412,7 +430,7 @@ export async function distributeReferralRewards(buyerUid: string, amount: number
 export async function executePayment(params: {
     uid: string;
     merchantId: string;
-    currency: "MONEY" | "POINT" | "VND";
+    currency: "MONEY" | "POINT" | "VND" | "HEX";
     amount: number;
     orderId: string;
     items?: any[];
@@ -433,16 +451,25 @@ export async function executePayment(params: {
     const updates: any = {};
     let isPendingBankTransfer = false;
 
-    if (params.currency === "MONEY") {
-        if ((user.moneyBalance || 0) < amount) return { success: false, error: "머니 잔액이 부족합니다." };
+    if (params.currency === "MONEY" || params.currency === "HEX") {
+        if ((user.moneyBalance || 0) < amount) {
+            return { 
+                success: false, 
+                error: `대한페이(충전머니) 잔액이 부족합니다. (보유: ${(user.moneyBalance || 0).toLocaleString()} 머니 / 필요: ${amount.toLocaleString()} 머니). [마이페이지]에서 계좌 입금 충전 신청 후 이용해주세요.` 
+            };
+        }
         updates.moneyBalance = Number(((user.moneyBalance || 0) - amount).toFixed(2));
-        const earnedDp = Math.round(amount * 100);
+        const earnedDp = Math.round(amount * 0.1);
         updates.dpPoints = (user.dpPoints || 0) + earnedDp;
+        const addExp = Math.round(amount * 0.1);
+        updates.exp = (user.exp !== undefined ? user.exp : 0) + addExp;
     } else if (params.currency === "POINT") {
         if ((user.pointBalance || 0) < amount) return { success: false, error: "포인트 잔액이 부족합니다." };
         updates.pointBalance = Math.max(0, (user.pointBalance || 0) - amount);
         const earnedDp = Math.round(amount * 0.1);
         updates.dpPoints = (user.dpPoints || 0) + earnedDp;
+        const addExp = Math.round(amount * 0.1);
+        updates.exp = (user.exp !== undefined ? user.exp : 0) + addExp;
     } else if (params.currency === "VND") {
         // 일반 결제 (VND / 계좌이체): 지갑 잔액 검사 및 차감 없음! 입금 확인 대기(PENDING_PAYMENT)로 주문 생성
         isPendingBankTransfer = true;
@@ -488,8 +515,8 @@ export async function executePayment(params: {
             orderId: params.orderId,
             uid: params.uid,
             items: params.items,
-            totalVnd: params.currency === "MONEY" ? amount * 1000 : amount,
-            totalMoney: params.currency === "MONEY" ? amount : Math.round(amount / 1000),
+            totalVnd: amount,
+            totalMoney: (params.currency === "MONEY" || params.currency === "HEX") ? amount : Math.round(amount / 1000),
             paidAmount: amount,
             currency: params.currency,
             txId,
@@ -521,7 +548,7 @@ export async function executePayment(params: {
             currency: params.currency,
             txHash,
             status: orderStatus,
-            earnedDp: isPendingBankTransfer ? Math.round(amount * 0.1) : Math.round(amount * (params.currency === "MONEY" ? 100 : 0.1)),
+            earnedDp: Math.round(amount * 0.1),
             bankTransferInfo
         }
     };
@@ -576,9 +603,15 @@ export async function getUserOrders(uid: string): Promise<MemberOrder[]> {
 }
 
 export async function getAllOrders(): Promise<MemberOrder[]> {
-    const db = getDb();
-    const snapshot = await db.collection(ORDERS_COL).orderBy("createdAt", "desc").limit(50).get();
-    return snapshot.docs.map(doc => doc.data() as MemberOrder);
+    try {
+        const db = getDb();
+        const snapshot = await db.collection(ORDERS_COL).get();
+        const docs = snapshot.docs.map(doc => doc.data() as MemberOrder);
+        return docs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    } catch (e) {
+        console.error("getAllOrders error:", e);
+        return [];
+    }
 }
 
 export async function verifyTransaction(txHash: string, orderId?: string): Promise<{ verified: boolean; transaction?: WalletTransaction; order?: MemberOrder }> {
@@ -669,19 +702,30 @@ export async function convertPointsToKm(uid: string, pointsAmount: number): Prom
     return { success: true, newPoints: user.pointBalance - pointsAmount, newKm: user.moneyBalance + moneyAmount };
 }
 
-export async function grantDaehanPoint(uid: string, amount: number, description: string, type: "REWARD" | "REFERRAL_BONUS" | "FAUCET" = "REWARD"): Promise<{ success: boolean; newBalance?: number; error?: string }> {
+export async function grantDaehanPoint(
+    uid: string,
+    amount: number,
+    description: string,
+    type: "REWARD" | "REFERRAL_BONUS" | "FAUCET" = "REWARD",
+    expAmount?: number
+): Promise<{ success: boolean; newBalance?: number; newExp?: number; error?: string }> {
     const db = getDb();
     const userRef = db.collection(USERS_COL).doc(uid);
     
     try {
-        const newBalance = await db.runTransaction(async (transaction) => {
+        const result = await db.runTransaction(async (transaction) => {
             const userDoc = await transaction.get(userRef);
             if (!userDoc.exists) throw new Error("사용자를 찾을 수 없습니다.");
             
             const user = userDoc.data() as UserWalletData;
             const updatedDp = (user.dpPoints || 0) + amount;
+            const addExp = expAmount !== undefined ? expAmount : amount;
+            const updatedExp = (user.exp !== undefined ? user.exp : 0) + addExp;
             
-            transaction.update(userRef, { dpPoints: updatedDp });
+            transaction.update(userRef, {
+                dpPoints: updatedDp,
+                exp: updatedExp
+            });
             
             const txId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const txRef = db.collection(TRANSACTIONS_COL).doc(txId);
@@ -699,12 +743,12 @@ export async function grantDaehanPoint(uid: string, amount: number, description:
                 timestamp: new Date().toISOString()
             });
             
-            return updatedDp;
+            return { newBalance: updatedDp, newExp: updatedExp };
         });
         
-        return { success: true, newBalance };
+        return { success: true, newBalance: result.newBalance, newExp: result.newExp };
     } catch (e: any) {
-        console.error("Failed to grant DP:", e);
+        console.error("Failed to grant DP & EXP:", e);
         return { success: false, error: e.message };
     }
 }
@@ -906,7 +950,7 @@ export async function getAllChargeRequests(): Promise<ChargeRequest[]> {
     }
 }
 
-export async function approveChargeRequest(requestId: string): Promise<{ success: boolean; error?: string }> {
+export async function approveChargeRequest(requestId: string): Promise<{ success: boolean; request?: ChargeRequest; error?: string }> {
     try {
         const db = getDb();
         const reqRef = db.collection(CHARGE_REQUESTS_COL).doc(requestId);
@@ -948,7 +992,7 @@ export async function approveChargeRequest(requestId: string): Promise<{ success
             });
         } catch {}
 
-        return { success: true };
+        return { success: true, request: reqData };
     } catch (e: any) {
         return { success: false, error: e.message };
     }

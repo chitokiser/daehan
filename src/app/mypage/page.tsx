@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useUserWallet } from "@/context/UserWalletContext";
 import styles from "./page.module.css";
-import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag, ArrowRightLeft, TrendingUp, Zap, Building, Landmark, CreditCard, QrCode } from "lucide-react";
+import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag, ArrowRightLeft, TrendingUp, Zap, Building, Landmark, CreditCard, QrCode, Truck } from "lucide-react";
 
 export default function MyPage() {
     const { user, wallet, isLoggedIn, orders, refreshWallet, convertDpToMoney, levelUp } = useUserWallet();
@@ -240,72 +240,7 @@ export default function MyPage() {
                     <p className={styles.subTitle}>대한김치 회원 정보와 지갑 자산(DP & 충전머니), 레벨 성장 시스템 및 주문 내역을 확인하세요.</p>
                 </div>
 
-                {/* 🧪 실시간 테스트 컨트롤러 툴바 */}
-                <div style={{
-                    background: "#ffffff",
-                    borderRadius: "14px",
-                    padding: "1rem 1.25rem",
-                    marginBottom: "1.5rem",
-                    border: "1px dashed #d4870a",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "12px"
-                }}>
-                    <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span>🧪 자산 & 레벨 테스트 도구:</span>
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                        <button
-                            onClick={handleResetWallets}
-                            style={{
-                                background: "#fef2f2",
-                                color: "#dc2626",
-                                border: "1px solid #fca5a5",
-                                borderRadius: "8px",
-                                padding: "7px 14px",
-                                fontSize: "0.8rem",
-                                fontWeight: 800,
-                                cursor: "pointer"
-                            }}
-                        >
-                            🔄 전체 자산 0으로 초기화
-                        </button>
 
-                        <button
-                            onClick={() => handleGrantTestDp(5000)}
-                            style={{
-                                background: "#fffbeb",
-                                color: "#b45309",
-                                border: "1px solid #fde68a",
-                                borderRadius: "8px",
-                                padding: "7px 14px",
-                                fontSize: "0.8rem",
-                                fontWeight: 800,
-                                cursor: "pointer"
-                            }}
-                        >
-                            🎁 테스트용 +5,000 DP 적립
-                        </button>
-
-                        <button
-                            onClick={() => handleGrantTestExp(15000)}
-                            style={{
-                                background: "#eff6ff",
-                                color: "#1d4ed8",
-                                border: "1px solid #bfdbfe",
-                                borderRadius: "8px",
-                                padding: "7px 14px",
-                                fontSize: "0.8rem",
-                                fontWeight: 800,
-                                cursor: "pointer"
-                            }}
-                        >
-                            ⚡ 테스트용 +15,000 EXP 획득
-                        </button>
-                    </div>
-                </div>
 
                 {/* 알림 메시지 배너 */}
                 {message && (
@@ -965,6 +900,40 @@ export default function MyPage() {
                                             </div>
                                         ))}
                                     </div>
+                                    {order.shippingInfo && (order.shippingInfo.courier || order.shippingInfo.trackingNumber || order.shippingInfo.driverPhone) && (
+                                        <div style={{
+                                            margin: '0 16px 12px',
+                                            padding: '12px 14px',
+                                            background: 'rgba(22, 163, 74, 0.05)',
+                                            border: '1px solid rgba(22, 163, 74, 0.2)',
+                                            borderRadius: '10px',
+                                            fontSize: '0.85rem'
+                                        }}>
+                                            <div style={{ fontWeight: 700, color: '#16a34a', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Truck size={15} /> 베트남 현지 배송 정보 (Mã vận đơn)
+                                            </div>
+                                            {order.shippingInfo.courier && (
+                                                <div style={{ color: '#374151', margin: '2px 0' }}>
+                                                    배송 수단: <strong>{order.shippingInfo.courier}</strong>
+                                                </div>
+                                            )}
+                                            {order.shippingInfo.trackingNumber && (
+                                                <div style={{ color: '#374151', margin: '2px 0' }}>
+                                                    송장 번호: <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{order.shippingInfo.trackingNumber}</code>
+                                                </div>
+                                            )}
+                                            {order.shippingInfo.driverPhone && (
+                                                <div style={{ color: '#374151', margin: '2px 0' }}>
+                                                    기사/택배 연락처: <a href={`tel:${order.shippingInfo.driverPhone}`} style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: 600 }}>{order.shippingInfo.driverPhone}</a>
+                                                </div>
+                                            )}
+                                            {order.shippingInfo.deliveryMemo && (
+                                                <div style={{ color: '#6b7280', fontSize: '0.8rem', marginTop: '4px' }}>
+                                                    배송 메모: {order.shippingInfo.deliveryMemo}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                     <div className={styles.orderFooter}>
                                         <span className={styles.totalLabel}>총 결제 금액 ({order.currency})</span>
                                         <span className={styles.totalAmount}>

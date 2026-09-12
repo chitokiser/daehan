@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { products, Product } from "@/data/products";
@@ -17,7 +17,7 @@ export default function ProductDetail() {
     const params = useParams();
     const rawId = params?.id as string || "1";
 
-    const { user, wallet, isLoggedIn, payOrder, isLoading, refreshWallet } = useUserWallet();
+    const { user, wallet, isLoggedIn, payOrder, isLoading, refreshWallet, loginWithGoogle } = useUserWallet();
 
     // Find product by id, idx, or slug
     const product: Product = useMemo(() => {
@@ -65,13 +65,43 @@ export default function ProductDetail() {
     const [rating, setRating] = useState(5);
     const [hoverRating, setHoverRating] = useState(0);
     const [reviewText, setReviewText] = useState("");
-    const [reviewerName, setReviewerName] = useState("");
 
-    const [reviews, setReviews] = useState([
-        { id: 101, user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! 대한포인트까지 10% 즉시 적립되어 너무 만족스럽습니다.` },
-        { id: 102, user: "응우옌티* (현지고객)", stars: 5, date: "2026.08.25", content: "한국인 셰프가 만든 진짜 한국 김치 맛입니다. VND 계좌이체나 포인트 결제 모두 가능해서 편리해요." },
-        { id: 103, user: "김*석 (골드회원)", stars: 5, date: "2026.08.19", content: "10kg 대량 주문해서 식당에서 쓰는데 손님들 반응이 최고입니다. 콜드체인 배송도 아주 완벽합니다." },
-    ]);
+    // Initial default reviews per product
+    const defaultReviews = useMemo(() => [
+        { id: 101, uid: "user_mock1", user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! 대한포인트까지 10% 즉시 적립되어 너무 만족스럽습니다.` },
+        { id: 102, uid: "user_mock2", user: "응우옌티* (현지고객)", stars: 5, date: "2026.08.25", content: "한국인 셰프가 만든 진짜 한국 김치 맛입니다. VND 계좌이체나 포인트 결제 모두 가능해서 편리해요." },
+        { id: 103, uid: "user_mock3", user: "김*석 (골드회원)", stars: 5, date: "2026.08.19", content: "10kg 대량 주문해서 식당에서 쓰는데 손님들 반응이 최고입니다. 콜드체인 배송도 아주 완벽합니다." },
+    ], [product.koreanName]);
+
+    const [reviews, setReviews] = useState<any[]>(defaultReviews);
+
+    // Load saved custom reviews from localStorage for this product
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            const saved = localStorage.getItem(`daehan_reviews_p${product.id}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setReviews([...parsed, ...defaultReviews]);
+                    return;
+                }
+            }
+        } catch (e) {}
+        setReviews(defaultReviews);
+    }, [product.id, defaultReviews]);
+
+    // Check if the currently logged in user has already written a review for this product (1 review per product limit)
+    const hasUserReviewed = useMemo(() => {
+        if (!isLoggedIn || !user?.uid) return false;
+        const reviewedInList = reviews.some(r => r.uid === user.uid);
+        if (reviewedInList) return true;
+        if (typeof window !== "undefined") {
+            const flag = localStorage.getItem(`daehan_reviewed_p${product.id}_u${user.uid}`);
+            if (flag === "true") return true;
+        }
+        return false;
+    }, [isLoggedIn, user?.uid, reviews, product.id]);
 
     const handleAddToCart = () => {
         setCartAdded(true);
@@ -95,7 +125,7 @@ export default function ProductDetail() {
             image: product.image
         }];
 
-        const paymentAmount = paymentCurrency === "대한페이" ? Math.round(totalPriceVnd / 1000) : totalPriceVnd;
+        const paymentAmount = totalPriceVnd;
 
         const res = await payOrder({
             orderId: dynamicOrderId,
@@ -123,40 +153,72 @@ export default function ProductDetail() {
         setTimeout(() => setCopiedTx(false), 2000);
     };
 
-    const handleSubmitReview = (e: React.FormEvent) => {
+    const handleSubmitReview = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!reviewText.trim()) return alert("후기 내용을 작성해주세요.");
 
-        setReviews([
-            {
-                id: Date.now(),
-                user: reviewerName.trim() ? `${reviewerName} (구매고객)` : (user?.name || "나 (인증회원)"),
-                stars: rating,
-                date: "방금 전",
-                content: reviewText.trim()
-            },
-            ...reviews
-        ]);
-
-        if (user?.uid) {
-            fetch("/api/v1/rewards", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    actionType: "WRITE_REVIEW",
-                    itemId: String(product.id)
-                })
-            }).then(r => r.json()).then(res => {
-                if (res.success) {
-                    refreshWallet();
-                }
-            }).catch(console.error);
+        // 1. 로그인 회원 전용 체크
+        if (!isLoggedIn || !user) {
+            alert("🔒 리뷰를 작성하려면 로그인한 회원이어야 합니다.");
+            return;
         }
 
+        // 2. 상품당 1회 작성 제한 체크
+        if (hasUserReviewed) {
+            alert("⚠️ 이미 해당 상품에 대한 리뷰를 작성하셨습니다.\n(상품당 1회만 작성 가능합니다.)");
+            return;
+        }
+
+        if (!reviewText.trim()) {
+            return alert("후기 내용을 작성해주세요.");
+        }
+
+        // 3. 작성자 이름은 로그인된 계정 이름/이메일로 자동 지정
+        const authorAccountName = user.name ? `${user.name} (${user.email || '인증회원'})` : (user.email || "로그인 회원");
+
+        const newReview = {
+            id: Date.now(),
+            uid: user.uid,
+            user: authorAccountName,
+            stars: rating,
+            date: new Date().toLocaleDateString("ko-KR"),
+            content: reviewText.trim()
+        };
+
+        const updatedReviews = [newReview, ...reviews];
+        setReviews(updatedReviews);
+
+        // 로컬 스토리지에 리뷰 저장 및 유저별 작성 여부 기록
+        try {
+            const userOnly = updatedReviews.filter(r => r.uid && !r.uid.startsWith("user_mock"));
+            localStorage.setItem(`daehan_reviews_p${product.id}`, JSON.stringify(userOnly));
+            localStorage.setItem(`daehan_reviewed_p${product.id}_u${user.uid}`, "true");
+        } catch (e) {}
+
         setReviewText("");
-        setReviewerName("");
-        alert(`소중한 후기가 등록되었습니다! 500 DP(대한포인트)가 계정에 즉시 적립되었습니다.`);
+
+        // 4. 500 DP 보상 적립 처리
+        if (user.uid) {
+            try {
+                const res = await fetch("/api/v1/rewards", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        uid: user.uid,
+                        actionType: "WRITE_REVIEW",
+                        itemId: String(product.id)
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    refreshWallet();
+                    alert(`✅ 소중한 후기가 성공적으로 등록되었습니다!\n🎁 리뷰 작성 보상으로 500 DP(대한포인트)와 +500 EXP(경험치)가 적립되었습니다.`);
+                } else {
+                    alert("✅ 소중한 후기가 등록되었습니다!");
+                }
+            } catch (e) {
+                alert("✅ 소중한 후기가 등록되었습니다!");
+            }
+        }
     };
 
     const renderStars = (count: number) => {
@@ -389,40 +451,68 @@ export default function ProductDetail() {
                         <span className={styles.rewardNotice}>🎁 후기 작성 시 500 DP 즉시 적립!</span>
                     </div>
 
-                    <div className={styles.ratingSelect} onMouseLeave={() => setHoverRating(0)}>
-                        <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginRight: '8px' }}>별점 선택:</span>
-                        {[1, 2, 3, 4, 5].map(star => (
+                    {!isLoggedIn ? (
+                        <div style={{ background: '#f8fafc', padding: '18px', borderRadius: '12px', textAlign: 'center', border: '1px dashed #cbd5e1', marginTop: '12px' }}>
+                            <p style={{ color: '#475569', fontSize: '0.92rem', fontWeight: 600, marginBottom: '10px' }}>
+                                🔒 상품 리뷰는 <strong>로그인한 회원만</strong> 작성하실 수 있습니다.
+                            </p>
                             <button
-                                key={star}
                                 type="button"
-                                className={`${styles.starBtn} ${star <= (hoverRating || rating) ? styles.active : ''}`}
-                                onMouseEnter={() => setHoverRating(star)}
-                                onClick={() => setRating(star)}
+                                onClick={() => loginWithGoogle ? loginWithGoogle() : alert("로그인 후 이용해 주세요.")}
+                                className="btn-primary"
+                                style={{ padding: '8px 20px', fontSize: '0.88rem' }}
                             >
-                                <Star size={28} fill={star <= (hoverRating || rating) ? "#FBBC05" : "transparent"} strokeWidth={1} />
+                                Google 계정으로 간편 로그인
                             </button>
-                        ))}
-                    </div>
+                        </div>
+                    ) : hasUserReviewed ? (
+                        <div style={{ background: '#f0fdf4', padding: '18px', borderRadius: '12px', textAlign: 'center', border: '1.5px solid #bbf7d0', marginTop: '12px' }}>
+                            <p style={{ color: '#15803d', fontSize: '0.95rem', fontWeight: 800, marginBottom: '4px' }}>
+                                ✅ 이미 이 상품에 대한 소중한 리뷰를 작성하셨습니다!
+                            </p>
+                            <span style={{ color: '#166534', fontSize: '0.82rem' }}>
+                                (대한김치는 실사용 고객의 공정한 후기를 위해 <strong>상품당 1회만</strong> 리뷰 참여가 가능합니다)
+                            </span>
+                        </div>
+                    ) : (
+                        <>
+                            <div className={styles.ratingSelect} onMouseLeave={() => setHoverRating(0)}>
+                                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginRight: '8px' }}>별점 선택:</span>
+                                {[1, 2, 3, 4, 5].map(star => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        className={`${styles.starBtn} ${star <= (hoverRating || rating) ? styles.active : ''}`}
+                                        onMouseEnter={() => setHoverRating(star)}
+                                        onClick={() => setRating(star)}
+                                    >
+                                        <Star size={28} fill={star <= (hoverRating || rating) ? "#FBBC05" : "transparent"} strokeWidth={1} />
+                                    </button>
+                                ))}
+                            </div>
 
-                    <div className={styles.inputRow}>
-                        <input
-                            type="text"
-                            className={styles.nameInput}
-                            placeholder="작성자 이름"
-                            value={reviewerName}
-                            onChange={(e) => setReviewerName(e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            className={styles.reviewInput}
-                            placeholder="김치의 맛, 숙성도, 배송 및 결제 경험 등 솔직한 후기를 남겨주세요!"
-                            value={reviewText}
-                            onChange={(e) => setReviewText(e.target.value)}
-                        />
-                        <button type="submit" className="btn-primary" style={{ padding: '10px 24px', flexShrink: 0 }}>
-                            후기 등록
-                        </button>
-                    </div>
+                            <div className={styles.inputRow}>
+                                <input
+                                    type="text"
+                                    className={styles.nameInput}
+                                    value={user?.name ? `${user.name} (계정)` : (user?.email || "로그인 회원")}
+                                    readOnly
+                                    title="작성자 이름은 로그인한 계정 정보로 자동 적용됩니다."
+                                    style={{ background: '#f1f5f9', cursor: 'not-allowed', color: '#334155', fontWeight: 700 }}
+                                />
+                                <input
+                                    type="text"
+                                    className={styles.reviewInput}
+                                    placeholder="김치의 맛, 숙성도, 배송 및 결제 경험 등 솔직한 후기를 남겨주세요!"
+                                    value={reviewText}
+                                    onChange={(e) => setReviewText(e.target.value)}
+                                />
+                                <button type="submit" className="btn-primary" style={{ padding: '10px 24px', flexShrink: 0 }}>
+                                    후기 등록
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </form>
 
                 {/* Review List */}
@@ -488,15 +578,20 @@ export default function ProductDetail() {
                                         <div className={styles.orderPrices}>
                                             <span className={styles.vndTotal} style={{ fontSize: '1.15rem', fontWeight: 800 }}>
                                                 {totalPriceVnd.toLocaleString()} VND 
-                                                <span style={{ fontSize: '0.9rem', color: '#f7a400', marginLeft: 8 }}>({Math.round(totalPriceVnd / 1000).toLocaleString()} 대한페이)</span>
+                                                <span style={{ fontSize: '0.9rem', color: '#f7a400', marginLeft: 8 }}>({totalPriceVnd.toLocaleString()} 머니)</span>
                                             </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Payment Method */}
+                                {/* Payment Method & Wallet Balance */}
                                 <div className={styles.shippingForm} style={{ marginBottom: 16 }}>
-                                    <label className={styles.sectionSubTitle}>결제 수단 선택:</label>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                                        <label className={styles.sectionSubTitle}>결제 수단 선택:</label>
+                                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#16a34a', background: 'rgba(22, 163, 74, 0.08)', padding: '3px 10px', borderRadius: '99px', border: '1px solid rgba(22, 163, 74, 0.2)' }}>
+                                            💳 보유 대한페이: {(wallet.moneyBalance || 0).toLocaleString()} 머니
+                                        </span>
+                                    </div>
                                     <select 
                                         value={paymentCurrency} 
                                         onChange={(e) => setPaymentCurrency(e.target.value as "VND" | "대한페이")}
@@ -504,11 +599,31 @@ export default function ProductDetail() {
                                         style={{ marginTop: 8 }}
                                     >
                                         <option value="VND">일반 결제 (VND / 현금 계좌이체)</option>
-                                        <option value="대한페이">대한김치 머니 (대한페이) 결제</option>
+                                        <option value="대한페이">대한김치 머니 (대한페이) 결제 - 1:1 결제</option>
                                     </select>
+
+                                    {paymentCurrency === "대한페이" && (wallet.moneyBalance || 0) < totalPriceVnd && (
+                                        <div style={{
+                                            marginTop: '10px',
+                                            padding: '10px 14px',
+                                            background: 'rgba(239, 68, 68, 0.08)',
+                                            border: '1px solid rgba(239, 68, 68, 0.25)',
+                                            borderRadius: '8px',
+                                            fontSize: '0.82rem',
+                                            color: '#ef4444',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            flexWrap: 'wrap',
+                                            gap: '8px'
+                                        }}>
+                                            <span>⚠️ 대한페이가 부족합니다. (보유: {(wallet.moneyBalance || 0).toLocaleString()} 머니 / 필요: {totalPriceVnd.toLocaleString()} 머니)</span>
+                                            <Link href="/mypage" style={{ color: '#2563eb', fontWeight: 700, textDecoration: 'underline' }}>
+                                                입금 충전 신청 →
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
-
-
 
                                 {/* Shipping Address */}
                                 <div className={styles.shippingForm}>
@@ -561,7 +676,7 @@ export default function ProductDetail() {
                                         "주문 결제 승인 처리 중..."
                                     ) : (
                                         <>
-                                            💳 {paymentCurrency === "대한페이" ? Math.round(totalPriceVnd / 1000).toLocaleString() + " 대한페이" : totalPriceVnd.toLocaleString() + " VND"} 결제하기
+                                            💳 {paymentCurrency === "대한페이" ? totalPriceVnd.toLocaleString() + " 머니" : totalPriceVnd.toLocaleString() + " VND"} 결제하기
                                             <ArrowRight size={18} />
                                         </>
                                     )}

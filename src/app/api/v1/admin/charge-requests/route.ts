@@ -13,18 +13,19 @@ export async function GET() {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { requestId, action } = body;
+        const targetRequestId = body.requestId || body.id;
+        const action = body.action;
 
-        if (!requestId || !action) {
+        if (!targetRequestId || !action) {
             return NextResponse.json({ success: false, error: "requestId 및 action(APPROVE/REJECT) 파라미터가 필요합니다." }, { status: 400 });
         }
 
         if (action === "APPROVE") {
-            const result = await approveChargeRequest(requestId);
+            const result = await approveChargeRequest(targetRequestId);
             if (!result.success) return NextResponse.json(result, { status: 400 });
             return NextResponse.json(result);
         } else if (action === "REJECT") {
-            const result = await rejectChargeRequest(requestId);
+            const result = await rejectChargeRequest(targetRequestId);
             if (!result.success) return NextResponse.json(result, { status: 400 });
             return NextResponse.json(result);
         }

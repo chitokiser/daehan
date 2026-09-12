@@ -31,8 +31,23 @@ export default function AdminDashboard() {
     const [memberSearch, setMemberSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState<string>("ALL");
     const [orderFilter, setOrderFilter] = useState<string>("ALL");
-    const [selectedMember, setSelectedMember] = useState<any>(null);
     const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+    // 베트남 택배 / 송장 입력 모달 상태
+    const [shippingModalOrder, setShippingModalOrder] = useState<MemberOrder | null>(null);
+    const [shippingForm, setShippingForm] = useState<{
+        courier: string;
+        trackingNumber: string;
+        driverPhone: string;
+        deliveryMemo: string;
+        targetStatus: "PREPARING" | "SHIPPING" | "DELIVERED";
+    }>({
+        courier: "🚀 GrabExpress (그랩 퀵)",
+        trackingNumber: "",
+        driverPhone: "",
+        deliveryMemo: "",
+        targetStatus: "SHIPPING"
+    });
 
     // 계좌입금 충전 신청 상태
     const [chargeRequests, setChargeRequests] = useState<any[]>([]);
@@ -129,6 +144,7 @@ export default function AdminDashboard() {
     useEffect(() => { 
         loadKmoaData(); 
         fetchChargeRequests();
+        fetchAdminData();
     }, []);
 
 
@@ -169,12 +185,52 @@ export default function AdminDashboard() {
     };
 
     const handleOrderStatusChange = async (orderId: string, newStatus: any) => {
+        if (newStatus === "SHIPPING" || newStatus === "DELIVERED") {
+            const targetOrd = (allOrders || []).find((o: any) => o.orderId === orderId);
+            if (targetOrd) {
+                openShippingModal(targetOrd, newStatus);
+                return;
+            }
+        }
+
         const res = await changeOrderStatus(orderId, newStatus);
         if (res.success) {
             setActionMessage(`주문 [${orderId}] 상태가 [${newStatus}]로 업데이트되었습니다.`);
             setTimeout(() => setActionMessage(null), 3000);
+            fetchAdminData();
         } else {
             alert(res.error || "상태 변경에 실패했습니다.");
+        }
+    };
+
+    const openShippingModal = (order: MemberOrder, defaultStatus?: any) => {
+        setShippingModalOrder(order);
+        setShippingForm({
+            courier: order.shippingInfo?.courier || "🚀 GrabExpress (그랩 퀵)",
+            trackingNumber: order.shippingInfo?.trackingNumber || "",
+            driverPhone: order.shippingInfo?.driverPhone || "",
+            deliveryMemo: order.shippingInfo?.deliveryMemo || "",
+            targetStatus: defaultStatus || (order.status === "DELIVERED" ? "DELIVERED" : "SHIPPING")
+        });
+    };
+
+    const handleSaveShippingInfo = async () => {
+        if (!shippingModalOrder) return;
+
+        const res = await changeOrderStatus(shippingModalOrder.orderId, shippingForm.targetStatus, {
+            courier: shippingForm.courier,
+            trackingNumber: shippingForm.trackingNumber,
+            driverPhone: shippingForm.driverPhone,
+            deliveryMemo: shippingForm.deliveryMemo
+        });
+
+        if (res.success) {
+            setActionMessage(`주문 [${shippingModalOrder.orderId}]의 베트남 배송 정보 및 상태가 저장되었습니다.`);
+            setTimeout(() => setActionMessage(null), 3500);
+            setShippingModalOrder(null);
+            fetchAdminData();
+        } else {
+            alert(res.error || "배송 정보 저장 실패");
         }
     };
 
@@ -228,6 +284,25 @@ export default function AdminDashboard() {
             {actionMessage && (
                 <div className={styles.alertSuccess}>
                     <CheckCircle2 size={18} /> {actionMessage}
+                </div>
+            )}
+
+            {!isOperator && (
+                <div style={{
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                    color: '#f87171',
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    fontSize: '0.9rem',
+                    fontWeight: 600
+                }}>
+                    <Lock size={18} />
+                    <span>주문 처리 및 배송 관리 기능은 <strong>최고 관리자(SUPER_ADMIN)</strong>가 부여한 <strong>운영자(OPERATOR)</strong> 권한 필요 회원만 실행 가능합니다.</span>
                 </div>
             )}
 
@@ -419,6 +494,7 @@ export default function AdminDashboard() {
             {/* Navigation Tabs */}
             {(() => {
                 const pendingChargeCount = chargeRequests.filter(r => r.status === "PENDING").length;
+                const pendingOrderCount = (allOrders || []).filter(o => o.status === "PENDING_PAYMENT" || o.status === "PAID" || o.status === "PREPARING").length;
                 return (
                     <div className={styles.tabNav}>
                         <button 
@@ -437,7 +513,7 @@ export default function AdminDashboard() {
                             className={`${styles.navTabBtn} ${activeTab === "orders" ? styles.activeNavTab : ''}`}
                             onClick={() => setActiveTab("orders")}
                         >
-                            <ShoppingBag size={16} /> 📦 주문 및 배송 상태 관리 ({allOrders.length})
+                            <ShoppingBag size={16} /> 📦 주문 및 배송 상태 관리 ({allOrders ? allOrders.length : 0}) {pendingOrderCount > 0 && <span style={{ background: '#f59e0b', color: '#000', borderRadius: '99px', padding: '1px 7px', fontSize: '0.75rem', marginLeft: '6px', fontWeight: 700 }}>{pendingOrderCount}건 처리필요</span>}
                         </button>
                         <button 
                             className={`${styles.navTabBtn} ${activeTab === "analytics" ? styles.activeNavTab : ''}`}
@@ -492,7 +568,7 @@ export default function AdminDashboard() {
                                     </tr>
                                 ) : (
                                     chargeRequests.map((req) => (
-                                        <tr key={req.id}>
+                                        <tr key={req.requestId || req.id}>
                                             <td>
                                                 <span className={styles.orderDate}>{new Date(req.createdAt).toLocaleString("ko-KR")}</span>
                                             </td>
@@ -530,7 +606,7 @@ export default function AdminDashboard() {
                                                 {req.status === "PENDING" ? (
                                                     <div style={{ display: 'flex', gap: '8px' }}>
                                                         <button
-                                                            onClick={() => handleApproveCharge(req.id)}
+                                                            onClick={() => handleApproveCharge(req.requestId || req.id)}
                                                             style={{
                                                                 background: 'linear-gradient(135deg, #16a34a, #15803d)',
                                                                 color: '#fff',
@@ -548,7 +624,7 @@ export default function AdminDashboard() {
                                                             <CheckCircle2 size={14} /> 입금 확인 & 승인
                                                         </button>
                                                         <button
-                                                            onClick={() => handleRejectCharge(req.id)}
+                                                            onClick={() => handleRejectCharge(req.requestId || req.id)}
                                                             style={{
                                                                 background: 'rgba(239,68,68,0.15)',
                                                                 color: '#ef4444',
@@ -718,19 +794,25 @@ export default function AdminDashboard() {
                                 실시간 결제된 김치 주문 상태를 <code>PREPARING (준비중)</code>, <code>SHIPPING (배송중)</code>, <code>DELIVERED (배송완료)</code>로 즉시 갱신할 수 있습니다.
                             </p>
                         </div>
-                        <div className={styles.orderFilterGroup}>
-                            <select 
-                                value={orderFilter}
-                                onChange={e => setOrderFilter(e.target.value)}
-                                className={styles.roleSelect}
-                            >
-                                <option value="ALL">전체 주문 보기</option>
-                                <option value="PENDING_PAYMENT">🟡 입금확인 대기중 (계좌이체)</option>
-                                <option value="PAID">🟢 입금승인/결제완료</option>
-                                <option value="PREPARING">👨‍🍳 상품 준비중</option>
-                                <option value="SHIPPING">🚚 하노이 배송중</option>
-                                <option value="DELIVERED">🎁 배송 완료</option>
-                            </select>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <button className={styles.refreshBtn} onClick={fetchAdminData} disabled={isLoading}>
+                                <RefreshCw size={14} className={isLoading ? styles.spinning : ''} />
+                                주문 DB 동기화
+                            </button>
+                            <div className={styles.orderFilterGroup}>
+                                <select 
+                                    value={orderFilter}
+                                    onChange={e => setOrderFilter(e.target.value)}
+                                    className={styles.roleSelect}
+                                >
+                                    <option value="ALL">전체 주문 보기 ({allOrders ? allOrders.length : 0}건)</option>
+                                    <option value="PENDING_PAYMENT">🟡 입금확인 대기중 (계좌이체)</option>
+                                    <option value="PAID">🟢 입금승인/결제완료</option>
+                                    <option value="PREPARING">👨‍🍳 상품 준비중</option>
+                                    <option value="SHIPPING">🚚 하노이 배송중</option>
+                                    <option value="DELIVERED">🎁 배송 완료</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -742,6 +824,7 @@ export default function AdminDashboard() {
                                     <th>주문 상품</th>
                                     <th>결제 금액 & 수단</th>
                                     <th>배송지 및 수령인</th>
+                                    <th>베트남 택배 / 송장 정보</th>
                                     <th>트랜잭션 ID</th>
                                     <th>입금 확인 & 주문 상태</th>
                                 </tr>
@@ -778,6 +861,65 @@ export default function AdminDashboard() {
                                             <div className={styles.shippingSnippet}>
                                                 <strong>{order.shippingAddress?.recipient}</strong> ({order.shippingAddress?.phone})
                                                 <p>{order.shippingAddress?.address}</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.82rem' }}>
+                                                {order.shippingInfo?.courier || order.shippingInfo?.trackingNumber ? (
+                                                    <>
+                                                        <div style={{ fontWeight: 700, color: '#38bdf8' }}>
+                                                            {order.shippingInfo.courier || "📦 베트남 택배"}
+                                                        </div>
+                                                        {order.shippingInfo.trackingNumber && (
+                                                            <div style={{ fontSize: '0.78rem' }}>
+                                                                송장: <code className={styles.txCode}>{order.shippingInfo.trackingNumber}</code>
+                                                            </div>
+                                                        )}
+                                                        {order.shippingInfo.driverPhone && (
+                                                            <div style={{ fontSize: '0.76rem', color: '#9ca3af' }}>
+                                                                기사: <a href={`tel:${order.shippingInfo.driverPhone}`} style={{ color: '#60a5fa', textDecoration: 'underline' }}>{order.shippingInfo.driverPhone}</a>
+                                                            </div>
+                                                        )}
+                                                        <button
+                                                            onClick={() => openShippingModal(order)}
+                                                            style={{
+                                                                marginTop: '4px',
+                                                                background: 'rgba(255,255,255,0.08)',
+                                                                border: '1px solid rgba(255,255,255,0.2)',
+                                                                color: '#d1d5db',
+                                                                borderRadius: '4px',
+                                                                padding: '2px 6px',
+                                                                fontSize: '0.74rem',
+                                                                cursor: 'pointer',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '3px',
+                                                                width: 'fit-content'
+                                                            }}
+                                                        >
+                                                            <Edit3 size={11} /> 송장/기사 수정
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => openShippingModal(order)}
+                                                        style={{
+                                                            background: 'rgba(56, 189, 248, 0.12)',
+                                                            border: '1px solid rgba(56, 189, 248, 0.3)',
+                                                            color: '#38bdf8',
+                                                            borderRadius: '6px',
+                                                            padding: '6px 10px',
+                                                            fontSize: '0.78rem',
+                                                            fontWeight: 700,
+                                                            cursor: 'pointer',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px'
+                                                        }}
+                                                    >
+                                                        <Truck size={13} /> 베트남 택배/송장 입력
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                         <td>
@@ -903,6 +1045,201 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </section>
+            )}
+
+            {/* 베트남 택배 & 송장 입력 모달 */}
+            {shippingModalOrder && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.75)',
+                    backdropFilter: 'blur(5px)',
+                    zIndex: 9999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px'
+                }}>
+                    <div style={{
+                        background: '#18181b',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        borderRadius: '16px',
+                        width: '100%',
+                        maxWidth: '540px',
+                        padding: '24px',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                        color: '#fff'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#fcd34d' }}>
+                                <Truck size={20} color="#38bdf8" /> 베트남 현지 택배 & 송장 등록
+                            </h3>
+                            <button 
+                                onClick={() => setShippingModalOrder(null)}
+                                style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '1.2rem', cursor: 'pointer' }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div style={{ marginBottom: '14px', fontSize: '0.85rem', color: '#d1d5db', background: 'rgba(255,255,255,0.04)', padding: '10px 12px', borderRadius: '8px' }}>
+                            <div>주문 번호: <strong>{shippingModalOrder.orderId}</strong></div>
+                            <div>수령인: <strong>{shippingModalOrder.shippingAddress?.recipient}</strong> ({shippingModalOrder.shippingAddress?.phone})</div>
+                            <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '2px' }}>주소: {shippingModalOrder.shippingAddress?.address}</div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
+                                    1. 베트남 현지 배송 수단 / 택배사 선택
+                                </label>
+                                <select
+                                    value={shippingForm.courier}
+                                    onChange={e => setShippingForm({ ...shippingForm, courier: e.target.value })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        background: '#27272a',
+                                        border: '1px solid #3f3f46',
+                                        color: '#fff',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    <option value="🚀 GrabExpress (그랩 퀵)">🚀 GrabExpress (그랩 오토바이/트럭 퀵)</option>
+                                    <option value="🛵 Ahamove (아하무브 퀵배송)">🛵 Ahamove (아하무브 퀵배송)</option>
+                                    <option value="📦 GHTK (Giao Hàng Tiết Kiệm)">📦 GHTK (Giao Hàng Tiết Kiệm 베트남 택배)</option>
+                                    <option value="🚚 ShopeeExpress (SPX)">🚚 ShopeeExpress (SPX)</option>
+                                    <option value="📮 ViettelPost (비에텔 포스트)">📮 ViettelPost (비에텔 포스트)</option>
+                                    <option value="🚛 VNPost (베트남 우체국)">🚛 VNPost (베트남 우체국)</option>
+                                    <option value="❄️ 대한김치 콜드체인 (자체 냉장 직배송)">❄️ 대한김치 콜드체인 (자체 냉장 직배송)</option>
+                                    <option value="🚚 기타 현지 택배">🚚 기타 현지 택배</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
+                                    2. 송장 번호 (Mã vận đơn)
+                                </label>
+                                <input 
+                                    type="text"
+                                    placeholder="예: GRAB-891023 또는 10293812"
+                                    value={shippingForm.trackingNumber}
+                                    onChange={e => setShippingForm({ ...shippingForm, trackingNumber: e.target.value })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        background: '#27272a',
+                                        border: '1px solid #3f3f46',
+                                        color: '#fff',
+                                        fontSize: '0.9rem'
+                                    }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
+                                    3. 배송기사 / 택배사 연락처 (Số điện thoại tài xế)
+                                </label>
+                                <input 
+                                    type="text"
+                                    placeholder="예: 098-123-4567"
+                                    value={shippingForm.driverPhone}
+                                    onChange={e => setShippingForm({ ...shippingForm, driverPhone: e.target.value })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        background: '#27272a',
+                                        border: '1px solid #3f3f46',
+                                        color: '#fff',
+                                        fontSize: '0.9rem'
+                                    }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
+                                    4. 배송 특이사항 / 안내 메모 (Ghi chú)
+                                </label>
+                                <input 
+                                    type="text"
+                                    placeholder="예: 하노이 미딩 지역 12시 이전 도착 요청"
+                                    value={shippingForm.deliveryMemo}
+                                    onChange={e => setShippingForm({ ...shippingForm, deliveryMemo: e.target.value })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        background: '#27272a',
+                                        border: '1px solid #3f3f46',
+                                        color: '#fff',
+                                        fontSize: '0.9rem'
+                                    }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
+                                    5. 업데이트할 주문 상태 선택
+                                </label>
+                                <select
+                                    value={shippingForm.targetStatus}
+                                    onChange={e => setShippingForm({ ...shippingForm, targetStatus: e.target.value as any })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        background: '#27272a',
+                                        border: '1px solid #3f3f46',
+                                        color: '#fff',
+                                        fontSize: '0.9rem',
+                                        fontWeight: 700
+                                    }}
+                                >
+                                    <option value="SHIPPING">🚚 하노이 배송중 (SHIPPING)</option>
+                                    <option value="DELIVERED">🎁 배송 완료 (DELIVERED)</option>
+                                    <option value="PREPARING">👨‍🍳 상품 준비중 (PREPARING)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+                            <button
+                                onClick={() => setShippingModalOrder(null)}
+                                style={{
+                                    padding: '10px 16px',
+                                    borderRadius: '8px',
+                                    background: 'transparent',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    color: '#d1d5db',
+                                    cursor: 'pointer',
+                                    fontWeight: 600
+                                }}
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleSaveShippingInfo}
+                                style={{
+                                    padding: '10px 20px',
+                                    borderRadius: '8px',
+                                    background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                                    border: 'none',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    fontWeight: 700,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}
+                            >
+                                <CheckCircle2 size={16} /> 배송 정보 저장 및 상태 업데이트
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

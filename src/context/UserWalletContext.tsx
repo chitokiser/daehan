@@ -31,6 +31,14 @@ export interface WalletState {
     moneyBalance: number;
 }
 
+export interface ShippingInfo {
+    courier?: string; // GrabExpress, Ahamove, GHTK, ShopeeExpress, ViettelPost, 대한김치 직배송 등
+    trackingNumber?: string; // 송장번호 / Mã vận đơn
+    driverPhone?: string; // 기사/택배사 연락처
+    shippedAt?: string; // 출고 일시
+    deliveryMemo?: string; // 배송 특이사항 / 메모
+}
+
 export interface MemberOrder {
     orderId: string;
     uid: string;
@@ -52,6 +60,7 @@ export interface MemberOrder {
         address: string;
         memo?: string;
     };
+    shippingInfo?: ShippingInfo;
     status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED";
     createdAt: string;
 }
@@ -110,7 +119,7 @@ interface UserWalletContextType {
     refreshWallet: () => Promise<void>;
     fetchAdminData: () => Promise<void>;
     changeUserRole: (targetUid: string, newRole: UserRole) => Promise<{ success: boolean; error?: string; message?: string }>;
-    changeOrderStatus: (orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => Promise<{ success: boolean; error?: string }>;
+    changeOrderStatus: (orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED", shippingInfo?: ShippingInfo) => Promise<{ success: boolean; error?: string }>;
     convertPoints: (points: number) => Promise<{ success: boolean; error?: string }>;
     convertDpToMoney: (dpAmount: number) => Promise<{ success: boolean; error?: string; convertedMoney?: number }>;
     levelUp: () => Promise<{ success: boolean; error?: string }>;
@@ -153,6 +162,9 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             if (json.success && json.data) {
                 setUser(prev => prev ? {
                     ...prev,
+                    level: json.data.level !== undefined ? json.data.level : prev.level,
+                    exp: json.data.exp !== undefined ? json.data.exp : prev.exp,
+                    role: json.data.role || prev.role,
                     referrerUid: json.data.referrerUid || prev.referrerUid,
                     mentees: json.data.mentees || prev.mentees
                 } : prev);
@@ -160,7 +172,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     points: json.data.pointBalance || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0,
-                    moneyBalance: json.data.moneyBalance || 0
+                    moneyBalance: Number(json.data.moneyBalance || 0)
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
             }
@@ -220,6 +232,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     email: json.data.email,
                     role: json.data.role,
                     avatar: json.data.avatar,
+                    level: json.data.level !== undefined ? json.data.level : 1,
+                    exp: json.data.exp !== undefined ? json.data.exp : 0,
                     referrerUid: json.data.referrerUid,
                     mentees: json.data.mentees || []
                 });
@@ -227,7 +241,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     points: json.data.pointBalance || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0,
-                    moneyBalance: json.data.moneyBalance || 0
+                    moneyBalance: Number(json.data.moneyBalance || 0)
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
                 setIsLoggedIn(true);
@@ -267,6 +281,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     role: json.data.role,
                     avatar: json.data.avatar,
                     phone: json.data.phone,
+                    level: json.data.level !== undefined ? json.data.level : 1,
+                    exp: json.data.exp !== undefined ? json.data.exp : 0,
                     referrerUid: json.data.referrerUid,
                     mentees: json.data.mentees || []
                 };
@@ -275,7 +291,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     points: json.data.pointBalance || 0,
                     vndBalance: json.data.vndBalance || 0,
                     dpPoints: json.data.dpPoints || 0,
-                    moneyBalance: json.data.moneyBalance || 0
+                    moneyBalance: Number(json.data.moneyBalance || 0)
                 });
                 if (json.data.recentOrders) setOrders(json.data.recentOrders);
                 setIsLoggedIn(true);
@@ -366,13 +382,13 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
-    const changeOrderStatus = async (orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED") => {
+    const changeOrderStatus = async (orderId: string, status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED", shippingInfo?: ShippingInfo) => {
         setIsLoading(true);
         try {
             const res = await fetch("/api/v1/admin/change-order-status", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ orderId, status })
+                body: JSON.stringify({ orderId, status, shippingInfo })
             });
             const json = await res.json();
             if (json.success) {

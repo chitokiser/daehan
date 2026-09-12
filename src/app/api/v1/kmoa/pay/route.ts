@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
         if (!uid || !merchantId) {
             return NextResponse.json({ success: false, error: "회원 UID 또는 가맹점 ID가 누락되었습니다." }, { status: 400 });
         }
-        if (!currency || !["HEX", "POINT", "VND"].includes(currency)) {
-            return NextResponse.json({ success: false, error: "유효한 통화(HEX, POINT, VND)를 지정해주세요." }, { status: 400 });
+        if (!currency || !["MONEY", "HEX", "POINT", "VND"].includes(currency)) {
+            return NextResponse.json({ success: false, error: "유효한 통화(MONEY, HEX, POINT, VND)를 지정해주세요." }, { status: 400 });
         }
         if (!amount || Number(amount) <= 0) {
             return NextResponse.json({ success: false, error: "결제 금액이 올바르지 않습니다." }, { status: 400 });

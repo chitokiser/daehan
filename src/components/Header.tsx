@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { useUserWallet } from "@/context/UserWalletContext";
@@ -44,6 +44,22 @@ export default function Header() {
 
     const isSuperAdmin = user?.role === "SUPER_ADMIN";
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
+
+    const closeAllAccountModals = useCallback(() => {
+        setLoginModalOpen(false);
+        setReferrerPromptOpen(false);
+        setShowEmailPrompt(false);
+        setDropdownOpen(false);
+        setMobileMenuOpen(false);
+        setPendingUserInfo(null);
+    }, []);
+
+    // 관리자/운영자 권한 유저 접속 시 모든 계정 모달 자동 닫기
+    useEffect(() => {
+        if (isOperator) {
+            closeAllAccountModals();
+        }
+    }, [isOperator, user?.role, user?.uid, closeAllAccountModals]);
 
     const handleRealGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
@@ -136,9 +152,7 @@ export default function Header() {
 
     const handleSwitchUser = async (uid: string) => {
         await login(uid);
-        setLoginModalOpen(false);
-        setDropdownOpen(false);
-        setMobileMenuOpen(false);
+        closeAllAccountModals();
     };
 
     const navLinks = [
@@ -164,7 +178,7 @@ export default function Header() {
                         <Link key={link.href} href={link.href} className={styles.navLink}>{link.label}</Link>
                     ))}
                     {isOperator && (
-                        <Link href="/admin" className={`${styles.navLink} ${styles.adminNavLink}`}>
+                        <Link href="/admin" className={`${styles.navLink} ${styles.adminNavLink}`} onClick={closeAllAccountModals}>
                             <ShieldAlert size={15} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
                             관리자 모드
                         </Link>
@@ -225,14 +239,14 @@ export default function Header() {
                                             <User size={15} /> 주문 내역 & 포인트
                                         </Link>
                                         {isOperator && (
-                                            <Link href="/admin" className={`${styles.dropdownLink} ${styles.adminDropdownLink}`} onClick={() => setDropdownOpen(false)}>
+                                            <Link href="/admin" className={`${styles.dropdownLink} ${styles.adminDropdownLink}`} onClick={closeAllAccountModals}>
                                                 <ShieldAlert size={15} /> 관리자 센터
                                             </Link>
                                         )}
                                         <button className={styles.switchUserBtn} onClick={() => { setDropdownOpen(false); setLoginModalOpen(true); }}>
                                             다른 계정 로그인
                                         </button>
-                                        <button className={styles.logoutBtn} onClick={() => { logout(); setDropdownOpen(false); }}>
+                                        <button className={styles.logoutBtn} onClick={() => { logout(); closeAllAccountModals(); }}>
                                             <LogOut size={15} /> 로그아웃
                                         </button>
                                     </div>
@@ -293,7 +307,7 @@ export default function Header() {
                         <Link 
                             href="/admin" 
                             className={`${styles.mobileNavLink} ${styles.adminNavLink}`}
-                            onClick={() => setMobileMenuOpen(false)}
+                            onClick={closeAllAccountModals}
                         >
                             <ShieldAlert size={15} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
                             관리자 모드
@@ -304,12 +318,26 @@ export default function Header() {
 
             {/* Login / User Switch Modal */}
             {loginModalOpen && (
-                <div className={styles.modalOverlay} onClick={() => setLoginModalOpen(false)}>
+                <div className={styles.modalOverlay} onClick={closeAllAccountModals}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
-                            <h3>로그인</h3>
-                            <button className={styles.modalClose} onClick={() => setLoginModalOpen(false)}>✕</button>
+                            <h3>로그인 & 계정 선택</h3>
+                            <button className={styles.modalClose} onClick={closeAllAccountModals}>✕</button>
                         </div>
+                        {isOperator && (
+                            <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.84rem', color: '#991b1b', fontWeight: 700 }}>
+                                    🛡️ 최고 관리자 권한으로 로그인되어 있습니다.
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={closeAllAccountModals}
+                                    style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                    모달 닫기
+                                </button>
+                            </div>
+                        )}
                         <p className={styles.modalDesc}>
                             Google 계정 또는 이메일로 로그인하세요.
                         </p>
