@@ -50,18 +50,18 @@ export default function Shop() {
                 <h1 className={`${styles.title} text-gradient`}>DAEHAN KIMCHI SHOP</h1>
                 <p className={styles.description}>
                     한국 정통의 발효 비법과 HACCP 기준 위생 관리 환경에서 정성껏 담근 대한김치의 15가지 정통 라인업.<br />
-                    신선한 소매 1Kg 단위부터 식당·기업을 위한 10Kg 이상 대량 주문까지 VND 직불 및 대한포인트로 간편 결제할 수 있습니다.
+                    신선한 소매 1Kg 포장부터 식당·업소를 위한 5Kg 도매 포장까지 VND 계좌이체 및 대한페이로 간편 결제할 수 있습니다.
                 </p>
 
                 <div className={styles.deliveryBanner}>
                     <div className={styles.bannerItem}>
                         <Truck size={18} color="#D4870A" />
-                        <span><strong>10kg 이상 주문 시</strong> 하노이 시내 무료배송</span>
+                        <span><strong>5kg 도매 포장 주문 시</strong> 하노이 시내 콜드체인 신선배송</span>
                     </div>
                     <div className={styles.bannerDivider}></div>
                     <div className={styles.bannerItem}>
                         <ShieldCheck size={18} color="#16a34a" />
-                        <span><strong>식당·업소·단체 정기납품</strong> 특별 도매가 공급</span>
+                        <span><strong>식당·업소·단체 정기납품</strong> 5Kg 도매가 공급</span>
                     </div>
                     <div className={styles.bannerDivider}></div>
                     <div className={styles.bannerItem}>
@@ -197,7 +197,7 @@ export default function Shop() {
                         <span className="badge">B2B & WHOLESALE</span>
                         <h3>식당 / 기업 / 단체 대량 주문 안내</h3>
                         <p>
-                            하노이 내 한식당, 호텔, 기업체 급식 및 마트에 정기적으로 10kg, 20kg, 50kg 단위로 신선하게 냉장 납품합니다.<br />
+                            하노이 내 한식당, 호텔, 기업체 급식 및 마트에 정기적으로 5kg 도매 포장 단위로 신선하게 냉장 납품합니다.<br />
                             정기 계약 시 맞춤형 숙성도 조절 및 대한포인트 추가 적립 혜택을 제공합니다.
                         </p>
                     </div>
