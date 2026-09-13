@@ -84,10 +84,35 @@ export interface ChargeRequest {
     approvedAt?: string;
 }
 
+export interface SubscriptionData {
+    subscriptionId: string;
+    uid: string;
+    userName?: string;
+    userEmail?: string;
+    tier: "basic" | "family" | "restaurant";
+    tierName: string;
+    weight: string;
+    kimchiType: string;
+    cycle: string;
+    monthlyPriceVnd: number;
+    originalPriceVnd: number;
+    discountPercent: number;
+    shippingAddress: {
+        recipient: string;
+        phone: string;
+        address: string;
+        memo?: string;
+    };
+    paymentMethod: string;
+    status: "ACTIVE" | "PAUSED" | "CANCELLED";
+    createdAt: string;
+}
+
 export const USERS_COL = 'users';
 export const TRANSACTIONS_COL = 'transactions';
 export const ORDERS_COL = 'orders';
 export const CHARGE_REQUESTS_COL = 'chargeRequests';
+export const SUBSCRIPTIONS_COL = 'subscriptions';
 
 interface InMemoryDoc {
     id: string;
@@ -1166,4 +1191,84 @@ export async function rejectChargeRequest(requestId: string): Promise<{ success:
         return { success: false, error: e.message };
     }
 }
+
+export async function createSubscription(params: {
+    uid: string;
+    userName?: string;
+    userEmail?: string;
+    tier: "basic" | "family" | "restaurant";
+    tierName: string;
+    weight: string;
+    kimchiType: string;
+    cycle: string;
+    monthlyPriceVnd: number;
+    originalPriceVnd: number;
+    discountPercent: number;
+    shippingAddress: {
+        recipient: string;
+        phone: string;
+        address: string;
+        memo?: string;
+    };
+    paymentMethod: string;
+}): Promise<{ success: boolean; subscription?: SubscriptionData; error?: string }> {
+    try {
+        const db = getDb();
+        const subscriptionId = `SUB-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+        const newSub: SubscriptionData = {
+            subscriptionId,
+            uid: params.uid,
+            userName: params.userName,
+            userEmail: params.userEmail,
+            tier: params.tier,
+            tierName: params.tierName,
+            weight: params.weight,
+            kimchiType: params.kimchiType,
+            cycle: params.cycle,
+            monthlyPriceVnd: params.monthlyPriceVnd,
+            originalPriceVnd: params.originalPriceVnd,
+            discountPercent: params.discountPercent,
+            shippingAddress: params.shippingAddress,
+            paymentMethod: params.paymentMethod,
+            status: "ACTIVE",
+            createdAt: new Date().toISOString()
+        };
+
+        await db.collection(SUBSCRIPTIONS_COL).doc(subscriptionId).set(newSub);
+
+        // 텔레그램 운영자 알림 전송 (비동기 안전 실행)
+        NotificationService.sendSubscriptionNotification({
+            subscriptionId,
+            uid: params.uid,
+            userName: params.userName,
+            tierName: params.tierName,
+            kimchiType: params.kimchiType,
+            cycle: params.cycle,
+            weight: params.weight,
+            monthlyPriceVnd: params.monthlyPriceVnd,
+            recipient: params.shippingAddress.recipient,
+            phone: params.shippingAddress.phone,
+            address: params.shippingAddress.address
+        }).catch(err => console.error("⚠️ [Subscription Notification Error]", err));
+
+        return { success: true, subscription: newSub };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getUserSubscriptions(uid: string): Promise<SubscriptionData[]> {
+    try {
+        const db = getDb();
+        const snap = await db.collection(SUBSCRIPTIONS_COL).get();
+        const subs = snap.docs
+            .map((doc: any) => doc.data() as SubscriptionData)
+            .filter((s: any) => s.uid === uid);
+        return subs.sort((a: any, b: any) => b.createdAt.localeCompare(a.createdAt));
+    } catch {
+        return [];
+    }
+}
+
 

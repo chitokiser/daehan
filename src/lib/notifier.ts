@@ -148,6 +148,48 @@ ${itemsText}
     }
 
     /**
+     * 정기구독 신청 발생 시 운영자 알림 전송
+     */
+    public static async sendSubscriptionNotification(subData: {
+        subscriptionId: string;
+        uid: string;
+        userName?: string;
+        tierName: string;
+        kimchiType: string;
+        cycle: string;
+        weight: string;
+        monthlyPriceVnd: number;
+        recipient: string;
+        phone: string;
+        address: string;
+    }): Promise<void> {
+        try {
+            const htmlMessage = `
+🥬 <b>[대한김치] 정기배송 구독 신청!</b> 🥬
+
+🆔 <b>구독 ID:</b> <code>${subData.subscriptionId}</code>
+👤 <b>회원:</b> ${subData.userName || subData.uid}
+📦 <b>구독 플랜:</b> <b>${subData.tierName} (${subData.weight})</b>
+🌶️ <b>선택 김치:</b> ${subData.kimchiType}
+🗓️ <b>배송 주기:</b> <b>${subData.cycle}</b>
+💰 <b>월 정기 금액 (5% 할인가):</b> <b>${subData.monthlyPriceVnd.toLocaleString()} VND</b>
+
+📍 <b>배송지 정보:</b>
+  • 수령인: ${subData.recipient}
+  • 연락처: ${subData.phone}
+  • 주소: ${subData.address}
+
+⏰ <b>신청시각:</b> ${new Date().toLocaleString("ko-KR")}
+            `.trim();
+
+            console.log("📢 [NotificationService] 텔레그램 정기구독 알림 시도 중...", subData.subscriptionId);
+            await this.sendTelegramMessage(htmlMessage);
+        } catch (err) {
+            console.error("❌ [NotificationService] sendSubscriptionNotification 에러:", err);
+        }
+    }
+
+    /**
      * (향후 확장용) FCM 모바일 Push 알림 스텁
      */
     public static async sendFcmPushNotification(_payload: any): Promise<void> {

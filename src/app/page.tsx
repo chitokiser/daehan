@@ -27,9 +27,9 @@ export default function Home() {
             {t("hero.sub", "엄선된 고랭지 배추와 100% 천연 재료, HACCP 위생 인증 시설에서 정성껏 담근 한국 정통 김치.")}
           </p>
           <div className={`${styles.ctaGroup} ${styles.fadeInUp} ${styles.delay3}`}>
-            <Link href="/dna-test">
+            <Link href="/subscribe">
               <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {t("dna.bannerBtn", "나의 김치 DNA 찾기")} <ArrowRight size={18} />
+                🥬 {lang === "vi" ? "Đăng ký Kimchi định kỳ" : "김치 정기배송 구독하기"} <ArrowRight size={18} />
               </button>
             </Link>
             <Link href="/shop">
@@ -81,6 +81,33 @@ export default function Home() {
               {t("best.viewAll", "전체 상품 보러가기 →")}
             </button>
           </Link>
+        </div>
+      </section>
+
+      {/* Subscription Banner Section */}
+      <section className="container">
+        <div className={styles.subBanner}>
+          <div style={{ flex: 1, minWidth: '280px' }}>
+            <span className="badge" style={{ background: 'rgba(200,57,43,0.1)', color: 'var(--primary-color)' }}>
+              🥬 {lang === "vi" ? "ĐĂNG KÝ KIMCHI ĐỊNH KỲ" : "김치 정기배송 서비스"}
+            </span>
+            <h2 className={styles.subBannerTitle}>
+              {lang === "vi" ? "Giao Kimchi tươi tận nhà hàng tuần / hàng tháng" : "1주일에 1회, 매월 1일/15일 원하는 만큼 정기배송"}
+            </h2>
+            <p style={{ color: 'var(--text-sub)', fontSize: '1rem', lineHeight: '1.6', margin: 0 }}>
+              {lang === "vi" 
+                ? "Tận hưởng ưu đãi giảm giá 5% + Miễn phí giao hàng lạnh + Tích 10% điểm DP với các gói Basic (2Kg), Family (5Kg), Restaurant (10~30Kg)." 
+                : "Basic(2Kg), Family(5Kg), Restaurant(10~30Kg) 맞춤 플랜! 정기구독 신청 시 5% 할인 + 무료배송 + 10% DP 적립 혜택을 제공합니다."}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Link href="/subscribe">
+              <button className="btn-primary" style={{ padding: '14px 28px', fontSize: '1rem', fontWeight: 800 }}>
+                {lang === "vi" ? "Xem các gói đăng ký →" : "🥬 김치 정기구독 신청하기 →"}
+              </button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -240,7 +267,7 @@ export default function Home() {
           <div className={styles.trustItem}>
             <HeartHandshake size={36} color="#e50914" />
             <h4>{lang === "vi" ? "Ưu đãi điểm thưởng DP" : "대한포인트 혜택"}</h4>
-            <p>{lang === "vi" ? "Tích lũy 10% điểm DP khi mua hàng và đánh giá" : "구매 시 10% DP 즉시 적립 및 후기 작성 혜택"}</p>
+            <p>{lang === "vi" ? "Tích lũy 10% điểm DP khi mua hàng 및 đánh giá" : "구매 시 10% DP 즉시 적립 및 후기 작성 혜택"}</p>
           </div>
         </div>
       </section>

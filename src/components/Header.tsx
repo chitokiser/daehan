@@ -161,6 +161,7 @@ export default function Header() {
         { href: "/about", label: t("nav.about", "소개") },
         { href: "/service", label: t("nav.service", "서비스(웹진)") },
         { href: "/shop", label: t("nav.shop", "쇼핑몰") },
+        { href: "/subscribe", label: t("nav.subscribe", "정기구독") },
         { href: "/mypage", label: t("nav.mypage", "마이페이지") }
     ];
 
