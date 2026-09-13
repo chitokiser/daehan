@@ -6,6 +6,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { products, Product } from "@/data/products";
 import { useUserWallet } from "@/context/UserWalletContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
     Star, Truck, ShieldCheck, Award, Sparkles, Check,
     ArrowLeft, Heart, Plus, Minus, PackageCheck,
@@ -18,6 +19,7 @@ export default function ProductDetail() {
     const rawId = params?.id as string || "1";
 
     const { user, wallet, isLoggedIn, payOrder, isLoading, refreshWallet, loginWithGoogle } = useUserWallet();
+    const { lang, t } = useLanguage();
 
     // Find product by id, idx, or slug
     const product: Product = useMemo(() => {
@@ -229,17 +231,22 @@ export default function ProductDetail() {
         return products.filter(p => p.id !== product.id).slice(0, 4);
     }, [product]);
 
+    const displayName = lang === "vi" ? (product.vietnameseName || product.koreanName) : product.koreanName;
+    const displayCategory = lang === "vi" ? (product.vietnameseCategory || product.category) : product.category;
+    const displayDetailDesc = lang === "vi" ? (product.vietnameseDetailDesc || product.vietnameseDesc || product.detailDesc || product.desc) : (product.detailDesc || product.desc);
+    const displayFeatures = lang === "vi" ? (product.vietnameseFeatures || product.features) : product.features;
+
     return (
         <div className={styles.detailContainer}>
             {/* Breadcrumb */}
             <div className={styles.breadcrumb}>
                 <Link href="/shop" className={styles.backLink}>
-                    <ArrowLeft size={16} /> 전체 김치 목록으로 돌아가기
+                    <ArrowLeft size={16} /> {lang === "vi" ? "Quay lại danh sách Kimchi" : "전체 김치 목록으로 돌아가기"}
                 </Link>
                 <span className={styles.breadDivider}>/</span>
-                <span className={styles.breadCurrent}>{product.category}</span>
+                <span className={styles.breadCurrent}>{displayCategory}</span>
                 <span className={styles.breadDivider}>/</span>
-                <span className={styles.breadCurrent}>{product.koreanName}</span>
+                <span className={styles.breadCurrent}>{displayName}</span>
             </div>
 
             {/* Main Product Split View */}
@@ -251,8 +258,8 @@ export default function ProductDetail() {
                             {product.badge}
                         </span>
                     )}
-                    <span className={styles.categoryBadge}>{product.category}</span>
-                    <img src={product.image} alt={product.name} className={styles.productImage} />
+                    <span className={styles.categoryBadge}>{displayCategory}</span>
+                    <img src={product.image} alt={displayName} className={styles.productImage} />
                     <button 
                         className={`${styles.likeBtn} ${isLiked ? styles.liked : ''}`} 
                         onClick={() => setIsLiked(!isLiked)}
@@ -266,10 +273,10 @@ export default function ProductDetail() {
                 <div className={styles.infoSection}>
                     <div className={styles.titleArea}>
                         <div className={styles.subMeta}>
-                            <span className={styles.brandName}>DAEHAN KIMCHI • 대한민국 대표 프리미엄 김치</span>
-                            <span className={styles.ratingBadge}>★ 4.9 (후기 {reviews.length}개)</span>
+                            <span className={styles.brandName}>DAEHAN KIMCHI • {lang === "vi" ? "Kimchi cao cấp số 1 Hàn Quốc" : "대한민국 대표 프리미엄 김치"}</span>
+                            <span className={styles.ratingBadge}>★ 4.9 ({lang === "vi" ? "Đánh giá" : "후기"} {reviews.length}{lang === "vi" ? "" : "개"})</span>
                         </div>
-                        <h1 className={styles.title}>{product.koreanName}</h1>
+                        <h1 className={styles.title}>{displayName}</h1>
                         <p className={styles.englishSubtitle}>{product.englishName}</p>
                     </div>
 
@@ -280,20 +287,24 @@ export default function ProductDetail() {
                                 <span className={styles.finalPrice}>{totalPriceVnd.toLocaleString()} VND</span>
                             </div>
                             {selectedWeight >= 5 && (
-                                <span className={styles.discountTag}>5Kg 도매 포장</span>
+                                <span className={styles.discountTag}>{lang === "vi" ? "Gói sỉ 5Kg" : "5Kg 도매 포장"}</span>
                             )}
                         </div>
                         <div className={styles.pointRow}>
                             <Sparkles size={14} color="#D4870A" />
-                            <span>결제 시 <strong>{earnedPoints.toLocaleString()} DP</strong> (10% 대한포인트 마일리지) 즉시 적립</span>
+                            <span>
+                                {lang === "vi" ? "Tích lũy ngay " : "결제 시 "}
+                                <strong>{earnedPoints.toLocaleString()} DP</strong>
+                                {lang === "vi" ? " (Tích 10% điểm Daehan)" : " (10% 대한포인트 마일리지) 즉시 적립"}
+                            </span>
                         </div>
                     </div>
 
-                    <p className={styles.desc}>{product.detailDesc || product.desc}</p>
+                    <p className={styles.desc}>{displayDetailDesc}</p>
 
                     {/* Features checklist */}
                     <div className={styles.featuresList}>
-                        {product.features.map((f, i) => (
+                        {displayFeatures.map((f, i) => (
                             <div key={i} className={styles.featureItem}>
                                 <Check size={16} color="#00E676" />
                                 <span>{f}</span>

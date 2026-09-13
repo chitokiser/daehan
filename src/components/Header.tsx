@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { useUserWallet } from "@/context/UserWalletContext";
-import { User, LogOut, ChevronDown, ShieldAlert, Wallet, Menu, X } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { User, LogOut, ChevronDown, ShieldAlert, Wallet, Menu, X, Globe } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
     const { user, wallet, isLoggedIn, login, loginWithGoogle, logout, isLoading } = useUserWallet();
+    const { lang, setLang, t } = useLanguage();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -156,10 +158,10 @@ export default function Header() {
     };
 
     const navLinks = [
-        { href: "/about", label: "소개" },
-        { href: "/service", label: "서비스(웹진)" },
-        { href: "/shop", label: "쇼핑몰" },
-        { href: "/mypage", label: "마이페이지" }
+        { href: "/about", label: t("nav.about", "소개") },
+        { href: "/service", label: t("nav.service", "서비스(웹진)") },
+        { href: "/shop", label: t("nav.shop", "쇼핑몰") },
+        { href: "/mypage", label: t("nav.mypage", "마이페이지") }
     ];
 
     return (
@@ -183,12 +185,32 @@ export default function Header() {
                     {isOperator && (
                         <Link href="/admin" className={`${styles.navLink} ${styles.adminNavLink}`} onClick={closeAllAccountModals}>
                             <ShieldAlert size={15} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                            관리자 모드
+                            {t("nav.admin", "관리자 센터")}
                         </Link>
                     )}
                 </nav>
 
-                <div className={styles.authAction}>
+                <div className={styles.authAction} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {/* Language Switcher Button Group */}
+                    <div className={styles.langSwitchGroup}>
+                        <button 
+                            type="button"
+                            className={`${styles.langOptionBtn} ${lang === 'ko' ? styles.langOptionActive : ''}`}
+                            onClick={() => setLang('ko')}
+                            title="한국어"
+                        >
+                            <span className={styles.langFlag}>🇰🇷</span> KO
+                        </button>
+                        <button 
+                            type="button"
+                            className={`${styles.langOptionBtn} ${lang === 'vi' ? styles.langOptionActive : ''}`}
+                            onClick={() => setLang('vi')}
+                            title="Tiếng Việt"
+                        >
+                            <span className={styles.langFlag}>🇻🇳</span> VI
+                        </button>
+                    </div>
+
                     {isLoggedIn && user ? (
                         <div className={styles.walletBar}>
                             {/* User Profile Trigger */}
@@ -226,37 +248,37 @@ export default function Header() {
 
                                     <div className={styles.balancesBlock}>
                                         <div className={styles.walletBalanceBadge}>
-                                            <span>💳 충전머니:</span>
+                                            <span>💳 {t("header.chargedMoney", "충전머니")}:</span>
                                             <strong>{wallet.moneyBalance?.toLocaleString() || 0} 머니</strong>
                                         </div>
                                         <div className={styles.balanceItem}>
-                                            <span>🎟️ 적립 포인트:</span>
+                                            <span>🎟️ {t("header.points", "적립 포인트")}:</span>
                                             <strong>{wallet.points.toLocaleString()} P</strong>
                                         </div>
                                         <div className={styles.balanceItem}>
-                                            <span>💵 VND 잔액:</span>
+                                            <span>💵 {t("header.vndBalance", "VND 잔액")}:</span>
                                             <strong>{wallet.vndBalance.toLocaleString()} ₫</strong>
                                         </div>
                                         <div className={styles.balanceItem}>
-                                            <span>⭐ 대한포인트(DP):</span>
+                                            <span>⭐ {t("header.dpPoints", "대한포인트(DP)")}:</span>
                                             <strong style={{ color: '#D4870A' }}>{wallet.dpPoints.toLocaleString()} DP</strong>
                                         </div>
                                     </div>
 
                                     <div className={styles.dropdownActions}>
                                         <Link href="/mypage" className={styles.dropdownLink} onClick={() => setDropdownOpen(false)}>
-                                            <User size={15} /> 주문 내역 & 포인트
+                                            <User size={15} /> {t("header.ordersAndPoints", "주문 내역 & 포인트")}
                                         </Link>
                                         {isOperator && (
                                             <Link href="/admin" className={`${styles.dropdownLink} ${styles.adminDropdownLink}`} onClick={closeAllAccountModals}>
-                                                <ShieldAlert size={15} /> 관리자 센터
+                                                <ShieldAlert size={15} /> {t("nav.admin", "관리자 센터")}
                                             </Link>
                                         )}
                                         <button className={styles.switchUserBtn} onClick={() => { setDropdownOpen(false); setLoginModalOpen(true); }}>
-                                            다른 계정 로그인
+                                            {t("header.switchAccount", "다른 계정 로그인")}
                                         </button>
                                         <button className={styles.logoutBtn} onClick={() => { logout(); closeAllAccountModals(); }}>
-                                            <LogOut size={15} /> 로그아웃
+                                            <LogOut size={15} /> {t("nav.logout", "로그아웃")}
                                         </button>
                                     </div>
                                 </div>
@@ -288,7 +310,7 @@ export default function Header() {
                                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                                 </svg>
-                                로그인
+                                {t("nav.login", "로그인")}
                             </button>
                         </div>
                     )}
@@ -302,6 +324,27 @@ export default function Header() {
             {/* Mobile Navigation Overlay */}
             {mobileMenuOpen && (
                 <div className={styles.mobileNavOverlay}>
+                    {/* Mobile Language Switcher */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '12px', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-sub)' }}>🌐 언어 선택 / Ngôn ngữ:</span>
+                        <div className={styles.langSwitchGroup}>
+                            <button 
+                                type="button"
+                                className={`${styles.langOptionBtn} ${lang === 'ko' ? styles.langOptionActive : ''}`}
+                                onClick={() => setLang('ko')}
+                            >
+                                <span className={styles.langFlag}>🇰🇷</span> 한국어
+                            </button>
+                            <button 
+                                type="button"
+                                className={`${styles.langOptionBtn} ${lang === 'vi' ? styles.langOptionActive : ''}`}
+                                onClick={() => setLang('vi')}
+                            >
+                                <span className={styles.langFlag}>🇻🇳</span> Tiếng Việt
+                            </button>
+                        </div>
+                    </div>
+
                     {navLinks.map(link => (
                         <Link 
                             key={link.href} 
@@ -319,7 +362,7 @@ export default function Header() {
                             onClick={closeAllAccountModals}
                         >
                             <ShieldAlert size={15} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                            관리자 모드
+                            {t("nav.admin", "관리자 센터")}
                         </Link>
                     )}
                 </div>

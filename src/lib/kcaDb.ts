@@ -1,5 +1,5 @@
 import { getAdminDb } from './firebaseAdmin';
-import { sendAdminOrderNotification } from "./notifier";
+import { NotificationService, sendAdminOrderNotification } from "./notifier";
 
 export type UserRole = "SUPER_ADMIN" | "OPERATOR" | "VIP_MEMBER" | "GOLD_MEMBER" | "MEMBER";
 
@@ -650,6 +650,8 @@ export async function executePayment(params: {
         memo: params.orderId
     } : null;
 
+    let newOrderToNotify: MemberOrder | null = null;
+
     if (params.items && params.items.length > 0) {
         const orderRef = db.collection(ORDERS_COL).doc(params.orderId);
         const newOrder = {
@@ -671,10 +673,18 @@ export async function executePayment(params: {
             createdAt: timestamp
         };
         batch.set(orderRef, newOrder);
-        sendAdminOrderNotification(newOrder as MemberOrder).catch(err => console.error(err));
+        newOrderToNotify = newOrder as MemberOrder;
     }
 
+    // 1. 주문 DB 저장이 성공한 후 알림을 발송한다.
     await batch.commit();
+
+    // 2. DB 저장 성공 완료 후 텔레그램 알림 발송 (알림 실패가 주문에 영향을 주지 않음)
+    if (newOrderToNotify) {
+        NotificationService.sendOrderNotification(newOrderToNotify as any).catch(err => {
+            console.error("⚠️ [Order Notification Warning] DB 주문 저장은 성공했으나 텔레그램 알림 전송 중 오류 발생:", err);
+        });
+    }
 
     if (!isPendingBankTransfer) {
         await distributeReferralRewards(params.uid, amount, params.currency);
@@ -1059,6 +1069,12 @@ export async function createChargeRequest(uid: string, amount: number, depositor
         };
 
         await db.collection(CHARGE_REQUESTS_COL).doc(requestId).set(newReq);
+
+        // DB 저장이 완료된 후 운영자 텔레그램 알림 발송 (안전 예외 처리)
+        NotificationService.sendDepositRequestNotification(newReq).catch(err => {
+            console.error("⚠️ [Deposit Request Notification Warning] DB 저장은 성공했으나 텔레그램 알림 발송 실패:", err);
+        });
+
         return { success: true, request: newReq };
     } catch (e: any) {
         return { success: false, error: e.message };

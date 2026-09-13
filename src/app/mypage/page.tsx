@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useUserWallet } from "@/context/UserWalletContext";
+import { useLanguage } from "@/context/LanguageContext";
 import styles from "./page.module.css";
 import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag, ArrowRightLeft, TrendingUp, Zap, Building, Landmark, CreditCard, QrCode, Truck } from "lucide-react";
 
 export default function MyPage() {
     const { user, wallet, isLoggedIn, orders, refreshWallet, convertDpToMoney, levelUp } = useUserWallet();
+    const { lang, t } = useLanguage();
     const [mounted, setMounted] = useState(false);
     const [copiedUid, setCopiedUid] = useState(false);
     const [copiedLink, setCopiedLink] = useState(false);
@@ -57,6 +59,15 @@ export default function MyPage() {
     };
 
     const getStatusText = (status: string) => {
+        if (lang === "vi") {
+            switch (status) {
+                case "PAID": return "Đã thanh toán";
+                case "PREPARING": return "Đang chuẩn bị hàng";
+                case "SHIPPING": return "Đang giao hàng";
+                case "DELIVERED": return "Đã giao thành công";
+                default: return status;
+            }
+        }
         switch (status) {
             case "PAID": return "결제완료";
             case "PREPARING": return "상품준비중";

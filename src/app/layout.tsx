@@ -35,6 +35,8 @@ export const metadata: Metadata = {
 
 import PWAInit from "@/components/PWAInit";
 
+import { LanguageProvider } from "@/context/LanguageContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -87,13 +89,15 @@ export default function RootLayout({
       <body className={`${inter.variable} ${notoSansKr.variable}`}>
         <ExtensionErrorShield />
         <PWAInit />
-        <GoogleAuthProvider>
-          <UserWalletProvider>
-            <Header />
-            <main style={{ minHeight: "100vh" }}>{children}</main>
-            <Footer />
-          </UserWalletProvider>
-        </GoogleAuthProvider>
+        <LanguageProvider>
+          <GoogleAuthProvider>
+            <UserWalletProvider>
+              <Header />
+              <main style={{ minHeight: "100vh" }}>{children}</main>
+              <Footer />
+            </UserWalletProvider>
+          </GoogleAuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

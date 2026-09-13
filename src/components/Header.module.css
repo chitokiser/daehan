@@ -523,3 +523,63 @@
         right: -4px;
     }
 }
+
+/* Multi-language Toggle Button */
+.langToggleBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.langToggleBtn:hover {
+    background: #fcf8f5;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.langFlag {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.langSwitchGroup {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.04);
+    padding: 3px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.langOptionBtn {
+    border: none;
+    background: transparent;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.langOptionActive {
+    background: #ffffff;
+    color: var(--primary-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
