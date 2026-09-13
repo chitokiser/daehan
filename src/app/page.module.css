@@ -691,10 +691,41 @@
   color: #D4870A;
 }
 
-@media (max-width: 768px) {
-  .rankTop3Grid {
-    grid-template-columns: 1fr;
-  }
+
+.rankingTabContainer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
 }
+
+.rankingTabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-sub);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.rankingTabBtn:hover {
+  border-color: #D4870A;
+  color: #D4870A;
+}
+
+.rankingTabActive {
+  background: #D4870A !important;
+  color: #ffffff !important;
+  border-color: #D4870A !important;
+  box-shadow: 0 4px 14px rgba(212, 135, 10, 0.3) !important;
+}
+
 
 

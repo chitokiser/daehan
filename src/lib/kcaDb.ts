@@ -1352,4 +1352,106 @@ export async function getTopDpRankings(limitCount = 10): Promise<DpRankItem[]> {
     }
 }
 
+export interface ReferralRankItem {
+    rank: number;
+    displayName: string;
+    maskedEmail: string;
+    level: number;
+    menteeCount: number;
+    avatar?: string;
+    badgeTitle?: string;
+}
+
+export async function getTopReferralRankings(limitCount = 10): Promise<ReferralRankItem[]> {
+    const fallbackMock: ReferralRankItem[] = [
+        { rank: 1, displayName: "최*민", maskedEmail: "dag***@gmail.com", level: 9, menteeCount: 48, avatar: "https://ui-avatars.com/api/?name=Choi&background=C8392B&color=fff&bold=true", badgeTitle: "👑 최상위 멘토 마스터" },
+        { rank: 2, displayName: "응우옌티*", maskedEmail: "ngu***@gmail.com", level: 8, menteeCount: 35, avatar: "https://ui-avatars.com/api/?name=Nguyen&background=D4870A&color=fff&bold=true", badgeTitle: "🔥 다이아몬드 멘토" },
+        { rank: 3, displayName: "김*석", maskedEmail: "kim***@naver.com", level: 7, menteeCount: 29, avatar: "https://ui-avatars.com/api/?name=Kim&background=16a34a&color=fff&bold=true", badgeTitle: "⭐ 골드 멘토" },
+        { rank: 4, displayName: "박*훈", maskedEmail: "park***@gmail.com", level: 6, menteeCount: 22, avatar: "https://ui-avatars.com/api/?name=Park&background=2563eb&color=fff&bold=true", badgeTitle: "🎖️ 실버 멘토" },
+        { rank: 5, displayName: "이*영", maskedEmail: "lee***@hanmail.net", level: 5, menteeCount: 18, avatar: "https://ui-avatars.com/api/?name=Lee&background=9333ea&color=fff&bold=true", badgeTitle: "🎖️ 실버 멘토" },
+        { rank: 6, displayName: "쩐반*", maskedEmail: "tran***@gmail.com", level: 5, menteeCount: 14, avatar: "https://ui-avatars.com/api/?name=Tran&background=0891b2&color=fff&bold=true", badgeTitle: "✨ 우수 앰버서더" },
+        { rank: 7, displayName: "정*우", maskedEmail: "jung***@kakao.com", level: 4, menteeCount: 11, avatar: "https://ui-avatars.com/api/?name=Jung&background=ca8a04&color=fff&bold=true", badgeTitle: "✨ 우수 앰버서더" },
+        { rank: 8, displayName: "한*희", maskedEmail: "han***@gmail.com", level: 4, menteeCount: 9, avatar: "https://ui-avatars.com/api/?name=Han&background=db2777&color=fff&bold=true", badgeTitle: "🌱 열정 리더" },
+        { rank: 9, displayName: "팜티*", maskedEmail: "pham***@gmail.com", level: 3, menteeCount: 7, avatar: "https://ui-avatars.com/api/?name=Pham&background=4b5563&color=fff&bold=true", badgeTitle: "🌱 열정 리더" },
+        { rank: 10, displayName: "송*호", maskedEmail: "song***@naver.com", level: 3, menteeCount: 5, avatar: "https://ui-avatars.com/api/?name=Song&background=65a30d&color=fff&bold=true", badgeTitle: "🌱 열정 리더" }
+    ];
+
+    try {
+        const db = getDb();
+        const snap = await db.collection(USERS_COL).get();
+        const users = snap.docs.map((doc: any) => doc.data() as UserWalletData);
+
+        if (users.length === 0) return fallbackMock;
+
+        // Calculate mentee counts per user
+        const menteeCountsMap = new Map<string, number>();
+        users.forEach((u: UserWalletData) => {
+            if (u.referrerUid) {
+                menteeCountsMap.set(u.referrerUid, (menteeCountsMap.get(u.referrerUid) || 0) + 1);
+            }
+        });
+
+        // Filter users who have referred at least 1 person or sort users by mentee count
+        const rankedUsers = users
+            .map((u: UserWalletData) => ({
+                user: u,
+                menteeCount: menteeCountsMap.get(u.uid) || 0
+            }))
+            .filter((item: { user: UserWalletData; menteeCount: number }) => item.menteeCount > 0)
+            .sort((a: { user: UserWalletData; menteeCount: number }, b: { user: UserWalletData; menteeCount: number }) => {
+                if (b.menteeCount !== a.menteeCount) {
+                    return b.menteeCount - a.menteeCount;
+                }
+                return (b.user.dpPoints || 0) - (a.user.dpPoints || 0);
+            });
+
+        if (rankedUsers.length === 0) return fallbackMock;
+
+        const result: ReferralRankItem[] = rankedUsers.slice(0, limitCount).map((item: { user: UserWalletData; menteeCount: number }, i: number) => {
+            const u = item.user;
+            const rawName = u.name || "회원";
+            const maskedName = rawName.length > 2 
+                ? `${rawName[0]}*${rawName[rawName.length - 1]}`
+                : `${rawName[0]}*`;
+
+            const emailParts = (u.email || "user@daehankimchi.com").split("@");
+            const maskedEmail = emailParts[0].length > 3
+                ? `${emailParts[0].substring(0, 3)}***@${emailParts[1] || "gmail.com"}`
+                : `${emailParts[0]}***@gmail.com`;
+
+            const mCount = item.menteeCount;
+            let badgeTitle = "🌱 열정 리더";
+            if (mCount >= 40) badgeTitle = "👑 최상위 멘토 마스터";
+            else if (mCount >= 30) badgeTitle = "🔥 다이아몬드 멘토";
+            else if (mCount >= 20) badgeTitle = "⭐ 골드 멘토";
+            else if (mCount >= 10) badgeTitle = "🎖️ 실버 멘토";
+            else if (mCount >= 5) badgeTitle = "✨ 우수 앰버서더";
+
+            return {
+                rank: i + 1,
+                displayName: maskedName,
+                maskedEmail,
+                level: u.level || 1,
+                menteeCount: mCount,
+                avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(maskedName)}&background=D4870A&color=fff&bold=true`,
+                badgeTitle
+            };
+        });
+
+        if (result.length < limitCount) {
+            const needed = limitCount - result.length;
+            const extraMocks = fallbackMock.slice(result.length, result.length + needed).map((item: ReferralRankItem, index: number) => ({
+                ...item,
+                rank: result.length + index + 1
+            }));
+            return [...result, ...extraMocks];
+        }
+
+        return result;
+    } catch {
+        return fallbackMock;
+    }
+}
+
+
 

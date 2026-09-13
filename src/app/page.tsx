@@ -17,7 +17,17 @@ interface DpRankItem {
   badgeTitle?: string;
 }
 
-const DEFAULT_RANKINGS: DpRankItem[] = [
+interface ReferralRankItem {
+  rank: number;
+  displayName: string;
+  maskedEmail: string;
+  level: number;
+  menteeCount: number;
+  avatar?: string;
+  badgeTitle?: string;
+}
+
+const DEFAULT_DP_RANKINGS: DpRankItem[] = [
   { rank: 1, displayName: "최*민", maskedEmail: "dag***@gmail.com", level: 9, dpPoints: 158400, avatar: "https://ui-avatars.com/api/?name=Choi&background=C8392B&color=fff&bold=true", badgeTitle: "👑 전설의 마스터" },
   { rank: 2, displayName: "응우옌티*", maskedEmail: "ngu***@gmail.com", level: 8, dpPoints: 124500, avatar: "https://ui-avatars.com/api/?name=Nguyen&background=D4870A&color=fff&bold=true", badgeTitle: "🔥 발효 장인" },
   { rank: 3, displayName: "김*석", maskedEmail: "kim***@naver.com", level: 7, dpPoints: 98200, avatar: "https://ui-avatars.com/api/?name=Kim&background=16a34a&color=fff&bold=true", badgeTitle: "⭐ VIP 가디언" },
@@ -30,24 +40,49 @@ const DEFAULT_RANKINGS: DpRankItem[] = [
   { rank: 10, displayName: "송*호", maskedEmail: "song***@naver.com", level: 3, dpPoints: 24200, avatar: "https://ui-avatars.com/api/?name=Song&background=65a30d&color=fff&bold=true", badgeTitle: "🌱 로열 후원자" }
 ];
 
+const DEFAULT_REFERRAL_RANKINGS: ReferralRankItem[] = [
+  { rank: 1, displayName: "최*민", maskedEmail: "dag***@gmail.com", level: 9, menteeCount: 48, avatar: "https://ui-avatars.com/api/?name=Choi&background=C8392B&color=fff&bold=true", badgeTitle: "👑 최상위 멘토 마스터" },
+  { rank: 2, displayName: "응우옌티*", maskedEmail: "ngu***@gmail.com", level: 8, menteeCount: 35, avatar: "https://ui-avatars.com/api/?name=Nguyen&background=D4870A&color=fff&bold=true", badgeTitle: "🔥 다이아몬드 멘토" },
+  { rank: 3, displayName: "김*석", maskedEmail: "kim***@naver.com", level: 7, menteeCount: 29, avatar: "https://ui-avatars.com/api/?name=Kim&background=16a34a&color=fff&bold=true", badgeTitle: "⭐ 골드 멘토" },
+  { rank: 4, displayName: "박*훈", maskedEmail: "park***@gmail.com", level: 6, menteeCount: 22, avatar: "https://ui-avatars.com/api/?name=Park&background=2563eb&color=fff&bold=true", badgeTitle: "🎖️ 실버 멘토" },
+  { rank: 5, displayName: "이*영", maskedEmail: "lee***@hanmail.net", level: 5, menteeCount: 18, avatar: "https://ui-avatars.com/api/?name=Lee&background=9333ea&color=fff&bold=true", badgeTitle: "🎖️ 실버 멘토" },
+  { rank: 6, displayName: "쩐반*", maskedEmail: "tran***@gmail.com", level: 5, menteeCount: 14, avatar: "https://ui-avatars.com/api/?name=Tran&background=0891b2&color=fff&bold=true", badgeTitle: "✨ 우수 앰버서더" },
+  { rank: 7, displayName: "정*우", maskedEmail: "jung***@kakao.com", level: 4, menteeCount: 11, avatar: "https://ui-avatars.com/api/?name=Jung&background=ca8a04&color=fff&bold=true", badgeTitle: "✨ 우수 앰버서더" },
+  { rank: 8, displayName: "한*희", maskedEmail: "han***@gmail.com", level: 4, menteeCount: 9, avatar: "https://ui-avatars.com/api/?name=Han&background=db2777&color=fff&bold=true", badgeTitle: "🌱 열정 리더" },
+  { rank: 9, displayName: "팜티*", maskedEmail: "pham***@gmail.com", level: 3, menteeCount: 7, avatar: "https://ui-avatars.com/api/?name=Pham&background=4b5563&color=fff&bold=true", badgeTitle: "🌱 열정 리더" },
+  { rank: 10, displayName: "송*호", maskedEmail: "song***@naver.com", level: 3, menteeCount: 5, avatar: "https://ui-avatars.com/api/?name=Song&background=65a30d&color=fff&bold=true", badgeTitle: "🌱 열정 리더" }
+];
+
 export default function Home() {
   const { lang, t } = useLanguage();
   const featuredProducts = products.slice(0, 4);
-  const [rankings, setRankings] = useState<DpRankItem[]>(DEFAULT_RANKINGS);
+  const [rankingTab, setRankingTab] = useState<"referral" | "dp">("referral");
+  const [dpRankings, setDpRankings] = useState<DpRankItem[]>(DEFAULT_DP_RANKINGS);
+  const [referralRankings, setReferralRankings] = useState<ReferralRankItem[]>(DEFAULT_REFERRAL_RANKINGS);
 
   useEffect(() => {
     fetch("/api/v1/rankings/dp")
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.rankings) && data.rankings.length > 0) {
-          setRankings(data.rankings);
+          setDpRankings(data.rankings);
+        }
+      })
+      .catch(() => {});
+
+    fetch("/api/v1/rankings/referral")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.rankings) && data.rankings.length > 0) {
+          setReferralRankings(data.rankings);
         }
       })
       .catch(() => {});
   }, []);
 
-  const top3 = rankings.slice(0, 3);
-  const restRankings = rankings.slice(3, 10);
+  const activeRankings = rankingTab === "referral" ? referralRankings : dpRankings;
+  const top3 = activeRankings.slice(0, 3);
+  const restRankings = activeRankings.slice(3, 10);
 
   return (
     <main className={styles.main}>
@@ -150,28 +185,53 @@ export default function Home() {
         </div>
       </section>
 
-      {/* DP Leaderboard TOP 10 Section */}
+      {/* Leaderboard TOP 10 Section (Referral Mentors & DP Rankings) */}
       <section className={styles.dpRankingSection}>
         <div className="container">
-          <div className={styles.sectionHeader} style={{ marginBottom: '40px' }}>
+          <div className={styles.sectionHeader} style={{ marginBottom: '24px' }}>
             <span className="badge" style={{ background: 'rgba(212, 135, 10, 0.12)', color: '#D4870A' }}>
               🏆 HALL OF FAME
             </span>
             <h2 className="text-gradient" style={{ fontSize: '2.2rem', marginTop: '8px' }}>
-              {lang === "vi" ? "Bảng Xếp Hạng Điểm DP Daehan TOP 10" : "대한포인트(DP) 명예의 전당 TOP 10"}
+              {rankingTab === "referral"
+                ? (lang === "vi" ? "🤝 Bảng Xếp Hạng Người Giới Thiệu (Mentor) TOP 10" : "🤝 멘토 추천 랭킹 TOP 10")
+                : (lang === "vi" ? "🏆 Bảng Xếp Hạng Điểm DP Daehan TOP 10" : "🏆 대한포인트(DP) 명예의 전당 TOP 10")}
             </h2>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
-              {lang === "vi"
-                ? "Bảng xếp hạng thành viên tích lũy điểm DP cao nhất. Nhận ưu đãi đổi Tiền nạp lên tới 100%!"
-                : "플랫폼 활동과 구매로 포인트를 모은 명예로운 TOP 10 회원 목록입니다. 레벨 상승 시 최대 100% 충전머니 전환!"}
+              {rankingTab === "referral"
+                ? (lang === "vi"
+                    ? "Danh sách TOP 10 Mentor có số lượng Mentee giới thiệu nhiều nhất. Nhận hoa hồng DP 2 cấp hấp dẫn!"
+                    : "대한김치 생태계를 함께 키워나가는 명예로운 TOP 10 추천인(멘토) 목록입니다. 주문 발생 시 2단계 DP 보상 혜택!")
+                : (lang === "vi"
+                    ? "Bảng xếp hạng thành viên tích lũy điểm DP cao nhất. Nhận ưu đãi đổi Tiền nạp lên tới 100%!"
+                    : "플랫폼 활동과 구매로 포인트를 모은 명예로운 TOP 10 회원 목록입니다. 레벨 상승 시 최대 100% 충전머니 전환!")}
             </p>
+
+            {/* Ranking Tab Switcher */}
+            <div className={styles.rankingTabContainer}>
+              <button
+                className={`${styles.rankingTabBtn} ${rankingTab === "referral" ? styles.rankingTabActive : ""}`}
+                onClick={() => setRankingTab("referral")}
+              >
+                🤝 {lang === "vi" ? "TOP 10 Người Giới Thiệu" : "멘토 추천 랭킹 TOP 10"}
+              </button>
+              <button
+                className={`${styles.rankingTabBtn} ${rankingTab === "dp" ? styles.rankingTabActive : ""}`}
+                onClick={() => setRankingTab("dp")}
+              >
+                🏆 {lang === "vi" ? "TOP 10 Điểm DP" : "DP 명예의 전당 TOP 10"}
+              </button>
+            </div>
           </div>
 
           {/* TOP 3 Podium */}
           <div className={styles.rankTop3Grid}>
-            {top3.map((item) => {
+            {top3.map((item: any) => {
               const cardClass = item.rank === 1 ? styles.rankGold : (item.rank === 2 ? styles.rankSilver : styles.rankBronze);
               const medalEmoji = item.rank === 1 ? "🥇 1위" : (item.rank === 2 ? "🥈 2위" : "🥉 3위");
+              const valueDisplay = rankingTab === "referral"
+                ? `${item.menteeCount} ${lang === "vi" ? "Mentee" : "명 추천"}`
+                : `${item.dpPoints?.toLocaleString()} DP`;
 
               return (
                 <div key={item.rank} className={`${styles.rankTop3Card} ${cardClass}`}>
@@ -180,7 +240,7 @@ export default function Home() {
                   <div className={styles.rankUserName}>{item.displayName}</div>
                   <div className={styles.rankMaskedEmail}>{item.maskedEmail}</div>
                   <span className={styles.rankBadgeTitle}>{item.badgeTitle || `Lv.${item.level}`}</span>
-                  <div className={styles.rankDpPoints}>{item.dpPoints.toLocaleString()} DP</div>
+                  <div className={styles.rankDpPoints}>{valueDisplay}</div>
                 </div>
               );
             })}
@@ -188,24 +248,31 @@ export default function Home() {
 
           {/* Ranks 4 to 10 List */}
           <div className={styles.rankListTable}>
-            {restRankings.map((item) => (
-              <div key={item.rank} className={styles.rankListRow}>
-                <div className={styles.rankListLeft}>
-                  <span className={styles.rankNum}>{item.rank}</span>
-                  <img src={item.avatar} alt={item.displayName} className={styles.rankMiniAvatar} />
-                  <div className={styles.rankInfoBlock}>
-                    <span className={styles.rankInfoName}>{item.displayName} <small style={{ color: 'var(--text-muted)' }}>({item.maskedEmail})</small></span>
-                    <span className={styles.rankInfoBadge}>Lv.{item.level} • {item.badgeTitle}</span>
+            {restRankings.map((item: any) => {
+              const valueDisplay = rankingTab === "referral"
+                ? `${item.menteeCount} ${lang === "vi" ? "Mentee" : "명 추천"}`
+                : `${item.dpPoints?.toLocaleString()} DP`;
+
+              return (
+                <div key={item.rank} className={styles.rankListRow}>
+                  <div className={styles.rankListLeft}>
+                    <span className={styles.rankNum}>{item.rank}</span>
+                    <img src={item.avatar} alt={item.displayName} className={styles.rankMiniAvatar} />
+                    <div className={styles.rankInfoBlock}>
+                      <span className={styles.rankInfoName}>{item.displayName} <small style={{ color: 'var(--text-muted)' }}>({item.maskedEmail})</small></span>
+                      <span className={styles.rankInfoBadge}>Lv.{item.level} • {item.badgeTitle}</span>
+                    </div>
+                  </div>
+                  <div className={styles.rankRightDp}>
+                    {valueDisplay}
                   </div>
                 </div>
-                <div className={styles.rankRightDp}>
-                  {item.dpPoints.toLocaleString()} DP
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
+
 
       {/* 8-Axis DNA Feature Highlight */}
       <section className={styles.dnaHighlightSection}>
