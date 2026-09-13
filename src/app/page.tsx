@@ -1,14 +1,53 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
-import { Sparkles, ArrowRight, ShieldCheck, Award, HeartHandshake, ThermometerSnowflake } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, Award, HeartHandshake, ThermometerSnowflake, Trophy, Medal, Crown, Flame, Star, User } from "lucide-react";
 import { products } from "@/data/products";
 import { useLanguage } from "@/context/LanguageContext";
+
+interface DpRankItem {
+  rank: number;
+  displayName: string;
+  maskedEmail: string;
+  level: number;
+  dpPoints: number;
+  avatar?: string;
+  badgeTitle?: string;
+}
+
+const DEFAULT_RANKINGS: DpRankItem[] = [
+  { rank: 1, displayName: "최*민", maskedEmail: "dag***@gmail.com", level: 9, dpPoints: 158400, avatar: "https://ui-avatars.com/api/?name=Choi&background=C8392B&color=fff&bold=true", badgeTitle: "👑 전설의 마스터" },
+  { rank: 2, displayName: "응우옌티*", maskedEmail: "ngu***@gmail.com", level: 8, dpPoints: 124500, avatar: "https://ui-avatars.com/api/?name=Nguyen&background=D4870A&color=fff&bold=true", badgeTitle: "🔥 발효 장인" },
+  { rank: 3, displayName: "김*석", maskedEmail: "kim***@naver.com", level: 7, dpPoints: 98200, avatar: "https://ui-avatars.com/api/?name=Kim&background=16a34a&color=fff&bold=true", badgeTitle: "⭐ VIP 가디언" },
+  { rank: 4, displayName: "박*훈", maskedEmail: "park***@gmail.com", level: 6, dpPoints: 76000, avatar: "https://ui-avatars.com/api/?name=Park&background=2563eb&color=fff&bold=true", badgeTitle: "🎖️ 미식 탐험가" },
+  { rank: 5, displayName: "이*영", maskedEmail: "lee***@hanmail.net", level: 5, dpPoints: 64500, avatar: "https://ui-avatars.com/api/?name=Lee&background=9333ea&color=fff&bold=true", badgeTitle: "🎖️ 골드 서포터" },
+  { rank: 6, displayName: "쩐반*", maskedEmail: "tran***@gmail.com", level: 5, dpPoints: 52000, avatar: "https://ui-avatars.com/api/?name=Tran&background=0891b2&color=fff&bold=true", badgeTitle: "✨ 김치 러버" },
+  { rank: 7, displayName: "정*우", maskedEmail: "jung***@kakao.com", level: 4, dpPoints: 41800, avatar: "https://ui-avatars.com/api/?name=Jung&background=ca8a04&color=fff&bold=true", badgeTitle: "✨ 김치 러버" },
+  { rank: 8, displayName: "한*희", maskedEmail: "han***@gmail.com", level: 4, dpPoints: 37500, avatar: "https://ui-avatars.com/api/?name=Han&background=db2777&color=fff&bold=true", badgeTitle: "🌱 로열 후원자" },
+  { rank: 9, displayName: "팜티*", maskedEmail: "pham***@gmail.com", level: 3, dpPoints: 29000, avatar: "https://ui-avatars.com/api/?name=Pham&background=4b5563&color=fff&bold=true", badgeTitle: "🌱 로열 후원자" },
+  { rank: 10, displayName: "송*호", maskedEmail: "song***@naver.com", level: 3, dpPoints: 24200, avatar: "https://ui-avatars.com/api/?name=Song&background=65a30d&color=fff&bold=true", badgeTitle: "🌱 로열 후원자" }
+];
 
 export default function Home() {
   const { lang, t } = useLanguage();
   const featuredProducts = products.slice(0, 4);
+  const [rankings, setRankings] = useState<DpRankItem[]>(DEFAULT_RANKINGS);
+
+  useEffect(() => {
+    fetch("/api/v1/rankings/dp")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.rankings) && data.rankings.length > 0) {
+          setRankings(data.rankings);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const top3 = rankings.slice(0, 3);
+  const restRankings = rankings.slice(3, 10);
 
   return (
     <main className={styles.main}>
@@ -107,6 +146,63 @@ export default function Home() {
                 {lang === "vi" ? "Xem các gói đăng ký →" : "🥬 김치 정기구독 신청하기 →"}
               </button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* DP Leaderboard TOP 10 Section */}
+      <section className={styles.dpRankingSection}>
+        <div className="container">
+          <div className={styles.sectionHeader} style={{ marginBottom: '40px' }}>
+            <span className="badge" style={{ background: 'rgba(212, 135, 10, 0.12)', color: '#D4870A' }}>
+              🏆 HALL OF FAME
+            </span>
+            <h2 className="text-gradient" style={{ fontSize: '2.2rem', marginTop: '8px' }}>
+              {lang === "vi" ? "Bảng Xếp Hạng Điểm DP Daehan TOP 10" : "대한포인트(DP) 명예의 전당 TOP 10"}
+            </h2>
+            <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
+              {lang === "vi"
+                ? "Bảng xếp hạng thành viên tích lũy điểm DP cao nhất. Nhận ưu đãi đổi Tiền nạp lên tới 100%!"
+                : "플랫폼 활동과 구매로 포인트를 모은 명예로운 TOP 10 회원 목록입니다. 레벨 상승 시 최대 100% 충전머니 전환!"}
+            </p>
+          </div>
+
+          {/* TOP 3 Podium */}
+          <div className={styles.rankTop3Grid}>
+            {top3.map((item) => {
+              const cardClass = item.rank === 1 ? styles.rankGold : (item.rank === 2 ? styles.rankSilver : styles.rankBronze);
+              const medalEmoji = item.rank === 1 ? "🥇 1위" : (item.rank === 2 ? "🥈 2위" : "🥉 3위");
+
+              return (
+                <div key={item.rank} className={`${styles.rankTop3Card} ${cardClass}`}>
+                  <div className={styles.topMedal}>{medalEmoji}</div>
+                  <img src={item.avatar} alt={item.displayName} className={styles.rankAvatar} />
+                  <div className={styles.rankUserName}>{item.displayName}</div>
+                  <div className={styles.rankMaskedEmail}>{item.maskedEmail}</div>
+                  <span className={styles.rankBadgeTitle}>{item.badgeTitle || `Lv.${item.level}`}</span>
+                  <div className={styles.rankDpPoints}>{item.dpPoints.toLocaleString()} DP</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Ranks 4 to 10 List */}
+          <div className={styles.rankListTable}>
+            {restRankings.map((item) => (
+              <div key={item.rank} className={styles.rankListRow}>
+                <div className={styles.rankListLeft}>
+                  <span className={styles.rankNum}>{item.rank}</span>
+                  <img src={item.avatar} alt={item.displayName} className={styles.rankMiniAvatar} />
+                  <div className={styles.rankInfoBlock}>
+                    <span className={styles.rankInfoName}>{item.displayName} <small style={{ color: 'var(--text-muted)' }}>({item.maskedEmail})</small></span>
+                    <span className={styles.rankInfoBadge}>Lv.{item.level} • {item.badgeTitle}</span>
+                  </div>
+                </div>
+                <div className={styles.rankRightDp}>
+                  {item.dpPoints.toLocaleString()} DP
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

@@ -1271,4 +1271,85 @@ export async function getUserSubscriptions(uid: string): Promise<SubscriptionDat
     }
 }
 
+export interface DpRankItem {
+    rank: number;
+    displayName: string;
+    maskedEmail: string;
+    level: number;
+    dpPoints: number;
+    avatar?: string;
+    badgeTitle?: string;
+}
+
+export async function getTopDpRankings(limitCount = 10): Promise<DpRankItem[]> {
+    const fallbackMock: DpRankItem[] = [
+        { rank: 1, displayName: "최*민", maskedEmail: "dag***@gmail.com", level: 9, dpPoints: 158400, avatar: "https://ui-avatars.com/api/?name=Choi&background=C8392B&color=fff&bold=true", badgeTitle: "👑 전설의 마스터" },
+        { rank: 2, displayName: "응우옌티*", maskedEmail: "ngu***@gmail.com", level: 8, dpPoints: 124500, avatar: "https://ui-avatars.com/api/?name=Nguyen&background=D4870A&color=fff&bold=true", badgeTitle: "🔥 발효 장인" },
+        { rank: 3, displayName: "김*석", maskedEmail: "kim***@naver.com", level: 7, dpPoints: 98200, avatar: "https://ui-avatars.com/api/?name=Kim&background=16a34a&color=fff&bold=true", badgeTitle: "⭐ VIP 가디언" },
+        { rank: 4, displayName: "박*훈", maskedEmail: "park***@gmail.com", level: 6, dpPoints: 76000, avatar: "https://ui-avatars.com/api/?name=Park&background=2563eb&color=fff&bold=true", badgeTitle: "🎖️ 미식 탐험가" },
+        { rank: 5, displayName: "이*영", maskedEmail: "lee***@hanmail.net", level: 5, dpPoints: 64500, avatar: "https://ui-avatars.com/api/?name=Lee&background=9333ea&color=fff&bold=true", badgeTitle: "🎖️ 골드 서포터" },
+        { rank: 6, displayName: "쩐반*", maskedEmail: "tran***@gmail.com", level: 5, dpPoints: 52000, avatar: "https://ui-avatars.com/api/?name=Tran&background=0891b2&color=fff&bold=true", badgeTitle: "✨ 김치 러버" },
+        { rank: 7, displayName: "정*우", maskedEmail: "jung***@kakao.com", level: 4, dpPoints: 41800, avatar: "https://ui-avatars.com/api/?name=Jung&background=ca8a04&color=fff&bold=true", badgeTitle: "✨ 김치 러버" },
+        { rank: 8, displayName: "한*희", maskedEmail: "han***@gmail.com", level: 4, dpPoints: 37500, avatar: "https://ui-avatars.com/api/?name=Han&background=db2777&color=fff&bold=true", badgeTitle: "🌱 로열 후원자" },
+        { rank: 9, displayName: "팜티*", maskedEmail: "pham***@gmail.com", level: 3, dpPoints: 29000, avatar: "https://ui-avatars.com/api/?name=Pham&background=4b5563&color=fff&bold=true", badgeTitle: "🌱 로열 후원자" },
+        { rank: 10, displayName: "송*호", maskedEmail: "song***@naver.com", level: 3, dpPoints: 24200, avatar: "https://ui-avatars.com/api/?name=Song&background=65a30d&color=fff&bold=true", badgeTitle: "🌱 로열 후원자" }
+    ];
+
+    try {
+        const db = getDb();
+        const snap = await db.collection(USERS_COL).get();
+        const users = snap.docs.map((doc: any) => doc.data() as UserWalletData);
+        
+        if (users.length === 0) return fallbackMock;
+
+        const sorted = users
+            .filter((u: UserWalletData) => (u.dpPoints || 0) > 0)
+            .sort((a: UserWalletData, b: UserWalletData) => (b.dpPoints || 0) - (a.dpPoints || 0));
+
+        if (sorted.length === 0) return fallbackMock;
+
+        const result: DpRankItem[] = sorted.slice(0, limitCount).map((u: UserWalletData, i: number) => {
+            const rawName = u.name || "회원";
+            const maskedName = rawName.length > 2 
+                ? `${rawName[0]}*${rawName[rawName.length - 1]}`
+                : `${rawName[0]}*`;
+
+            const emailParts = (u.email || "user@daehankimchi.com").split("@");
+            const maskedEmail = emailParts[0].length > 3
+                ? `${emailParts[0].substring(0, 3)}***@${emailParts[1] || "gmail.com"}`
+                : `${emailParts[0]}***@gmail.com`;
+
+            const userLvl = u.level || 1;
+            let badgeTitle = "🌱 로열 후원자";
+            if (userLvl >= 8) badgeTitle = "👑 전설의 마스터";
+            else if (userLvl >= 6) badgeTitle = "🔥 발효 장인";
+            else if (userLvl >= 4) badgeTitle = "⭐ VIP 가디언";
+            else if (userLvl >= 2) badgeTitle = "🎖️ 미식 탐험가";
+
+            return {
+                rank: i + 1,
+                displayName: maskedName,
+                maskedEmail,
+                level: userLvl,
+                dpPoints: u.dpPoints || 0,
+                avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(maskedName)}&background=C8392B&color=fff&bold=true`,
+                badgeTitle
+            };
+        });
+
+        if (result.length < limitCount) {
+            const needed = limitCount - result.length;
+            const extraMocks = fallbackMock.slice(result.length, result.length + needed).map((item, index) => ({
+                ...item,
+                rank: result.length + index + 1
+            }));
+            return [...result, ...extraMocks];
+        }
+
+        return result;
+    } catch {
+        return fallbackMock;
+    }
+}
+
 
