@@ -757,5 +757,17 @@
   box-shadow: 0 4px 14px rgba(212, 135, 10, 0.3) !important;
 }
 
+.sectionTitle {
+  font-size: 2.2rem;
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 1.6rem;
+    word-break: keep-all;
+  }
+}
+
 
 

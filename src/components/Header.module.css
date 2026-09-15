@@ -561,6 +561,19 @@ html {
         max-width: 340px;
         right: -4px;
     }
+    .desktopLangSwitch {
+        display: none !important;
+    }
+    .hideOnMobile {
+        display: none !important;
+    }
+    .showOnMobile {
+        display: inline !important;
+    }
+}
+
+.showOnMobile {
+    display: none;
 }
 
 .rankingTabBtn {

@@ -117,7 +117,7 @@ export default function Home() {
       <section className={`${styles.section} container`}>
         <div className={styles.sectionHeader}>
           <span className="badge">OFFICIAL PRODUCTS</span>
-          <h2 className="text-gradient" style={{ fontSize: '2.2rem', marginTop: '8px' }}>
+          <h2 className={`text-gradient ${styles.sectionTitle}`}>
             {t("best.title", "대한김치 대표 시그니처")}
           </h2>
           <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
@@ -192,7 +192,7 @@ export default function Home() {
             <span className="badge" style={{ background: 'rgba(212, 135, 10, 0.12)', color: '#D4870A' }}>
               🏆 HALL OF FAME
             </span>
-            <h2 className="text-gradient" style={{ fontSize: '2.2rem', marginTop: '8px' }}>
+            <h2 className={`text-gradient ${styles.sectionTitle}`}>
               {rankingTab === "referral"
                 ? (lang === "vi" ? "🤝 Bảng Xếp Hạng Người Giới Thiệu (Mentor) TOP 10" : "🤝 멘토 추천 랭킹 TOP 10")
                 : (lang === "vi" ? "🏆 Bảng Xếp Hạng Điểm DP Daehan TOP 10" : "🏆 대한포인트(DP) 명예의 전당 TOP 10")}
@@ -377,7 +377,7 @@ export default function Home() {
         <div className="container">
           <div className={styles.sectionHeader}>
             <span className="badge">DAEHAN SHORTS</span>
-            <h2 className="text-gradient" style={{ fontSize: '2.2rem', margin: '16px 0' }}>
+            <h2 className={`text-gradient ${styles.sectionTitle}`} style={{ margin: '16px 0' }}>
               {lang === "vi" ? "Video ngắn nổi bật Daehan Shorts" : "대한김치 숏폼 하이라이트"}
             </h2>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
