@@ -67,7 +67,7 @@ export default function Shop() {
             {/* Header section */}
             <header className={styles.header}>
                 <div className={styles.headerBadge}>
-                    <Sparkles size={14} color="#C8392B" /> {t("hero.badge", "100% 당일 생산 & 하노이 콜드체인 직배송")}
+                    <Sparkles size={14} color="#C8392B" /> {t("hero.badge", "100% 당일 생산 \u0026 하노이 오토바이 직배송")}
                 </div>
                 <h1 className={`${styles.title} text-gradient`}>DAEHAN KIMCHI SHOP</h1>
                 <p className={styles.description}>
@@ -80,7 +80,7 @@ export default function Shop() {
                 <div className={styles.deliveryBanner}>
                     <div className={styles.bannerItem}>
                         <Truck size={18} color="#D4870A" />
-                        <span><strong>{lang === "vi" ? "Khi đặt hàng gói sỉ 5kg" : "5kg 도매 포장 주문 시"}</strong> {lang === "vi" ? "Giao hàng lạnh tận nơi tại Hà Nội" : "하노이 시내 콜드체인 신선배송"}</span>
+                        <span><strong>{lang === "vi" ? "Khi đặt hàng gói sỉ 5kg" : "5kg 도매 포장 주문 시"}</strong> {lang === "vi" ? "Giao hàng lạnh tận nơi tại Hà Nội" : "하노이 시내 오토바이 신선배송"}</span>
                     </div>
                     <div className={styles.bannerDivider}></div>
                     <div className={styles.bannerItem}>
@@ -230,7 +230,7 @@ export default function Shop() {
                         <p>
                             {lang === "vi" 
                                 ? "Cung cấp Kimchi tươi đóng gói 5kg bảo quản lạnh định kỳ cho các nhà hàng Hàn Quốc, khách sạn và siêu thị tại Hà Nội." 
-                                : "하노이 내 한식당, 호텔, 기업체 급식 및 마트에 정기적으로 5kg 도매 포장 단위로 신선하게 냉장 납품합니다."}<br />
+                                : "하노이 내 한식당, 호텔, 기업체 급식 및 마트에 정기적으로 5kg 도매 포장 단위로 신선하게 오토바이로 신속배송합니다."}<br />
                             {lang === "vi" 
                                 ? "Ưu đãi thêm điểm DP và tùy chỉnh độ chua theo yêu cầu hợp đồng." 
                                 : "정기 계약 시 맞춤형 숙성도 조절 및 대한포인트 추가 적립 혜택을 제공합니다."}

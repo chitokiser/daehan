@@ -121,7 +121,7 @@ export default function Home() {
             {t("best.title", "대한김치 대표 시그니처")}
           </h2>
           <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
-            {t("best.sub", "하노이 현지 위생 클린룸 시설에서 당일 생산되어 콜드체인으로 신선하게 배송됩니다.")}
+            {t("best.sub", "하노이 현지 위생 클린룸 시설에서 당일 생산되어 오토바이로 신선하게 배송됩니다.")}
           </p>
         </div>
 
@@ -424,7 +424,7 @@ export default function Home() {
           </div>
           <div className={styles.trustItem}>
             <ThermometerSnowflake size={36} color="#e50914" />
-            <h4>{t("feat.fresh.title", "콜드체인 안심 직배송")}</h4>
+            <h4>{t("feat.fresh.title", "오토바이 안심 직배송")}</h4>
             <p>{t("feat.fresh.desc", "하노이 전 지역 신선 온도 유지 배송")}</p>
           </div>
           <div className={styles.trustItem}>

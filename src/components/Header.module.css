@@ -31,10 +31,27 @@
 }
 
 .nav {
-    display: flex;
-    gap: 28px;
-    align-items: center;
+  display: flex;
+  gap: 28px;
+  align-items: center;
 }
+
+@media (max-width: 768px) {
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  .navLink {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+}
+
+
+
+
 
 .navLink {
     color: var(--text-sub);
@@ -424,6 +441,28 @@
     color: var(--text-muted);
 }
 
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-inter), var(--font-noto-sans-kr), -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
 .web3ConnectBtn {
     width: 100%;
     background: rgba(0, 0, 0, 0.03);
@@ -522,6 +561,39 @@
         max-width: 340px;
         right: -4px;
     }
+}
+
+.rankingTabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-sub);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+@media (max-width: 600px) {
+  .rankingTabBtn {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
+  .rankingTabContainer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .rankListRow:nth-child(n+3) {
+    display: none;
+  }
+  .rankInfoBadge {
+    white-space: nowrap;
+  }
 }
 
 /* Multi-language Toggle Button */

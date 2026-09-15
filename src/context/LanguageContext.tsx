@@ -57,7 +57,7 @@ const translations: Record<Language, Record<string, string>> = {
         "best.tag": "PREMIUM SELECTION",
         "best.title": "대한김치 인기 시그니처 메뉴",
         "best.sub": "가장 많은 사랑을 받는 베스트셀러 김치를 만나보세요.",
-        "best.viewAll": "전체 สินค้า 보러가기 →",
+        "best.viewAll": "전체 상품 보러가기 →",
         "best.buyNow": "바로 구매",
         "best.details": "상세보기",
 

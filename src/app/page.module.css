@@ -722,6 +722,25 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
+@media (max-width: 600px) {
+  .rankingTabBtn {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
+  .rankingTabContainer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .rankListRow:nth-child(n+3) {
+    display: none;
+  }
+  .rankInfoBadge {
+    white-space: nowrap;
+  }
+}
+
+
+
 .rankingTabBtn:hover {
   border-color: #D4870A;
   color: #D4870A;

@@ -1,9 +1,29 @@
 .footer {
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    padding: 80px 40px 40px;
-    color: var(--text-muted);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 80px 40px 40px;
+  color: var(--text-muted);
 }
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 40px 20px 20px;
+  }
+  .brandDesc,
+  .companySubInfo,
+  .linkColumn a,
+  .bottom {
+    font-size: 0.8rem;
+  }
+  .footerContent {
+    gap: 20px;
+  }
+}
+
+
+
+
+
 
 .footerContent {
     display: grid;

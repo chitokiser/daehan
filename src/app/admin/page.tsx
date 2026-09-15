@@ -789,7 +789,7 @@ export default function AdminDashboard() {
                 <section className={styles.panelSection}>
                     <div className={styles.panelHeader}>
                         <div>
-                            <h2 className={styles.panelHeading}>주문 내역 및 하노이 콜드체인 출고 관리</h2>
+                            <h2 className={styles.panelHeading}>주문 내역 및 하노이 오토바이 출고 관리</h2>
                             <p className={styles.panelDesc}>
                                 실시간 결제된 김치 주문 상태를 <code>PREPARING (준비중)</code>, <code>SHIPPING (배송중)</code>, <code>DELIVERED (배송완료)</code>로 즉시 갱신할 수 있습니다.
                             </p>
@@ -1112,7 +1112,7 @@ export default function AdminDashboard() {
                                     <option value="🚚 ShopeeExpress (SPX)">🚚 ShopeeExpress (SPX)</option>
                                     <option value="📮 ViettelPost (비에텔 포스트)">📮 ViettelPost (비에텔 포스트)</option>
                                     <option value="🚛 VNPost (베트남 우체국)">🚛 VNPost (베트남 우체국)</option>
-                                    <option value="❄️ 대한김치 콜드체인 (자체 냉장 직배송)">❄️ 대한김치 콜드체인 (자체 냉장 직배송)</option>
+                                    <option value="❄️ 대한김치 (자체 오토바이 직배송)">❄️ 대한김치 (자체 오토바이 직배송)</option>
                                     <option value="🚚 기타 현지 택배">🚚 기타 현지 택배</option>
                                 </select>
                             </div>

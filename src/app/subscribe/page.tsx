@@ -38,7 +38,7 @@ const TIERS: TierConfig[] = [
         featuresKo: [
             "1주일 2Kg 신선 정기 배송",
             "구독 전용 5% 즉시 할인",
-            "하노이 전 지역 콜드체인 무료배송",
+            "하노이 전 지역 오토바이 무료배송",
             "결제 시 10% DP (대한포인트) 적립"
         ],
         featuresVi: [
@@ -63,7 +63,7 @@ const TIERS: TierConfig[] = [
         featuresKo: [
             "1주일 5Kg 넉넉한 가족용 정기 배송",
             "구독 전용 5% 할인 + 도매 추가 혜택",
-            "하노이 콜드체인 당일 우선 배송",
+            "하노이 시내 오토바이 신선배송",
             "결제 시 10% DP 적립 + 시즌 별미 김치 샘플 증정"
         ],
         featuresVi: [
@@ -224,7 +224,7 @@ export default function SubscribePage() {
                 <p className={styles.subtitle}>
                     {lang === "vi"
                         ? "Đăng ký nhận Kimchi tươi muối trong ngày giao tận nhà hàng tuần hoặc hàng tháng (Ngày 1 & Ngày 15). Tiết kiệm hơn với ưu đãi giảm 5% và tích điểm DP!"
-                        : "하노이 현지 위생 클린룸에서 당일 담근 100% 정통 한국 김치를 매주 또는 매월 1일/15일에 신선하게 받아보세요."}
+                        : "하노이 현지 위생 클린룸 시설에서 당일 생산되어 오토바이로 신선하게 배송됩니다."}
                 </p>
             </section>
 
@@ -247,9 +247,9 @@ export default function SubscribePage() {
                         <Truck size={24} />
                     </div>
                     <div>
-                        <div className={benefitTitle(lang, "하노이 우선 무료배송", "Miễn phí giao hàng lạnh")}>하노이 우선 무료배송</div>
+                        <div className={benefitTitle(lang, "하노이 오토바이 직배송", "Miễn phí giao hàng xe máy")}>하노이 오토바이 직배송</div>
                         <div className={styles.benefitDesc}>
-                            {lang === "vi" ? "Ưu tiên giao hàng lạnh Cold-chain tận nhà toàn thành phố Hà Nội." : "정기배송 전용 콜드체인 차량으로 하노이 전 지역 우선 무료배송해 드립니다."}
+                            {lang === "vi" ? "Giao hàng xe máy trực tiếp tận nhà toàn thành phố Hà Nội." : "하노이 전 지역 오토바이 직배송으로 가장 신선하게 받아보세요."}
                         </div>
                     </div>
                 </div>

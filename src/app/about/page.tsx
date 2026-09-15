@@ -148,7 +148,7 @@ export default function AboutPage() {
                         <span className={styles.sectionTag}>MANUFACTURING PROCESS</span>
                         <h2 className={styles.sectionTitle}>대한김치 스마트 위생 제조공정</h2>
                         <p style={{ color: '#666', fontSize: '0.98rem', marginTop: '8px', lineHeight: '1.6' }}>
-                            원료 입고부터 세척, 저온 절임, 비법 양념 버무림, HACCP 검사 및 스마트 콜드체인 출하까지 철저한 품질 기준을 준수합니다.
+                            원료 입고부터 세척, 저온 절임, 비법 양념 버무림, HACCP 검사 및 스마트 출하까지 철저한 품질 기준을 준수합니다.
                         </p>
                     </div>
 
@@ -219,9 +219,9 @@ export default function AboutPage() {
                         <div className={styles.processCard}>
                             <div className={styles.processBadge}>STEP 08</div>
                             <div className={styles.processIconWrap}>🚛</div>
-                            <h3 className={styles.processStepTitle}>0~4℃ 저온 콜드체인 출하</h3>
+                            <h3 className={styles.processStepTitle}>0~4℃ 저온 출하</h3>
                             <p className={styles.processStepDesc}>
-                                유산균이 살아있는 최적의 0~4℃ 콜드체인 전용 냉장 차량으로 하노이 현지 가정 및 식당으로 당일 직배송 출하됩니다.
+                                유산균이 살아있는 최적의 0~4℃ 전용 냉장 차량으로 하노이 현지 가정 및 식당으로 당일 직배송 출하됩니다.
                             </p>
                         </div>
                     </div>
@@ -245,7 +245,7 @@ export default function AboutPage() {
                             <div className={styles.haccpBadgeList}>
                                 <span className={styles.haccpBadgeItem}>✓ HACCP CODEX 2020 인증</span>
                                 <span className={styles.haccpBadgeItem}>✓ 100% 무균 세척 공정</span>
-                                <span className={styles.haccpBadgeItem}>✓ 정밀 콜드체인 유통</span>
+                                <span className={styles.haccpBadgeItem}>✓ 정밀 유통</span>
                             </div>
 
                             <div className={styles.haccpMetaGrid}>

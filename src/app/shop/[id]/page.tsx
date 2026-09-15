@@ -70,7 +70,7 @@ export default function ProductDetail() {
     const defaultReviews = useMemo(() => [
         { id: 101, uid: "user_mock1", user: "최*민 (VIP 회원)", stars: 5, date: "2026.08.28", content: `하노이에서 ${product.koreanName} 제대로 하는 곳을 찾았네요! 대한포인트까지 10% 즉시 적립되어 너무 만족스럽습니다.` },
         { id: 102, uid: "user_mock2", user: "응우옌티* (현지고객)", stars: 5, date: "2026.08.25", content: "한국인 셰프가 만든 진짜 한국 김치 맛입니다. VND 계좌이체나 포인트 결제 모두 가능해서 편리해요." },
-        { id: 103, uid: "user_mock3", user: "김*석 (골드회원)", stars: 5, date: "2026.08.19", content: "5kg 도매 포장으로 주문해서 식당에서 쓰는데 손님들 반응이 최고입니다. 콜드체인 배송도 아주 완벽합니다." },
+        { id: 103, uid: "user_mock3", user: "김*석 (골드회원)", stars: 5, date: "2026.08.19", content: "5kg 도매 포장으로 주문해서 식당에서 쓰는데 손님들 반응이 최고입니다. 오토바이 배송도 아주 완벽합니다." },
     ], [product.koreanName]);
 
     const [reviews, setReviews] = useState<any[]>(defaultReviews);
@@ -428,7 +428,7 @@ export default function ProductDetail() {
                     </div>
                     <div className={styles.specRow}>
                         <div className={styles.specKey}>보관 방법</div>
-                        <div className={styles.specVal}>0~4℃ 냉장 보관 (개봉 후 밀폐용기에 담아 김치냉장고 보관 권장)</div>
+                        <div className={styles.specVal}>0~4℃ 신선 보관 (개봉 후 밀폐용기에 담아 김치냉장고 보관 권장)</div>
                     </div>
                     <div className={styles.specRow}>
                         <div className={styles.specKey}>유통기한</div>
@@ -634,7 +634,7 @@ export default function ProductDetail() {
 
                                 {/* Shipping Address */}
                                 <div className={styles.shippingForm}>
-                                    <label className={styles.sectionSubTitle}>배송지 정보 (하노이 콜드체인 직배송):</label>
+                                    <label className={styles.sectionSubTitle}>배송지 정보 (하노이 오토바이 직배송):</label>
                                     <div className={styles.formGrid}>
                                         <input 
                                             type="text" 
