@@ -121,6 +121,7 @@
     margin: 0 auto;
     padding: 12px 24px;
     overflow-x: auto;
+    flex-wrap: nowrap;
 }
 
 .tabLink {
@@ -523,5 +524,22 @@
 
     .overviewTable th {
         width: 32%;
+    }
+}
+
+/* Mobile specific adjustments for navigation */
+@media (max-width: 600px) {
+    .tabList {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+    .tabLink {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+    .stickyTabNav {
+        top: 50px; /* reduce offset if header smaller */
     }
 }

@@ -41,7 +41,7 @@ export default function AboutPage() {
                 <div className={styles.tabList}>
                     <a href="#ceo" className={styles.tabLink}>대표 인사말</a>
                     <a href="#brand" className={styles.tabLink}>브랜드 핵심가치</a>
-                    <a href="#process" className={styles.tabLink}>스마트 제조공정 (8단계)</a>
+                    <a href="#process" className={styles.tabLink}>스마트 제조공정</a>
                     <a href="#haccp" className={styles.tabLink}>HACCP 위생 인증</a>
                     <a href="#company" className={styles.tabLink}>기업 정보 개요</a>
                 </div>
@@ -142,11 +142,11 @@ export default function AboutPage() {
                 </section>
 
 
-                {/* 3. Manufacturing Process Section (스마트 제조 공정 8단계) */}
+                {/* 3. Manufacturing Process Section (스마트 제조 공정) */}
                 <section id="process" className={styles.sectionCard}>
                     <div className={styles.sectionHeader}>
                         <span className={styles.sectionTag}>MANUFACTURING PROCESS</span>
-                        <h2 className={styles.sectionTitle}>대한김치 8단계 스마트 위생 제조공정</h2>
+                        <h2 className={styles.sectionTitle}>대한김치 스마트 위생 제조공정</h2>
                         <p style={{ color: '#666', fontSize: '0.98rem', marginTop: '8px', lineHeight: '1.6' }}>
                             원료 입고부터 세척, 저온 절임, 비법 양념 버무림, HACCP 검사 및 스마트 콜드체인 출하까지 철저한 품질 기준을 준수합니다.
                         </p>

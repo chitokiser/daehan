@@ -10,14 +10,14 @@
 /* ===== HERO ===== */
 .hero {
   position: relative;
-  min-height: 88vh;
+  min-height: 70vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: linear-gradient(160deg, #FFF8F0 0%, #FFF0E6 40%, #FFF5EE 100%);
-  padding: 120px 24px 60px;
+  padding: clamp(60px, 10vw, 120px) 2rem clamp(30px, 5vw, 60px);
 }
 
 /* 배경 장식 원 */
@@ -57,16 +57,22 @@
 }
 
 .title {
-  font-size: 3.6rem;
+  font-size: clamp(1.8rem, 5vw, 3.6rem);
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 20px;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
   color: var(--text-main);
 }
 
+/* Ensure proper line breaking on smaller screens */
+.title, .subtitle {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
 .subtitle {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 3vw, 1.2rem);
   font-weight: 400;
   color: var(--text-sub);
   margin-bottom: 36px;
@@ -113,8 +119,8 @@
 /* ===== PRODUCT GRID ===== */
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .productCard {
@@ -379,7 +385,7 @@
 
 /* ===== 16:9 VIDEO SHOWCASE SECTION ===== */
 .videoSection {
-  padding: 90px 24px;
+  padding: clamp(40px, 8vw, 90px) 1.5rem;
   background: linear-gradient(180deg, #FFF9F5 0%, #FFFFFF 100%);
   border-top: 1px solid var(--border-color);
 }
@@ -457,10 +463,11 @@
 
 .shortsGrid {
   display: flex;
-  gap: 20px;
+  gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 24px;
+  padding-bottom: 1.5rem;
   scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
 .shortsGrid::-webkit-scrollbar {
