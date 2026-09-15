@@ -723,6 +723,10 @@
 }
 
 @media (max-width: 600px) {
+  .rankTop3Grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
   .rankingTabBtn {
     font-size: 0.85rem;
     padding: 8px 16px;
