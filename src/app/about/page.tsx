@@ -13,25 +13,27 @@ export default function AboutPage() {
             {/* Hero Banner Section */}
             <section className={styles.heroSection}>
                 <div className="container">
-                    <div className={styles.heroBadge}>
-                        <Sparkles size={14} />
-                        <span>COMPANY PROFILE & BRAND STORY</span>
-                    </div>
-                    <h1 className={styles.title}>
-                        정성 어린 정통 손맛과 꼼꼼한 위생 관리<br className={styles.desktopBr} />
-                        하노이 중심에서 전하는 완벽한 발효과학의 비밀
-                    </h1>
-                    <p className={styles.subtitle}>
-                        인피니스㈜ 대한김치는 2023년 베트남 하노이 동안에 설립되어 100% 엄선된 농산물 원료와 HACCP CODEX 인증 위생 시설에서 정성껏 담근 대한민국 대표 김치를 선보입니다.
-                    </p>
-                    <div className={styles.heroActions}>
-                        <a href="/docu/HACCP_Certificate.pdf" target="_blank" rel="noopener noreferrer" className={styles.primaryBtn}>
-                            <Download size={16} />
-                            <span>HACCP 인증서 (PDF) 다운로드</span>
-                        </a>
-                        <Link href="/shop" className={styles.secondaryBtn}>
-                            <span>대한김치 제품 라인업 보기</span>
-                        </Link>
+                    <div className={styles.heroCard}>
+                        <div className={styles.heroBadge}>
+                            <Sparkles size={14} />
+                            <span>COMPANY PROFILE & BRAND STORY</span>
+                        </div>
+                        <h1 className={styles.title}>
+                            정성 어린 정통 손맛과 꼼꼼한 위생 관리<br className={styles.desktopBr} />
+                            하노이 중심에서 전하는 완벽한 발효과학의 비밀
+                        </h1>
+                        <p className={styles.subtitle}>
+                            인피니스㈜ 대한김치는 2023년 베트남 하노이 동안에 설립되어 100% 엄선된 농산물 원료와 HACCP CODEX 인증 위생 시설에서 정성껏 담근 대한민국 대표 김치를 선보입니다.
+                        </p>
+                        <div className={styles.heroActions}>
+                            <a href="/docu/HACCP_Certificate.pdf" target="_blank" rel="noopener noreferrer" className={styles.primaryBtn}>
+                                <Download size={16} />
+                                <span>HACCP 인증서 (PDF) 다운로드</span>
+                            </a>
+                            <Link href="/shop" className={styles.secondaryBtn}>
+                                <span>대한김치 제품 라인업 보기</span>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>

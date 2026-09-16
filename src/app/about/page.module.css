@@ -8,12 +8,24 @@
 }
 
 .heroSection {
-    padding: 110px 24px 60px;
+    padding: 100px 24px 60px;
     text-align: center;
-    background: linear-gradient(165deg, #FFF9F3 0%, #FFF0E6 50%, #FFEBE0 100%);
-    border-bottom: 1px solid rgba(227, 24, 55, 0.1);
+    background: linear-gradient(180deg, rgba(20, 10, 6, 0.45) 0%, rgba(20, 10, 6, 0.72) 100%), url('/images/kimchi_hero_bg.jpg') center/cover no-repeat;
+    border-bottom: 1px solid rgba(227, 24, 55, 0.15);
     position: relative;
     overflow: hidden;
+}
+
+.heroCard {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 30px rgba(200, 57, 43, 0.12);
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 860px;
+    margin: 0 auto;
 }
 
 .heroBadge {
