@@ -300,14 +300,15 @@ export async function registerOrLoginGoogleUser(googleData: {
     termsAgreed?: boolean;
 }): Promise<{ success: boolean; user?: UserWalletData; error?: string }> {
     const db = getDb();
-    const safeUid = `google_${(googleData.email || "user").replace(/[^a-zA-Z0-9]/g, "_")}`;
+    const cleanEmail = (googleData.email || "").trim().toLowerCase();
+    const safeUid = `google_${cleanEmail.replace(/[^a-zA-Z0-9]/g, "_")}`;
     
     const userRef = db.collection(USERS_COL).doc(safeUid);
     const docSnap = await userRef.get();
 
     if (!docSnap.exists) {
-        // 신규 회원인 경우 반드시 약관 동의(termsAgreed === true) 필요
-        if (!googleData.termsAgreed && googleData.email !== "daguri75@gmail.com") {
+        // 신규 회원인 경우 반드시 약관 동의(termsAgreed === true) 필요 (단 대표자 계정 daguri75@gmail.com 제외)
+        if (!googleData.termsAgreed && cleanEmail !== "daguri75@gmail.com") {
             return {
                 success: false,
                 error: "NEW_USER_TERMS_REQUIRED"
@@ -315,10 +316,10 @@ export async function registerOrLoginGoogleUser(googleData: {
         }
 
         let role: UserRole = "VIP_MEMBER";
-        if (googleData.email === "daguri75@gmail.com") role = "SUPER_ADMIN";
+        if (cleanEmail === "daguri75@gmail.com") role = "SUPER_ADMIN";
 
         // 추천인 파라미터가 없거나 빈 경우 기본 추천인(daguri75@gmail.com)으로 설정
-        const effectiveReferrer = (googleData.referrerUid && googleData.referrerUid.trim()) ? googleData.referrerUid.trim() : "daguri75@gmail.com";
+        const effectiveReferrer = (googleData.referrerUid && googleData.referrerUid.trim()) ? googleData.referrerUid.trim().toLowerCase() : "daguri75@gmail.com";
 
         let validReferrer: string | null = null;
         if (effectiveReferrer) {
@@ -371,22 +372,24 @@ export async function registerOrLoginGoogleUser(googleData: {
         // 예외: 최고 관리자 계정(SUPER_ADMIN: daguri75@gmail.com)만 추천인 없이 가입 가능
         const isException = role === "SUPER_ADMIN";
         if (!isException && !validReferrer) {
-            // 기본값 설정으로 여기까지 오지 않지만 보완 코드 유지
             validReferrer = "google_daguri75_gmail_com";
         }
+
+        // 자기 자신을 추천인으로 등록하는 것을 방지
+        const finalReferrerUid = (validReferrer && validReferrer !== safeUid) ? validReferrer : undefined;
 
         const newUser: UserWalletData = {
             uid: safeUid,
             name: googleData.name || "Google 회원",
-            email: googleData.email,
-            avatar: googleData.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80",
+            email: cleanEmail,
+            avatar: googleData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(googleData.name || cleanEmail)}&background=E31837&color=ffffff&bold=true`,
             onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
             moneyBalance: 0,
             pointBalance: 0,
             vndBalance: 0,
             dpPoints: 0,
             role: role,
-            ...(validReferrer && { referrerUid: validReferrer }),
+            ...(finalReferrerUid && { referrerUid: finalReferrerUid }),
             mentees: [],
             createdAt: new Date().toISOString()
         };
@@ -394,8 +397,8 @@ export async function registerOrLoginGoogleUser(googleData: {
         const batch = db.batch();
         batch.set(userRef, newUser);
 
-        if (validReferrer) {
-            const refDoc = db.collection(USERS_COL).doc(validReferrer);
+        if (finalReferrerUid) {
+            const refDoc = db.collection(USERS_COL).doc(finalReferrerUid);
             const refSnap = await refDoc.get();
             if (refSnap.exists) {
                 const refData = refSnap.data() as UserWalletData;
@@ -410,8 +413,8 @@ export async function registerOrLoginGoogleUser(googleData: {
         await grantDaehanPoint(safeUid, 1000, "신규 회원가입 보상 (1,000 DP)", "REWARD");
         newUser.dpPoints = (newUser.dpPoints || 0) + 1000;
         
-        if (validReferrer) {
-            await grantDaehanPoint(validReferrer, 500, `친구 추천 보상 (${newUser.name} 가입)`, "REFERRAL_BONUS");
+        if (finalReferrerUid) {
+            await grantDaehanPoint(finalReferrerUid, 500, `친구 추천 보상 (${newUser.name} 가입)`, "REFERRAL_BONUS");
         }
         
         return { success: true, user: newUser };
@@ -419,7 +422,7 @@ export async function registerOrLoginGoogleUser(googleData: {
         const updates: any = {};
         if (googleData.name) updates.name = googleData.name;
         if (googleData.avatar) updates.avatar = googleData.avatar;
-        if (googleData.email === "daguri75@gmail.com") updates.role = "SUPER_ADMIN";
+        if (cleanEmail === "daguri75@gmail.com") updates.role = "SUPER_ADMIN";
         
         if (Object.keys(updates).length > 0) {
             await userRef.update(updates);

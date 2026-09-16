@@ -64,12 +64,13 @@ export default function Header() {
                 const userInfo = await res.json();
                 
                 if (userInfo.email) {
-                    const loginRes = await loginWithGoogle(userInfo.email, userInfo.name, undefined, userInfo.picture);
+                    const cleanEmail = userInfo.email.trim().toLowerCase();
+                    const loginRes = await loginWithGoogle(cleanEmail, userInfo.name, undefined, userInfo.picture);
                     if (loginRes.success) {
                         closeAllAccountModals();
                         alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
                     } else if (loginRes.error === "NEW_USER_TERMS_REQUIRED" || loginRes.error?.includes("추천인") || loginRes.error?.includes("멘토")) {
-                        setPendingUserInfo({ email: userInfo.email, name: userInfo.name || "Google 회원", avatar: userInfo.picture });
+                        setPendingUserInfo({ email: cleanEmail, name: userInfo.name || "Google 회원", avatar: userInfo.picture });
                         closeLoginModal();
                         setReferrerPromptOpen(true);
                     } else {
@@ -88,7 +89,7 @@ export default function Header() {
     });
 
     const handleEmailLogin = async (customEmail?: string) => {
-        let emailToUse = customEmail || googleEmailInput.trim();
+        let emailToUse = (customEmail || googleEmailInput).trim().toLowerCase();
         if (!emailToUse) {
             alert("이메일을 입력해주세요.");
             return;
@@ -100,16 +101,16 @@ export default function Header() {
             closeAllAccountModals();
             alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
         } else if (res.error === "NEW_USER_TERMS_REQUIRED" || res.error?.includes("추천인") || res.error?.includes("멘토")) {
-            setPendingUserInfo({ email: emailToUse, name: "회원", avatar: avatarUrl });
+            setPendingUserInfo({ email: emailToUse, name: emailToUse.split("@")[0] || "회원", avatar: avatarUrl });
             closeLoginModal();
             setReferrerPromptOpen(true);
         } else {
-            alert(`로그인 실패: ${res.error}`);
+            alert(`로그인 실패: ${res.error || "알 수 없는 오류가 발생했습니다."}`);
         }
     };
 
     const submitReferrer = async () => {
-        const finalReferrer = referrerInput.trim() || "daguri75@gmail.com";
+        const finalReferrer = (referrerInput || "").trim().toLowerCase() || "daguri75@gmail.com";
         if (!agreeTerms || !agreePrivacy) {
             alert("이용약관 및 개인정보 처리방침에 모두 동의해 주세요 (필수).");
             return;
@@ -119,8 +120,9 @@ export default function Header() {
             setReferrerPromptOpen(false);
             return;
         }
+        const cleanEmail = pendingUserInfo.email.trim().toLowerCase();
         // 약관 동의(termsAgreed = true) 파라미터 전달하여 회원 가입 승인
-        const loginRes = await loginWithGoogle(pendingUserInfo.email, pendingUserInfo.name, finalReferrer, pendingUserInfo.avatar, true);
+        const loginRes = await loginWithGoogle(cleanEmail, pendingUserInfo.name, finalReferrer, pendingUserInfo.avatar, true);
         if (loginRes.success) {
             setReferrerPromptOpen(false);
             setPendingUserInfo(null);
@@ -131,7 +133,7 @@ export default function Header() {
             setMobileMenuOpen(false);
             alert(`🎉 대한김치 회원 가입 완료! 멘토 [${finalReferrer}]님의 멘티로 등록되었습니다.`);
         } else {
-            alert(`회원가입 실패: ${loginRes.error}`);
+            alert(`회원가입 실패: ${loginRes.error || "가입 처리 중 오류가 발생했습니다."}`);
         }
     };
 

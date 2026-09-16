@@ -226,10 +226,13 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 const savedEmail = localStorage.getItem("google_auth_email");
                 const savedName = localStorage.getItem("google_auth_name");
                 if (savedEmail) {
-                    const res = await loginWithGoogle(savedEmail, savedName || undefined);
+                    const cleanSaved = savedEmail.trim().toLowerCase();
+                    const res = await loginWithGoogle(cleanSaved, savedName || undefined);
                     if (!res || !res.success) {
-                        localStorage.removeItem("google_auth_email");
-                        localStorage.removeItem("google_auth_name");
+                        // NEW_USER_TERMS_REQUIRED 상태나 임시 네트워크 에러일 경우 저장된 이메일을 지우지 않음
+                        if (res?.error !== "NEW_USER_TERMS_REQUIRED") {
+                            console.warn("Auto-login unhandled error:", res?.error);
+                        }
                     }
                 }
             }
@@ -283,8 +286,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const loginWithGoogle = async (customEmail?: string, customName?: string, referrerUid?: string, customAvatar?: string, termsAgreed?: boolean) => {
         setIsLoading(true);
         try {
-            // localStorage 캐시 무시하고 입력받은 이메일만 사용
-            const email = customEmail;
+            const email = customEmail ? customEmail.trim().toLowerCase() : "";
             if (!email) {
                 return { success: false, error: "이메일이 제공되지 않았습니다." };
             }

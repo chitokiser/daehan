@@ -7,19 +7,30 @@ export async function POST(req: NextRequest) {
     try {
         let body: any = {};
         try {
-            const rawText = await req.text();
-            body = rawText ? JSON.parse(rawText) : {};
+            body = await req.json();
         } catch {
-            body = {};
+            try {
+                const rawText = await req.text();
+                body = rawText ? JSON.parse(rawText) : {};
+            } catch {
+                body = {};
+            }
         }
         const { email, name, avatar, sub, referrerUid, termsAgreed } = body;
 
-        const effectiveEmail = email || `user_${Date.now()}@gmail.com`;
-        const effectiveName = name || "Google 인증 회원";
-        const effectiveAvatar = avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80";
+        const cleanEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+        if (!cleanEmail) {
+            return NextResponse.json({
+                success: false,
+                error: "올바른 이메일 주소를 입력해주세요."
+            }, { status: 400 });
+        }
+
+        const effectiveName = name ? name.trim() : "Google 인증 회원";
+        const effectiveAvatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(effectiveName)}&background=E31837&color=ffffff&bold=true`;
 
         const result = await registerOrLoginGoogleUser({
-            email: effectiveEmail,
+            email: cleanEmail,
             name: effectiveName,
             avatar: effectiveAvatar,
             sub,
@@ -59,3 +70,4 @@ export async function POST(req: NextRequest) {
         }, { status: 500 });
     }
 }
+
