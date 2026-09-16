@@ -153,16 +153,9 @@ export default function Header() {
             <header className={styles.header}>
                 <Link href="/" className={styles.logoLink} onClick={() => setMobileMenuOpen(false)}>
                     <img 
-                        src="/images/logo2.png" 
+                        src="/images/logo1.png" 
                         alt="대한김치" 
                         className={styles.logoImg}
-                        onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            if (!target.dataset.failedOnce) {
-                                target.dataset.failedOnce = "true";
-                                target.src = "/images/logo1.png";
-                            }
-                        }}
                     />
                 </Link>
 
