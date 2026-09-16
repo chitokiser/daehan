@@ -280,7 +280,7 @@ export default function Home() {
           <div className={styles.dnaSplit}>
             <div className={styles.dnaText}>
               <span className="badge">AI & BIO FERMENTATION</span>
-              <h2 className="text-gradient" style={{ fontSize: '2.2rem', margin: '16px 0' }}>
+              <h2 className={`${styles.responsiveHeading} text-gradient`}>
                 {t("dna.bannerTitle", "🔬 AI DNA 맞춤 김치 추천")}
               </h2>
               <p style={{ color: 'var(--text-muted)', lineHeight: '1.7', marginBottom: '24px' }}>
@@ -336,7 +336,7 @@ export default function Home() {
         <div className="container">
           <div className={styles.sectionHeader}>
             <span className="badge">DAEHAN CINEMATIC & BRAND FILM</span>
-            <h2 className="text-gradient" style={{ fontSize: '2.2rem', margin: '16px 0' }}>
+            <h2 className={`${styles.responsiveHeading} text-gradient`}>
               {lang === "vi" ? "Video thương hiệu DAEHAN KIMCHI 16:9" : "대한김치 16:9 시네마틱 브랜드 영상"}
             </h2>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>

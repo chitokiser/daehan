@@ -270,7 +270,7 @@ export default function SubscribePage() {
             {/* Tiers Grid */}
             <div className={styles.sectionTitleBlock}>
                 <span className="badge">CHOOSE YOUR PLAN</span>
-                <h2 className="text-gradient" style={{ fontSize: '2.2rem', marginTop: '8px' }}>
+                <h2 className="text-gradient">
                     {lang === "vi" ? "Chọn gói Kimchi phù hợp với bạn" : "나에게 딱 맞는 정기구독 플랜 선택"}
                 </h2>
             </div>
