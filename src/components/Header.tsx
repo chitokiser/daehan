@@ -71,6 +71,8 @@ export default function Header() {
                         alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
                     } else if (loginRes.error === "NEW_USER_TERMS_REQUIRED" || loginRes.error?.includes("추천인") || loginRes.error?.includes("멘토")) {
                         setPendingUserInfo({ email: cleanEmail, name: userInfo.name || "Google 회원", avatar: userInfo.picture });
+                        setAgreeTerms(true);
+                        setAgreePrivacy(true);
                         closeLoginModal();
                         setReferrerPromptOpen(true);
                     } else {
@@ -102,6 +104,8 @@ export default function Header() {
             alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
         } else if (res.error === "NEW_USER_TERMS_REQUIRED" || res.error?.includes("추천인") || res.error?.includes("멘토")) {
             setPendingUserInfo({ email: emailToUse, name: emailToUse.split("@")[0] || "회원", avatar: avatarUrl });
+            setAgreeTerms(true);
+            setAgreePrivacy(true);
             closeLoginModal();
             setReferrerPromptOpen(true);
         } else {
