@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             success: false,
             error: e.message || "Google 로그인 처리 중 서버 오류가 발생했습니다."
-        }, { status: 500 });
+        }, { status: 200 });
     }
 }
 

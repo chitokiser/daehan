@@ -189,9 +189,7 @@ class InMemoryCollection {
                 }
             },
             update: async (data: any) => {
-                if (col[id]) {
-                    col[id] = { ...col[id], ...data };
-                }
+                col[id] = { ...(col[id] || {}), ...data };
             },
             delete: async () => {
                 delete col[id];
@@ -410,11 +408,15 @@ export async function registerOrLoginGoogleUser(googleData: {
         await batch.commit();
         
         // DP 리워드 지급 (신규회원 1000 DP, 추천인 500 DP)
-        await grantDaehanPoint(safeUid, 1000, "신규 회원가입 보상 (1,000 DP)", "REWARD");
-        newUser.dpPoints = (newUser.dpPoints || 0) + 1000;
-        
-        if (finalReferrerUid) {
-            await grantDaehanPoint(finalReferrerUid, 500, `친구 추천 보상 (${newUser.name} 가입)`, "REFERRAL_BONUS");
+        try {
+            await grantDaehanPoint(safeUid, 1000, "신규 회원가입 보상 (1,000 DP)", "REWARD");
+            newUser.dpPoints = (newUser.dpPoints || 0) + 1000;
+            
+            if (finalReferrerUid) {
+                await grantDaehanPoint(finalReferrerUid, 500, `친구 추천 보상 (${newUser.name} 가입)`, "REFERRAL_BONUS");
+            }
+        } catch (dpErr) {
+            console.warn("Initial DP grant warning:", dpErr);
         }
         
         return { success: true, user: newUser };
