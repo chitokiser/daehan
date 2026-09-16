@@ -1,14 +1,14 @@
-/* about/page.module.css — 대한김치 회사소개서 프리미엄 디자인 */
+/* about/page.module.css — 대한김치 회사소개서 모바일 최적화 & 타이포그래피 정돈 */
 
 .container {
     width: 100%;
     min-height: 100vh;
-    padding-bottom: 100px;
+    padding-bottom: 80px;
     background: var(--bg-color);
 }
 
 .heroSection {
-    padding: 130px 24px 70px;
+    padding: 110px 24px 60px;
     text-align: center;
     background: linear-gradient(165deg, #FFF9F3 0%, #FFF0E6 50%, #FFEBE0 100%);
     border-bottom: 1px solid rgba(227, 24, 55, 0.1);
@@ -19,81 +19,96 @@
 .heroBadge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 18px;
+    gap: 6px;
+    padding: 5px 14px;
     border-radius: 30px;
     background: rgba(227, 24, 55, 0.08);
     color: #e31837;
     font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 1px;
-    margin-bottom: 20px;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
     border: 1px solid rgba(227, 24, 55, 0.2);
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 .title {
-    font-size: 2.8rem;
+    font-size: 2.1rem;
     font-weight: 800;
     line-height: 1.35;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: #1a1a1a;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.desktopBr {
+    display: inline;
 }
 
 .subtitle {
-    font-size: 1.15rem;
+    font-size: 1.0rem;
     color: #555;
-    max-width: 760px;
-    margin: 0 auto 32px;
-    line-height: 1.75;
+    max-width: 720px;
+    margin: 0 auto 28px;
+    line-height: 1.7;
     word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .heroActions {
     display: flex;
     justify-content: center;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .primaryBtn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     background: #e31837;
     color: #fff;
-    padding: 14px 28px;
-    border-radius: 12px;
+    padding: 12px 22px;
+    border-radius: 10px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.92rem;
     text-decoration: none;
-    box-shadow: 0 8px 20px rgba(227, 24, 55, 0.25);
+    box-shadow: 0 6px 16px rgba(227, 24, 55, 0.22);
     transition: all 0.25s ease;
     border: none;
     cursor: pointer;
+    word-break: keep-all;
 }
 
 .primaryBtn:hover {
     background: #c6122d;
     transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(227, 24, 55, 0.35);
+    box-shadow: 0 10px 20px rgba(227, 24, 55, 0.3);
 }
 
 .secondaryBtn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     background: #fff;
     color: #333;
-    padding: 14px 28px;
-    border-radius: 12px;
+    padding: 12px 22px;
+    border-radius: 10px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.92rem;
     text-decoration: none;
     border: 1px solid #ddd;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
     transition: all 0.25s ease;
     cursor: pointer;
+    word-break: keep-all;
 }
 
 .secondaryBtn:hover {
@@ -105,29 +120,34 @@
 /* Tab Navigation Bar */
 .stickyTabNav {
     position: sticky;
-    top: 70px;
+    top: 64px;
     z-index: 90;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid #eee;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.03);
 }
 
 .tabList {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 12px 24px;
+    padding: 10px 20px;
     overflow-x: auto;
     flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabList::-webkit-scrollbar {
+    display: none;
 }
 
 .tabLink {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 8px;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: #666;
     text-decoration: none;
@@ -144,110 +164,130 @@
 .contentWrapper {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 50px 24px 0;
+    padding: 40px 24px 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Section styling */
 .sectionCard {
     background: #fff;
-    border-radius: 20px;
-    padding: 48px 40px;
-    margin-bottom: 50px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border-radius: 18px;
+    padding: 40px 36px;
+    margin-bottom: 36px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
     border: 1px solid #f0f0f0;
-    scroll-margin-top: 140px;
+    scroll-margin-top: 130px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .sectionHeader {
-    margin-bottom: 36px;
+    margin-bottom: 28px;
     text-align: left;
 }
 
 .sectionTag {
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 700;
     color: #e31837;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
 }
 
 .sectionTitle {
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: #111;
     margin: 0;
     line-height: 1.3;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.sectionSubDesc {
+    color: #666;
+    font-size: 0.92rem;
+    margin-top: 6px;
+    line-height: 1.6;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* CEO Message Styles */
 .ceoLayout {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 40px;
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
     align-items: start;
 }
 
 .ceoProfileCard {
     background: linear-gradient(145deg, #1f242d, #14171d);
     color: #fff;
-    border-radius: 16px;
-    padding: 32px 24px;
+    border-radius: 14px;
+    padding: 24px 18px;
     text-align: center;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
 .ceoAvatarCircle {
-    width: 100px;
-    height: 100px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
     background: linear-gradient(135deg, #e31837, #ff5252);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
-    margin: 0 auto 20px;
+    margin: 0 auto 16px;
     color: #fff;
-    box-shadow: 0 8px 16px rgba(227, 24, 55, 0.4);
+    box-shadow: 0 6px 14px rgba(227, 24, 55, 0.35);
 }
 
 .ceoName {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 4px;
 }
 
 .ceoTitleText {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #aaa;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .ceoBadgeTag {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 4px 10px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #ffd700;
     border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
 .ceoMessageBody {
-    font-size: 1.05rem;
-    line-height: 1.85;
+    font-size: 0.95rem;
+    line-height: 1.75;
     color: #333;
 }
 
 .ceoMessageBody p {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .ceoSignatureBox {
-    margin-top: 36px;
-    padding-top: 24px;
+    margin-top: 28px;
+    padding-top: 18px;
     border-top: 1px solid #eee;
     display: flex;
     justify-content: space-between;
@@ -255,12 +295,12 @@
 }
 
 .signatureTitle {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: #777;
 }
 
 .signatureName {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 800;
     color: #111;
     font-family: 'Georgia', serif;
@@ -270,144 +310,220 @@
 /* Brand Philosophy Cards */
 .brandGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
 }
 
 .brandCard {
     background: #fcfcfc;
     border: 1px solid #eee;
-    border-radius: 16px;
-    padding: 28px 24px;
-    transition: all 0.3s ease;
+    border-radius: 14px;
+    padding: 22px 18px;
+    transition: all 0.25s ease;
     position: relative;
     overflow: hidden;
 }
 
 .brandCard:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     background: #fff;
-    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-    border-color: rgba(227, 24, 55, 0.3);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+    border-color: rgba(227, 24, 55, 0.25);
 }
 
 .brandNum {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
     font-weight: 900;
-    color: rgba(227, 24, 55, 0.15);
+    color: rgba(227, 24, 55, 0.12);
     position: absolute;
-    top: 16px;
-    right: 20px;
+    top: 14px;
+    right: 16px;
 }
 
 .brandIcon {
-    font-size: 2.2rem;
-    margin-bottom: 16px;
+    font-size: 1.8rem;
+    margin-bottom: 12px;
 }
 
 .brandCard h4 {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #111;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .brandCard p {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     color: #666;
-    line-height: 1.6;
+    line-height: 1.55;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* HACCP Section */
 .haccpBanner {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    grid-template-columns: 1fr 280px;
+    gap: 28px;
     background: linear-gradient(135deg, #0d233a, #163656);
     color: #fff;
-    border-radius: 16px;
-    padding: 40px;
+    border-radius: 14px;
+    padding: 32px;
     align-items: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.haccpContent {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .haccpContent h3 {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 800;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     color: #fff;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.haccpDesc {
+    color: #d0dbe5;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .haccpBadgeList {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin: 16px 0 24px;
+    margin: 14px 0 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .haccpBadgeItem {
     background: rgba(255, 255, 255, 0.15);
-    padding: 6px 14px;
+    padding: 4px 12px;
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 600;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    word-break: keep-all;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .haccpMetaGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 12px;
     background: rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 24px;
+    padding: 16px;
+    border-radius: 10px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.haccpMetaItem {
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .haccpMetaItem label {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     color: #aaa;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .haccpMetaItem span {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: #4cd964;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    display: block;
+}
+
+.haccpMetaValWhite {
+    color: #fff !important;
 }
 
 .haccpViewerCard {
     background: #fff;
     color: #333;
     border-radius: 12px;
-    padding: 24px;
+    padding: 20px;
     text-align: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
-.haccpPreviewImg {
-    width: 100%;
-    max-height: 280px;
-    object-fit: contain;
+.haccpCardBox {
+    padding: 14px;
+    background: #f5f7fa;
     border-radius: 8px;
-    border: 1px solid #eee;
-    margin-bottom: 16px;
-    background: #fafafa;
+    margin-bottom: 14px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.haccpShieldIcon {
+    margin: 0 auto 6px;
+    display: block;
+}
+
+.haccpCardTitle {
+    margin: 0 0 4px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111;
+    word-break: keep-all;
+}
+
+.haccpCardCompany {
+    margin: 0;
+    font-size: 0.78rem;
+    color: #666;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .pdfBtn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
-    padding: 12px;
+    padding: 10px 14px;
     background: #007aff;
     color: #fff;
     border-radius: 8px;
     font-weight: 600;
+    font-size: 0.85rem;
     text-decoration: none;
     transition: background 0.2s;
+    word-break: keep-all;
+    box-sizing: border-box;
 }
 
 .pdfBtn:hover {
@@ -417,24 +533,29 @@
 /* Company Overview Table */
 .overviewTableWrapper {
     overflow-x: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .overviewTable {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 16px;
+    margin-top: 12px;
 }
 
 .overviewTable th,
 .overviewTable td {
-    padding: 16px 20px;
+    padding: 12px 16px;
     text-align: left;
     border-bottom: 1px solid #eee;
-    font-size: 0.98rem;
+    font-size: 0.9rem;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .overviewTable th {
-    width: 22%;
+    width: 24%;
     background: #fafafa;
     color: #444;
     font-weight: 700;
@@ -447,27 +568,27 @@
 /* Process Section Styles */
 .processGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 20px;
-    margin-top: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
 }
 
 .processCard {
     background: #FAFAF8;
     border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 16px;
-    padding: 24px 20px;
+    border-radius: 14px;
+    padding: 18px 16px;
     position: relative;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     display: flex;
     flex-direction: column;
 }
 
 .processCard:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     background: #fff;
-    border-color: rgba(200, 57, 43, 0.3);
-    box-shadow: 0 10px 24px rgba(200, 57, 43, 0.1);
+    border-color: rgba(200, 57, 43, 0.25);
+    box-shadow: 0 8px 20px rgba(200, 57, 43, 0.08);
 }
 
 .processBadge {
@@ -476,70 +597,324 @@
     background: rgba(200, 57, 43, 0.1);
     color: var(--primary-color);
     border: 1px solid rgba(200, 57, 43, 0.25);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 3px 10px;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
     border-radius: 20px;
-    margin-bottom: 12px;
-}
-
-.processIconWrap {
-    font-size: 2rem;
     margin-bottom: 10px;
 }
 
+.processIconWrap {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+}
+
 .processStepTitle {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 800;
     color: var(--text-main);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     line-height: 1.35;
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .processStepDesc {
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     color: var(--text-muted);
-    line-height: 1.6;
+    line-height: 1.55;
     margin: 0;
     word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
-@media (max-width: 868px) {
-    .heroTitle {
-        font-size: 2.2rem;
+/* ============================================================
+   MOBILE RESPONSIVE MEDIA QUERIES
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .container {
+        padding-bottom: 50px;
+    }
+
+    .heroSection {
+        padding: 85px 16px 36px;
+    }
+
+    .title {
+        font-size: 1.35rem;
+        line-height: 1.4;
+        margin-bottom: 12px;
+    }
+
+    .desktopBr {
+        display: none;
+    }
+
+    .subtitle {
+        font-size: 0.88rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .heroActions {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .primaryBtn,
+    .secondaryBtn {
+        width: 100%;
+        padding: 11px 16px;
+        font-size: 0.88rem;
+    }
+
+    .stickyTabNav {
+        top: 54px;
+    }
+
+    .tabList {
+        justify-content: flex-start;
+        gap: 6px;
+        padding: 8px 12px;
+    }
+
+    .tabLink {
+        font-size: 0.82rem;
+        padding: 6px 12px;
+    }
+
+    .contentWrapper {
+        padding: 16px 10px 0;
+    }
+
+    .sectionCard {
+        padding: 18px 12px;
+        margin-bottom: 20px;
+        border-radius: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .sectionHeader {
+        margin-bottom: 16px;
+    }
+
+    .sectionTag {
+        font-size: 0.72rem;
+    }
+
+    .sectionTitle {
+        font-size: 1.2rem;
+        line-height: 1.35;
+    }
+
+    .sectionSubDesc {
+        font-size: 0.82rem;
     }
 
     .ceoLayout {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
+    .ceoProfileCard {
+        padding: 18px 14px;
+    }
+
+    .ceoAvatarCircle {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 12px;
+    }
+
+    .ceoName {
+        font-size: 1.15rem;
+    }
+
+    .ceoTitleText {
+        font-size: 0.8rem;
+    }
+
+    .ceoBadgeTag {
+        font-size: 0.7rem;
+    }
+
+    .ceoMessageBody {
+        font-size: 0.88rem;
+        line-height: 1.65;
+    }
+
+    .ceoMessageBody p {
+        margin-bottom: 12px;
+    }
+
+    .ceoSignatureBox {
+        margin-top: 18px;
+        padding-top: 12px;
+    }
+
+    .signatureTitle {
+        font-size: 0.78rem;
+    }
+
+    .signatureName {
+        font-size: 1.05rem;
+    }
+
+    .brandGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .brandCard {
+        padding: 16px 14px;
+    }
+
+    .brandCard h4 {
+        font-size: 0.95rem;
+    }
+
+    .brandCard p {
+        font-size: 0.82rem;
+    }
+
+    .processGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .processCard {
+        padding: 16px 14px;
+    }
+
+    .processStepTitle {
+        font-size: 0.88rem;
+    }
+
+    .processStepDesc {
+        font-size: 0.78rem;
+    }
+
+    /* HACCP Banner Mobile Fit */
     .haccpBanner {
         grid-template-columns: 1fr;
+        padding: 18px 14px;
+        gap: 16px;
+        border-radius: 12px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    .sectionCard {
-        padding: 32px 20px;
+    .haccpContent {
+        width: 100%;
+        min-width: 0;
     }
 
-    .overviewTable th {
-        width: 32%;
+    .haccpContent h3 {
+        font-size: 1.15rem;
+        line-height: 1.35;
+    }
+
+    .haccpDesc {
+        font-size: 0.82rem;
+        line-height: 1.6;
+    }
+
+    .haccpBadgeList {
+        gap: 6px;
+        margin: 10px 0 14px;
+    }
+
+    .haccpBadgeItem {
+        font-size: 0.72rem;
+        padding: 3px 8px;
+    }
+
+    .haccpMetaGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px 10px;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .haccpMetaItem label {
+        font-size: 0.7rem;
+    }
+
+    .haccpMetaItem span {
+        font-size: 0.82rem;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .haccpViewerCard {
+        padding: 14px 10px;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .haccpCardBox {
+        padding: 10px 8px;
+    }
+
+    .haccpCardTitle {
+        font-size: 0.9rem;
+    }
+
+    .haccpCardCompany {
+        font-size: 0.75rem;
+    }
+
+    .pdfBtn {
+        padding: 9px 12px;
+        font-size: 0.8rem;
     }
 }
 
-/* Mobile specific adjustments for navigation */
 @media (max-width: 600px) {
-    .tabList {
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        gap: 8px;
-        padding: 8px 12px;
+    /* Convert Overview Table to responsive stacked list on small mobile screens */
+    .overviewTable, 
+    .overviewTable tbody, 
+    .overviewTable tr, 
+    .overviewTable th, 
+    .overviewTable td {
+        display: block;
+        width: 100%;
     }
-    .tabLink {
+
+    .overviewTable tr {
+        border-bottom: 1px solid #eee;
+        padding: 8px 0;
+    }
+
+    .overviewTable tr:last-child {
+        border-bottom: none;
+    }
+
+    .overviewTable th {
+        width: 100%;
+        background: none;
+        padding: 4px 0 2px 0;
+        font-size: 0.78rem;
+        color: #777;
+        border-bottom: none;
+    }
+
+    .overviewTable td {
+        width: 100%;
+        padding: 2px 0 4px 0;
         font-size: 0.85rem;
-        padding: 6px 12px;
-    }
-    .stickyTabNav {
-        top: 50px; /* reduce offset if header smaller */
+        border-bottom: none;
+        word-break: keep-all;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 }

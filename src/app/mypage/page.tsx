@@ -7,7 +7,7 @@ import styles from "./page.module.css";
 import { Wallet, Award, Users, Copy, Check, Gift, Sparkles, UserCheck, ShieldCheck, Share2, MessageSquare, BookOpen, ShoppingBag, ArrowRightLeft, TrendingUp, Zap, Building, Landmark, CreditCard, QrCode, Truck } from "lucide-react";
 
 export default function MyPage() {
-    const { user, wallet, isLoggedIn, orders, refreshWallet, convertDpToMoney, levelUp } = useUserWallet();
+    const { user, wallet, isLoggedIn, orders, refreshWallet, convertDpToMoney, levelUp, openLoginModal } = useUserWallet();
     const { lang, t } = useLanguage();
     const [mounted, setMounted] = useState(false);
     const [copiedUid, setCopiedUid] = useState(false);
@@ -47,7 +47,15 @@ export default function MyPage() {
             <main>
                 <div className={styles.authWarning}>
                     <h2>로그인이 필요한 서비스입니다.</h2>
-                    <p>우측 상단 메뉴의 로그인 버튼을 통해 로그인 후 이용해 주세요.</p>
+                    <p style={{ marginBottom: '16px' }}>대한김치 계정으로 로그인하여 마이페이지를 이용해 주세요.</p>
+                    <button
+                        type="button"
+                        onClick={openLoginModal}
+                        className="btn-primary"
+                        style={{ padding: '10px 24px', fontSize: '0.95rem' }}
+                    >
+                        🔑 대한김치 회원 로그인
+                    </button>
                 </div>
             </main>
         );

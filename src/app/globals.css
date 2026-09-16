@@ -173,3 +173,57 @@ a {
   align-items: center;
   justify-content: center;
 }
+
+/* ============================================================
+   MOBILE HARNESS & SAFETY NET (대한김치 전역 모바일 뷰포트 가드)
+   ============================================================ */
+
+/* 1. 전역 가로 스크롤 이탈 방지 */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* 2. 텍스트 넘침 짤림 방지 */
+h1, h2, h3, h4, h5, h6, p, span, a, label, button, th, td, li, div {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* 3. 모바일 뷰포트 전용 데스크톱 줄바꿈 제거 */
+@media (max-width: 768px) {
+  .desktopBr, .desktop-br, br.desktopBr, br.desktop-br {
+    display: none !important;
+  }
+}
+
+/* 4. 공통 모바일 최적화 헬퍼 유틸리티 */
+.text-keep-all {
+  word-break: keep-all;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.grid-min-zero {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.mobile-stack {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .mobile-stack {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+

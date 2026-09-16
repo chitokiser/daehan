@@ -1,6 +1,6 @@
 import styles from './page.module.css';
 import Link from 'next/link';
-import { Award, CheckCircle2, Download, Building2, ShieldCheck, HeartHandshake, Sparkles, FileText } from 'lucide-react';
+import { Download, ShieldCheck, HeartHandshake, Sparkles, FileText } from 'lucide-react';
 
 export const metadata = {
     title: '회사소개서 | 대한김치 (Daehan Kimchi)',
@@ -14,11 +14,11 @@ export default function AboutPage() {
             <section className={styles.heroSection}>
                 <div className="container">
                     <div className={styles.heroBadge}>
-                        <Sparkles size={16} />
+                        <Sparkles size={14} />
                         <span>COMPANY PROFILE & BRAND STORY</span>
                     </div>
                     <h1 className={styles.title}>
-                        정성 어린 정통 손맛과 꼼꼼한 위생 관리<br />
+                        정성 어린 정통 손맛과 꼼꼼한 위생 관리<br className={styles.desktopBr} />
                         하노이 중심에서 전하는 완벽한 발효과학의 비밀
                     </h1>
                     <p className={styles.subtitle}>
@@ -26,7 +26,7 @@ export default function AboutPage() {
                     </p>
                     <div className={styles.heroActions}>
                         <a href="/docu/HACCP_Certificate.pdf" target="_blank" rel="noopener noreferrer" className={styles.primaryBtn}>
-                            <Download size={18} />
+                            <Download size={16} />
                             <span>HACCP 인증서 (PDF) 다운로드</span>
                         </a>
                         <Link href="/shop" className={styles.secondaryBtn}>
@@ -60,7 +60,7 @@ export default function AboutPage() {
                     <div className={styles.ceoLayout}>
                         <div className={styles.ceoProfileCard}>
                             <div className={styles.ceoAvatarCircle}>
-                                <HeartHandshake size={48} />
+                                <HeartHandshake size={36} />
                             </div>
                             <h3 className={styles.ceoName}>김용진</h3>
                             <p className={styles.ceoTitleText}>인피니스㈜ 대한김치 대표이사</p>
@@ -122,7 +122,7 @@ export default function AboutPage() {
                             <span className={styles.brandNum}>03</span>
                             <div className={styles.brandIcon}>🛡️</div>
                             <h4>HACCP 국제 인증 위생 관리</h4>
-                            <p>위해요소분석(Hazard Analysis)과 중요관리점 국제 규격인 "HACCP CODEX 2020"을 획득하여 안심하고 드실 수 있습니다.</p>
+                            <p>위해보소분석(Hazard Analysis)과 중요관리점 국제 규격인 "HACCP CODEX 2020"을 획득하여 안심하고 드실 수 있습니다.</p>
                         </div>
 
                         <div className={styles.brandCard}>
@@ -147,7 +147,7 @@ export default function AboutPage() {
                     <div className={styles.sectionHeader}>
                         <span className={styles.sectionTag}>MANUFACTURING PROCESS</span>
                         <h2 className={styles.sectionTitle}>대한김치 스마트 위생 제조공정</h2>
-                        <p style={{ color: '#666', fontSize: '0.98rem', marginTop: '8px', lineHeight: '1.6' }}>
+                        <p className={styles.sectionSubDesc}>
                             원료 입고부터 세척, 저온 절임, 비법 양념 버무림, HACCP 검사 및 스마트 출하까지 철저한 품질 기준을 준수합니다.
                         </p>
                     </div>
@@ -228,7 +228,7 @@ export default function AboutPage() {
                 </section>
 
 
-                {/* 3. HACCP Certification Section */}
+                {/* 4. HACCP Certification Section */}
                 <section id="haccp" className={styles.sectionCard}>
                     <div className={styles.sectionHeader}>
                         <span className={styles.sectionTag}>QUALITY & SAFETY CERTIFICATE</span>
@@ -238,7 +238,7 @@ export default function AboutPage() {
                     <div className={styles.haccpBanner}>
                         <div className={styles.haccpContent}>
                             <h3>안전하고 철저한 위생 관리 검증</h3>
-                            <p style={{ color: '#d0dbe5', fontSize: '0.98rem', lineHeight: '1.7' }}>
+                            <p className={styles.haccpDesc}>
                                 대한김치는 원료 입고부터 세척, 버무림, 숙성, 포가 및 출하까지 전 과정에 엄격한 위생 검사를 실시하며, 국제 규격 품질 인증인 HACCP CODEX 2020을 획득하였습니다.
                             </p>
 
@@ -259,20 +259,20 @@ export default function AboutPage() {
                                 </div>
                                 <div className={styles.haccpMetaItem}>
                                     <label>인증 범위 (Certification Scope)</label>
-                                    <span style={{ color: '#fff' }}>Sản xuất và kinh doanh Kim chi (Kimchi Production & Sales)</span>
+                                    <span className={styles.haccpMetaValWhite}>Sản xuất và kinh doanh Kim chi (Kimchi Production & Sales)</span>
                                 </div>
                                 <div className={styles.haccpMetaItem}>
                                     <label>발행 기관 (Issuing Authority)</label>
-                                    <span style={{ color: '#fff' }}>GOOD VIETNAM CERTIFICATION INC.</span>
+                                    <span className={styles.haccpMetaValWhite}>GOOD VIETNAM CERTIFICATION INC.</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className={styles.haccpViewerCard}>
-                            <div style={{ padding: '16px', background: '#f5f7fa', borderRadius: '8px', marginBottom: '16px' }}>
-                                <ShieldCheck size={48} color="#007aff" style={{ margin: '0 auto 8px' }} />
-                                <h4 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 700 }}>HACCP 획득 확인서</h4>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#666' }}>CÔNG TY CỔ PHẦN INFINIS (INFINIS JOINT STOCK COMPANY)</p>
+                            <div className={styles.haccpCardBox}>
+                                <ShieldCheck size={36} color="#007aff" className={styles.haccpShieldIcon} />
+                                <h4 className={styles.haccpCardTitle}>HACCP 획득 확인서</h4>
+                                <p className={styles.haccpCardCompany}>CÔNG TY CỔ PHẦN INFINIS (INFINIS JOINT STOCK COMPANY)</p>
                             </div>
 
                             <a 
@@ -281,7 +281,7 @@ export default function AboutPage() {
                                 rel="noopener noreferrer"
                                 className={styles.pdfBtn}
                             >
-                                <FileText size={18} />
+                                <FileText size={16} />
                                 <span>인증서 전문 (PDF) 원본 보기</span>
                             </a>
                         </div>
@@ -289,7 +289,7 @@ export default function AboutPage() {
                 </section>
 
 
-                {/* 4. Company Profile Overview Table */}
+                {/* 5. Company Profile Overview Table */}
                 <section id="company" className={styles.sectionCard}>
                     <div className={styles.sectionHeader}>
                         <span className={styles.sectionTag}>CORPORATE INFORMATION</span>

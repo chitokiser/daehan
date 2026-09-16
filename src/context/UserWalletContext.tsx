@@ -108,6 +108,9 @@ interface UserWalletContextType {
     wallet: WalletState;
     isLoggedIn: boolean;
     isLoading: boolean;
+    isLoginModalOpen: boolean;
+    openLoginModal: () => void;
+    closeLoginModal: () => void;
     orders: MemberOrder[];
     allMembers: UserProfile[];
     adminStats: AdminStats | null;
@@ -147,6 +150,10 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     const [wallet, setWallet] = useState<WalletState>({ points: 0, vndBalance: 0, dpPoints: 0, moneyBalance: 0 });
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+    const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
+    const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
     const [orders, setOrders] = useState<MemberOrder[]>([]);
     const [allMembers, setAllMembers] = useState<UserProfile[]>([]);
     const [allOrders, setAllOrders] = useState<MemberOrder[]>([]);
@@ -497,6 +504,9 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 wallet,
                 isLoggedIn,
                 isLoading,
+                isLoginModalOpen,
+                openLoginModal,
+                closeLoginModal,
                 orders,
                 allMembers,
                 adminStats,

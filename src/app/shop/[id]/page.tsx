@@ -18,7 +18,7 @@ export default function ProductDetail() {
     const params = useParams();
     const rawId = params?.id as string || "1";
 
-    const { user, wallet, isLoggedIn, payOrder, isLoading, refreshWallet, loginWithGoogle } = useUserWallet();
+    const { user, wallet, isLoggedIn, payOrder, isLoading, refreshWallet, loginWithGoogle, openLoginModal } = useUserWallet();
     const { lang, t } = useLanguage();
 
     // Find product by id, idx, or slug
@@ -465,11 +465,11 @@ export default function ProductDetail() {
                             </p>
                             <button
                                 type="button"
-                                onClick={() => loginWithGoogle ? loginWithGoogle() : alert("로그인 후 이용해 주세요.")}
+                                onClick={openLoginModal}
                                 className="btn-primary"
                                 style={{ padding: '8px 20px', fontSize: '0.88rem' }}
                             >
-                                Google 계정으로 간편 로그인
+                                간편 로그인 / 계정 연결
                             </button>
                         </div>
                     ) : hasUserReviewed ? (

@@ -9,11 +9,10 @@ import { User, LogOut, ChevronDown, ShieldAlert, Wallet, Menu, X, Globe } from "
 import { useGoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
-    const { user, wallet, isLoggedIn, login, loginWithGoogle, logout, isLoading } = useUserWallet();
+    const { user, wallet, isLoggedIn, login, loginWithGoogle, logout, isLoading, isLoginModalOpen, openLoginModal, closeLoginModal } = useUserWallet();
     const { lang, setLang, t } = useLanguage();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [loginModalOpen, setLoginModalOpen] = useState(false);
     const [googleEmailInput, setGoogleEmailInput] = useState("");
     const [showEmailPrompt, setShowEmailPrompt] = useState(false);
     const [referrerPromptOpen, setReferrerPromptOpen] = useState(false);
@@ -48,20 +47,13 @@ export default function Header() {
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
 
     const closeAllAccountModals = useCallback(() => {
-        setLoginModalOpen(false);
+        closeLoginModal();
         setReferrerPromptOpen(false);
         setShowEmailPrompt(false);
         setDropdownOpen(false);
         setMobileMenuOpen(false);
         setPendingUserInfo(null);
-    }, []);
-
-    // 관리자/운영자 권한 유저 접속 시 모든 계정 모달 자동 닫기
-    useEffect(() => {
-        if (isOperator) {
-            closeAllAccountModals();
-        }
-    }, [isOperator, user?.role, user?.uid, closeAllAccountModals]);
+    }, [closeLoginModal]);
 
     const handleRealGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
@@ -72,16 +64,13 @@ export default function Header() {
                 const userInfo = await res.json();
                 
                 if (userInfo.email) {
-                    // 구글 프로필 사진 그대로 전달 (userInfo.picture)
                     const loginRes = await loginWithGoogle(userInfo.email, userInfo.name, undefined, userInfo.picture);
                     if (loginRes.success) {
-                        setLoginModalOpen(false);
-                        setDropdownOpen(false);
-                        setMobileMenuOpen(false);
+                        closeAllAccountModals();
                         alert(`🎉 대한김치 회원(${loginRes.user?.email})으로 로그인되었습니다!`);
                     } else if (loginRes.error === "NEW_USER_TERMS_REQUIRED" || loginRes.error?.includes("추천인") || loginRes.error?.includes("멘토")) {
                         setPendingUserInfo({ email: userInfo.email, name: userInfo.name || "Google 회원", avatar: userInfo.picture });
-                        setLoginModalOpen(false);
+                        closeLoginModal();
                         setReferrerPromptOpen(true);
                     } else {
                         alert(`로그인 실패: ${loginRes.error}`);
@@ -89,16 +78,12 @@ export default function Header() {
                 }
             } catch (err) {
                 console.error("Google Auth Error:", err);
-                alert("구글 로그인 처리 중 오류가 발생했습니다.");
+                alert("구글 로그인 처리 중 오류가 발생했습니다. 아래 이메일 직접 입력을 통해 로그인해보세요.");
             }
         },
         onError: errorResponse => {
             console.error("Google Auth Error:", errorResponse);
-            if (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID === undefined) {
-                alert("Google Client ID가 설정되지 않았습니다. .env 파일에 NEXT_PUBLIC_GOOGLE_CLIENT_ID를 등록해주세요.");
-            } else {
-                alert("구글 로그인에 실패했습니다.");
-            }
+            alert("구글 팝업 로그인에 실패하였거나 취소되었습니다. 모달 하단의 이메일 직접 입력을 이용해주세요.");
         }
     });
 
@@ -112,13 +97,11 @@ export default function Header() {
         const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(emailToUse)}&background=E31837&color=ffffff&bold=true`;
         const res = await loginWithGoogle(emailToUse, undefined, undefined, avatarUrl);
         if (res.success) {
-            setLoginModalOpen(false);
-            setDropdownOpen(false);
-            setMobileMenuOpen(false);
+            closeAllAccountModals();
             alert(`🎉 대한김치 회원(${res.user?.email})으로 로그인되었습니다!`);
         } else if (res.error === "NEW_USER_TERMS_REQUIRED" || res.error?.includes("추천인") || res.error?.includes("멘토")) {
             setPendingUserInfo({ email: emailToUse, name: "회원", avatar: avatarUrl });
-            setLoginModalOpen(false);
+            closeLoginModal();
             setReferrerPromptOpen(true);
         } else {
             alert(`로그인 실패: ${res.error}`);
@@ -279,7 +262,7 @@ export default function Header() {
                                                 <ShieldAlert size={15} /> {t("nav.admin", "관리자 센터")}
                                             </Link>
                                         )}
-                                        <button className={styles.switchUserBtn} onClick={() => { setDropdownOpen(false); setLoginModalOpen(true); }}>
+                                        <button className={styles.switchUserBtn} onClick={() => { setDropdownOpen(false); openLoginModal(); }}>
                                             {t("header.switchAccount", "다른 계정 로그인")}
                                         </button>
                                         <button className={styles.logoutBtn} onClick={() => { logout(); closeAllAccountModals(); }}>
@@ -292,7 +275,7 @@ export default function Header() {
                     ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <button
-                                onClick={() => setLoginModalOpen(true)}
+                                onClick={openLoginModal}
                                 disabled={isLoading}
                                 style={{
                                     background: '#ffffff',
@@ -375,7 +358,7 @@ export default function Header() {
             )}
 
             {/* Login / User Switch Modal */}
-            {loginModalOpen && (
+            {isLoginModalOpen && (
                 <div className={styles.modalOverlay} onClick={closeAllAccountModals}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
@@ -385,23 +368,66 @@ export default function Header() {
                         {isOperator && (
                             <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontSize: '0.84rem', color: '#991b1b', fontWeight: 700 }}>
-                                    🛡️ 최고 관리자 권한으로 로그인되어 있습니다.
+                                    🛡️ 관리자({user?.email}) 권한으로 로그인되어 있습니다.
                                 </span>
-                                <button
-                                    type="button"
-                                    onClick={closeAllAccountModals}
-                                    style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
-                                >
-                                    모달 닫기
-                                </button>
                             </div>
                         )}
                         <p className={styles.modalDesc}>
-                            Google 계정 또는 이메일로 로그인하세요.
+                            이메일 주소를 입력하거나 Google 계정으로 계속하세요.
                         </p>
 
+                        {/* Direct Email Login Form */}
+                        <div style={{ marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '8px' }}>
+                                ✉️ 이메일로 간편 로그인 / 회원가입
+                            </label>
+                            <form onSubmit={(e) => { e.preventDefault(); handleEmailLogin(); }} style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                    type="email"
+                                    placeholder="예: daguri75@gmail.com"
+                                    value={googleEmailInput}
+                                    onChange={(e) => setGoogleEmailInput(e.target.value)}
+                                    style={{
+                                        flex: 1,
+                                        background: '#fff',
+                                        border: '1.5px solid #cbd5e1',
+                                        borderRadius: '8px',
+                                        padding: '10px 14px',
+                                        color: '#1e293b',
+                                        fontSize: '0.92rem',
+                                        outline: 'none'
+                                    }}
+                                />
+                                <button
+                                    type="submit"
+                                    className="btn-primary"
+                                    style={{ padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, whiteSpace: 'nowrap' }}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "처리중..." : "로그인"}
+                                </button>
+                            </form>
+                            <div style={{ marginTop: '10px', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>빠른 테스트:</span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleEmailLogin("daguri75@gmail.com")}
+                                    style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                    👑 대표자 (daguri75)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleEmailLogin("hansguy001@gmail.com")}
+                                    style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                    ⭐ VIP (hansguy)
+                                </button>
+                            </div>
+                        </div>
+
                         {/* Google Social Login */}
-                        <div style={{ marginBottom: '20px' }}>
+                        <div style={{ marginBottom: '12px' }}>
                             <button
                                 type="button"
                                 onClick={() => handleRealGoogleLogin()}
@@ -413,14 +439,14 @@ export default function Header() {
                                     border: '1px solid #dadce0',
                                     borderRadius: '8px',
                                     padding: '12px 16px',
-                                    fontSize: '0.98rem',
+                                    fontSize: '0.92rem',
                                     fontWeight: 700,
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     gap: '12px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
                                     transition: 'background 0.2s'
                                 }}
                             >
@@ -432,44 +458,6 @@ export default function Header() {
                                 </svg>
                                 <span>Google 계정으로 계속하기</span>
                             </button>
-
-                            <div style={{ marginTop: '8px', textAlign: 'center' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowEmailPrompt(!showEmailPrompt)}
-                                    style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline' }}
-                                >
-                                    {showEmailPrompt ? "닫기" : "직접 이메일 입력하여 로그인"}
-                                </button>
-                            </div>
-
-                            {showEmailPrompt && (
-                                <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
-                                    <input
-                                        type="email"
-                                        placeholder="yourname@gmail.com"
-                                        value={googleEmailInput}
-                                        onChange={(e) => setGoogleEmailInput(e.target.value)}
-                                        style={{
-                                            flex: 1,
-                                            background: '#fff',
-                                            border: '1.5px solid rgba(0,0,0,0.15)',
-                                            borderRadius: '6px',
-                                            padding: '8px 12px',
-                                            color: '#1A0D08',
-                                            fontSize: '0.88rem'
-                                        }}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="btn-primary"
-                                        style={{ padding: '8px 16px', fontSize: '0.85rem' }}
-                                        onClick={() => handleEmailLogin()}
-                                    >
-                                        로그인
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -483,7 +471,7 @@ export default function Header() {
                             <h3>회원가입 & 약관 동의 (필수)</h3>
                         </div>
                         <p className={styles.modalDesc} style={{ color: '#4A5568', fontSize: '0.86rem', lineHeight: '1.5' }}>
-                            대한김치 생태계는 추천인 제도로 운영됩니다.<br/>
+                            대한김치 생태계는 추천인 제도로 운영됩니다.<br className={styles.desktopBr} />
                             QR 코드를 스캔하셨거나 초대 링크를 통해 가입 시 멘토가 자동 설정됩니다.
                         </p>
                         {referrerInput && (
