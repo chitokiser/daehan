@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 success: false,
                 error: "올바른 이메일 주소를 입력해주세요."
-            }, { status: 400 });
+            });
         }
 
         const effectiveName = name ? name.trim() : "Google 인증 회원";
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (!result.success) {
-            return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+            return NextResponse.json({ success: false, error: result.error });
         }
 
         const user = result.user!;

@@ -192,11 +192,15 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         try {
             const text = await res.text();
             if (!text || text.trim() === "") {
-                return { success: false, error: `서버에서 빈 응답이 반환되었습니다. (HTTP ${res.status})` };
+                return { success: false, error: "서버 응답을 불러올 수 없습니다. 잠시 후 다시 시도해주세요." };
             }
-            return JSON.parse(text);
+            try {
+                return JSON.parse(text);
+            } catch {
+                return { success: false, error: "서버 응답 형식 오류가 발생했습니다." };
+            }
         } catch {
-            return { success: false, error: `서버 응답 응답 형식 오류 (HTTP ${res.status})` };
+            return { success: false, error: "네트워크 통신 오류가 발생했습니다." };
         }
     };
 
