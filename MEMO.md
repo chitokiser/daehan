@@ -111,3 +111,20 @@
 3. 승인 즉시 해당 회원의 DB 및 클라이언트 `moneyBalance`에 신청 금액이 가산되며, 상태가 `🟢 승인 완료`로 변경됨.
 4. 입금이 확인되지 않는 경우 `[ 🔴 거절 ]` 가능.
 
+---
+
+## 7. Netlify 서버리스 환경 Firebase Admin & 로그인 안전 규정 (2026-09-17)
+
+### 🚨 개발 필수 수칙 (서버리스 500 에러 방지)
+
+1. **`firebase-admin` 최상단 정적 `import` 금지**:
+   - Next.js App Router API 경로에서 `firebase-admin` 패키지를 최상단 static import 처리할 경우 Netlify Serverless Function 번들링 환경에 따라 모듈 실행 단계에서 예외가 발생하여 HTTP 500 (Internal Server Error)이 터질 수 있습니다.
+   - 반드시 `src/lib/firebaseAdmin.ts`의 `initFirebaseAdmin()` 함수 내에서 동적 `require()` + `try-catch` 조합으로 지연 로딩(Lazy load) 해야 합니다.
+
+2. **환경변수 안전 파싱 및 Fallback DB 보장**:
+   - `FIREBASE_SERVICE_ACCOUNT_KEY` 키 파싱 오류(개행문자 `\n` 미변환 등)나 키 미설정 시에도 프로세스가 멈추지 않고 safe in-memory store(`fallbackDb`)로 즉시 전환되어 API 핸들러가 항상 정상 응답(200 OK)을 전달해야 합니다.
+
+3. **클라이언트 세션 폴백(Fallback) 로그인 유지**:
+   - `src/context/UserWalletContext.tsx`의 `loginWithGoogle` 함수는 서버 네트워크 장애나 서버리스 오류가 발생하더라도 사용자의 로그인이 차단되지 않도록 클라이언트 폴백 세션을 활성화하여 유저 경험을 보장합니다.
+
+
