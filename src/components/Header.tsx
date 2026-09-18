@@ -458,6 +458,33 @@ export default function Header() {
                                 <span>Google 계정으로 계속하기</span>
                             </button>
                         </div>
+
+                        {/* Modal Bottom Close Button */}
+                        <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+                            <button
+                                type="button"
+                                onClick={closeAllAccountModals}
+                                style={{
+                                    width: '100%',
+                                    background: '#f1f5f9',
+                                    color: '#475569',
+                                    border: '1px solid #cbd5e1',
+                                    borderRadius: '8px',
+                                    padding: '11px 16px',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '6px',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <X size={16} />
+                                <span>로그인 창 닫기</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -468,6 +495,7 @@ export default function Header() {
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: '440px' }}>
                         <div className={styles.modalHeader}>
                             <h3>회원가입 & 약관 동의 (필수)</h3>
+                            <button className={styles.modalClose} onClick={closeAllAccountModals}>✕</button>
                         </div>
                         <p className={styles.modalDesc} style={{ color: '#4A5568', fontSize: '0.86rem', lineHeight: '1.5' }}>
                             대한김치 생태계는 추천인 제도로 운영됩니다.<br className={styles.desktopBr} />

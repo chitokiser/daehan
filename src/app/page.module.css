@@ -59,11 +59,11 @@
   max-width: 860px;
   width: 100%;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 30px rgba(200, 57, 43, 0.12);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 30px rgba(200, 57, 43, 0.15);
   border-radius: 28px;
   padding: 44px 36px;
   margin: 0 auto;
@@ -367,7 +367,9 @@
   .heroContent {
     padding: 24px 16px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
   .hero::before {
     width: 300px;

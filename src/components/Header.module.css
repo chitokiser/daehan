@@ -375,11 +375,25 @@
 }
 
 .modalClose {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.2rem;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modalClose:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: scale(1.05);
 }
 
 .modalDesc {
