@@ -3,9 +3,32 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
-import { Sparkles, ArrowRight, ShieldCheck, Award, HeartHandshake, ThermometerSnowflake, Trophy, Medal, Crown, Flame, Star, User } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, Award, HeartHandshake, ThermometerSnowflake, Trophy, Medal, Crown, Flame, Star, User, ChevronLeft, ChevronRight, ExternalLink, Video, Play, X } from "lucide-react";
 import { products } from "@/data/products";
 import { useLanguage } from "@/context/LanguageContext";
+
+const HERO_IMAGES = [
+  "/images/hero/1.png",
+  "/images/hero/2.png",
+  "/images/hero/3.png",
+  "/images/hero/4.png",
+  "/images/hero/5.png",
+  "/images/hero/6.png",
+];
+
+const FACEBOOK_VIDEOS = [
+  { id: 1, url: "https://www.facebook.com/share/r/1DboTgR89p/", title: "하노이 수제 대한김치 생생 릴스 #1", type: "reel", thumbnail: "/images/hero/1.png", videoUrl: "/images/factory/VIDEO_DOWNLOAD_1712385912839_1712386243008.mp4" },
+  { id: 2, url: "https://www.facebook.com/share/v/1Eb2SW4FE5/", title: "100% 한국 정통 발효 비법 브랜드 영상", type: "video", thumbnail: "/images/hero/2.png", videoUrl: "https://www.youtube.com/embed/B3dXKWDrSJo?autoplay=1" },
+  { id: 3, url: "https://www.facebook.com/share/r/19jWnXREqX/", title: "갓 담근 신선 배추김치 현장 릴스 #2", type: "reel", thumbnail: "/images/hero/3.png", videoUrl: "https://www.youtube.com/embed/F84Z-uNdCtA?autoplay=1" },
+  { id: 4, url: "https://www.facebook.com/share/v/1VCJWCnQVb/", title: "HACCP 위생 인증 시설 제조 공정 영상", type: "video", thumbnail: "/images/factory/1788249934313_910087481450589245_g8397836875365957143_dfd4c34e7fa1b44a31af91205c2fcd77.jpg", videoUrl: "https://www.youtube.com/embed/FTmFWkHBG2M?autoplay=1" },
+  { id: 5, url: "https://www.facebook.com/share/v/1C2tFzL9Dc/", title: "고랭지 배추와 천연 재료의 완벽 발효", type: "video", thumbnail: "/images/hero/4.png", videoUrl: "https://www.youtube.com/embed/PJyaRAnAjbM?autoplay=1" },
+  { id: 6, url: "https://www.facebook.com/share/v/18DovEywNb/", title: "하노이 전지역 오토바이 직배송 현장", type: "video", thumbnail: "/images/hero/5.png", videoUrl: "https://www.youtube.com/embed/s-tMdKDLAns?autoplay=1" },
+  { id: 7, url: "https://www.facebook.com/share/r/1CGhF4CvEA/", title: "대한김치 맛있게 즐기는 레시피 릴스 #3", type: "reel", thumbnail: "/images/hero/6.png", videoUrl: "https://www.youtube.com/embed/egYFkiS4xhM?autoplay=1" },
+  { id: 8, url: "https://www.facebook.com/share/r/1DX3EXq8YV/", title: "하노이 교민 강력 추천 정통 김치 릴스 #4", type: "reel", thumbnail: "/images/products/pogi.jpg", videoUrl: "https://www.youtube.com/embed/Zx4QGyOciZM?autoplay=1" },
+  { id: 9, url: "https://www.facebook.com/share/v/1HwibT7tA6/", title: "숙성 단계별 최상의 감칠맛 안내 영상", type: "video", thumbnail: "/images/products/chonggak.jpg", videoUrl: "/images/factory/VIDEO_DOWNLOAD_1712385912839_1712386243008.mp4" },
+  { id: 10, url: "https://www.facebook.com/share/v/1CDGvgNsk4/", title: "정기구독 혜택 & 10% DP 적립 안내", type: "video", thumbnail: "/images/products/kkakdugi.jpg", videoUrl: "https://www.youtube.com/embed/B3dXKWDrSJo?autoplay=1" },
+  { id: 11, url: "https://www.facebook.com/share/v/1cbRAcwtpo/", title: "대한김치 고객 생생 미식 후기 영상", type: "video", thumbnail: "/images/factory/1788250057286_910087481450589245_g8397836875365957143_a1f83771478661ade08188ee88eaeea2.jpg", videoUrl: "/images/factory/VIDEO_DOWNLOAD_1712385912839_1712386243008.mp4" },
+];
 
 interface DpRankItem {
   rank: number;
@@ -59,6 +82,27 @@ export default function Home() {
   const [rankingTab, setRankingTab] = useState<"referral" | "dp">("referral");
   const [dpRankings, setDpRankings] = useState<DpRankItem[]>(DEFAULT_DP_RANKINGS);
   const [referralRankings, setReferralRankings] = useState<ReferralRankItem[]>(DEFAULT_REFERRAL_RANKINGS);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [activeVideo, setActiveVideo] = useState<{
+    title: string;
+    videoUrl: string;
+    fbUrl: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + HERO_IMAGES.length) % HERO_IMAGES.length);
+  };
 
   useEffect(() => {
     fetch("/api/v1/rankings/dp")
@@ -86,12 +130,58 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className={styles.heroOverlay}></div>
+      {/* Hero Banner Section (Carousel) */}
+      <section className={styles.heroBanner}>
+        <div className={styles.sliderContainer}>
+          {HERO_IMAGES.map((img, idx) => (
+            <div
+              key={img}
+              className={`${styles.slideItem} ${idx === currentSlide ? styles.slideActive : ""}`}
+            >
+              <img
+                src={img}
+                alt={`대한김치 히어로 ${idx + 1}`}
+                className={styles.slideImage}
+              />
+            </div>
+          ))}
+        </div>
+        <div className={styles.heroBannerOverlay}></div>
+
+        {/* Slider Controls */}
+        <button
+          className={`${styles.sliderNavBtn} ${styles.sliderPrevBtn}`}
+          onClick={prevSlide}
+          aria-label="이전 이미지"
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <button
+          className={`${styles.sliderNavBtn} ${styles.sliderNextBtn}`}
+          onClick={nextSlide}
+          aria-label="다음 이미지"
+        >
+          <ChevronRight size={24} />
+        </button>
+
+        {/* Pagination Dots */}
+        <div className={styles.sliderDots}>
+          {HERO_IMAGES.map((_, idx) => (
+            <button
+              key={idx}
+              className={`${styles.dot} ${idx === currentSlide ? styles.activeDot : ""}`}
+              onClick={() => setCurrentSlide(idx)}
+              aria-label={`슬라이드 ${idx + 1}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Hero Text Box Section (Below Hero Banner) */}
+      <section className={styles.heroTextSection}>
         <div className={styles.heroContent}>
           <span className="badge" style={{ marginBottom: '16px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <Sparkles size={14} color="#e50914" /> {t("hero.badge", "하노이 직배송 • 100% 한국 정통 발효 비법")}
+            <Sparkles size={14} color="#e50914" /> {t("hero.badge", "하노이 직배송 • 100% 한국 전통 발효 비법")}
           </span>
           <h1 className={`${styles.title} ${styles.fadeInUp} ${styles.delay1}`}>
             <span className="text-gradient">The Essence of Fermentation</span>
@@ -331,78 +421,47 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 16:9 Wide Video Showcase Section */}
-      <section className={styles.videoSection}>
+      {/* Facebook Video & Reels Showcase Section */}
+      <section className={styles.fbVideoSection}>
         <div className="container">
           <div className={styles.sectionHeader}>
-            <span className="badge">DAEHAN CINEMATIC & BRAND FILM</span>
-            <h2 className={`${styles.responsiveHeading} text-gradient`}>
-              {lang === "vi" ? "Video thương hiệu DAEHAN KIMCHI 16:9" : "대한김치 16:9 시네마틱 브랜드 영상"}
+            <span className="badge" style={{ background: 'rgba(24, 119, 242, 0.1)', color: '#1877F2', borderColor: 'rgba(24, 119, 242, 0.3)' }}>
+              📘 FACEBOOK REELS & VIDEOS
+            </span>
+            <h2 className={`${styles.responsiveHeading} text-gradient`} style={{ margin: '16px 0' }}>
+              {lang === "vi" ? "Video & Reels Daehan Kimchi trên Facebook" : "대한김치 페이스북 공식 영상 & 릴스"}
             </h2>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
               {lang === "vi" 
-                ? "Thưởng thức câu chuyện khoa học lên men và ẩm thực Hàn Quốc tươi ngon ngay tại Hà Nội." 
-                : "하노이 중심에서 전하는 완벽한 발효과학과 신선한 미식 스토리를 16:9 고화질 영상으로 감상해 보세요."}
+                ? "Theo dõi các video quy trình sản xuất, trải nghiệm vị ngon và câu chuyện thương hiệu trên Facebook." 
+                : "생생한 대한김치의 제조 과정과 미식 경험, 하노이 현지 소식을 페이스북 영상으로 감상해보세요."}
             </p>
           </div>
 
-          <div className={styles.wideVideoGrid}>
-            <div className={styles.wideVideoCard}>
-              <div className={styles.aspect16x9}>
-                <iframe
-                  src="https://www.youtube.com/embed/B3dXKWDrSJo?rel=0&modestbranding=1"
-                  title="대한김치 시네마틱 브랜드 필름 1"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            </div>
-
-            <div className={styles.wideVideoCard}>
-              <div className={styles.aspect16x9}>
-                <iframe
-                  src="https://www.youtube.com/embed/FTmFWkHBG2M?rel=0&modestbranding=1"
-                  title="대한김치 시네마틱 브랜드 필름 2"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Shorts Highlight Section */}
-      <section className={styles.shortsSection}>
-        <div className="container">
-          <div className={styles.sectionHeader}>
-            <span className="badge">DAEHAN SHORTS</span>
-            <h2 className={`text-gradient ${styles.sectionTitle}`} style={{ margin: '16px 0' }}>
-              {lang === "vi" ? "Video ngắn nổi bật Daehan Shorts" : "대한김치 숏폼 하이라이트"}
-            </h2>
-            <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
-              {lang === "vi" 
-                ? "Khám phá quy trình sản xuất và trải nghiệm ẩm thực Kimchi qua các video ngắn." 
-                : "생생한 대한김치의 제조 과정과 미식 경험을 영상으로 만나보세요."}
-            </p>
-          </div>
-          
-          <div className={styles.shortsGrid}>
-            {[
-              "F84Z-uNdCtA",
-              "PJyaRAnAjbM",
-              "s-tMdKDLAns",
-              "egYFkiS4xhM",
-              "Zx4QGyOciZM"
-            ].map(videoId => (
-              <div className={styles.shortVideoCard} key={videoId}>
-                <iframe
-                  className={styles.shortVideoIframe}
-                  src={`https://www.youtube.com/embed/${videoId}?rel=0&controls=0&modestbranding=1&showinfo=0`}
-                  title="YouTube video player"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                ></iframe>
+          <div className={styles.fbVideoGrid}>
+            {FACEBOOK_VIDEOS.map((item) => (
+              <div
+                key={item.id}
+                className={styles.fbVideoCard}
+                onClick={() => setActiveVideo({ title: item.title, videoUrl: item.videoUrl, fbUrl: item.url })}
+              >
+                <div className={styles.fbVideoThumb}>
+                  <img src={item.thumbnail} alt={item.title} className={styles.fbThumbImg} />
+                  <div className={styles.fbThumbOverlay}></div>
+                  <span className={styles.fbBadgePos}>
+                    {item.type === "reel" ? "🎬 Reel" : "📹 Video"}
+                  </span>
+                  <div className={styles.fbPlayCircle}>
+                    <Play size={26} fill="#ffffff" style={{ marginLeft: '3px' }} />
+                  </div>
+                </div>
+                <div className={styles.fbCardBody}>
+                  <h4 className={styles.fbCardTitle}>{item.title}</h4>
+                  <button className={styles.fbWatchBtn}>
+                    <Play size={16} fill="#ffffff" />
+                    <span>비회원 바로 감상하기</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -434,6 +493,53 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Non-member In-App Video Modal Player */}
+      {activeVideo && (
+        <div className={styles.videoModalOverlay} onClick={() => setActiveVideo(null)}>
+          <div className={styles.videoModalContainer} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.videoModalHeader}>
+              <h3 className={styles.videoModalTitle}>🎬 {activeVideo.title}</h3>
+              <button className={styles.videoModalCloseBtn} onClick={() => setActiveVideo(null)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className={styles.videoModalBody}>
+              {activeVideo.videoUrl.endsWith(".mp4") ? (
+                <video
+                  src={activeVideo.videoUrl}
+                  controls
+                  autoPlay
+                  className={styles.videoModalMedia}
+                />
+              ) : (
+                <iframe
+                  src={activeVideo.videoUrl}
+                  title={activeVideo.title}
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                  className={styles.videoModalMedia}
+                ></iframe>
+              )}
+            </div>
+            <div className={styles.videoModalFooter}>
+              <span style={{ fontSize: '0.88rem', color: '#4ade80', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <Sparkles size={14} color="#4ade80" /> 페이스북 로그인 없이 자유롭게 바로 감상 중입니다.
+              </span>
+              <a
+                href={activeVideo.fbUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+                style={{ padding: '8px 18px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <span>Facebook 앱에서 보기</span>
+                <ExternalLink size={14} />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

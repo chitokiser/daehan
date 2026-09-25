@@ -131,8 +131,8 @@ export default function PrivacyPage() {
                                 <span>daguri75@gmail.com</span>
                             </div>
                             <div className={styles.contactItem}>
-                                <label>하노이 고객센터:</label>
-                                <span>070-2116-617 (Zalo / 카카오톡 상담)</span>
+                                <label>하노이 고객센터 & 주문문의:</label>
+                                <span>Korean: 0702116617 / 0366440746 | Vietnam: 0349475948 (Zalo / Kakao)</span>
                             </div>
                             <div className={styles.contactItem}>
                                 <label>공장 및 영업소 주소:</label>

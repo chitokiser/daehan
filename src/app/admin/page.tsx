@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         isLoading 
     } = useUserWallet();
 
-    const [activeTab, setActiveTab] = useState<"charges" | "members" | "orders" | "analytics" | "api" | "kmoa_crm">("charges");
+    const [activeTab, setActiveTab] = useState<"charges" | "members" | "orders" | "analytics" | "api" | "kmoa_crm">("members");
     const [memberSearch, setMemberSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState<string>("ALL");
     const [orderFilter, setOrderFilter] = useState<string>("ALL");

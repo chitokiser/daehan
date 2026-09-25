@@ -90,7 +90,7 @@ export default function Shop() {
                     <div className={styles.bannerDivider}></div>
                     <div className={styles.bannerItem}>
                         <PhoneCall size={18} color="#2563eb" />
-                        <span><strong>{lang === "vi" ? "Liên hệ tư vấn" : "주문 문의"}</strong> Zalo / Kakao : 0702116617</span>
+                        <span><strong>{lang === "vi" ? "Liên hệ đặt hàng" : "주문 문의"}</strong> Korean: <strong>0702116617 / 0366440746</strong> | Vietnam: <strong>0349475948</strong></span>
                     </div>
                 </div>
             </header>
@@ -236,7 +236,7 @@ export default function Shop() {
                                 : "정기 계약 시 맞춤형 숙성도 조절 및 대한포인트 추가 적립 혜택을 제공합니다."}
                         </p>
                     </div>
-                    <div className={styles.wholesaleActions}>
+                    <div className={styles.wholesaleActions} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                         <a
                             href="https://zalo.me/0702116617"
                             target="_blank"
@@ -244,7 +244,16 @@ export default function Shop() {
                             className="btn-primary"
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                         >
-                            <PhoneCall size={18} /> {lang === "vi" ? "Tư vấn sỉ qua Zalo" : "Zalo 도매 직통 상담"}
+                            <PhoneCall size={18} /> Korean: 0702116617 / 0366440746
+                        </a>
+                        <a
+                            href="https://zalo.me/0349475948"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="btn-primary"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#16a34a', borderColor: '#16a34a' }}
+                        >
+                            <PhoneCall size={18} /> Vietnam: 0349475948
                         </a>
                     </div>
                 </div>

@@ -110,7 +110,7 @@ export default function TermsPage() {
                     {/* Company Footer Info */}
                     <div className={styles.companyFooter}>
                         <p><strong>인피니스 주식회사 (CÔNG TY CỔ PHẦN INFINIS)</strong></p>
-                        <p>대표이사: 김용진 | 고객센터: 070-2116-617 | 이메일: daguri75@gmail.com</p>
+                        <p>대표이사: 김용진 | 고객센터: Korean 0702116617 / 0366440746, Vietnam 0349475948 | 이메일: daguri75@gmail.com</p>
                         <p>본사 주소: Số 26 Phố Dương Đình Nghệ, Phường Yên Hoà, Quận Cầu Giấy, Hà Nội, Việt Nam</p>
                     </div>
                 </div>

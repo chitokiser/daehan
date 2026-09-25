@@ -8,62 +8,134 @@
 }
 
 /* ===== HERO ===== */
-/* ===== HERO ===== */
-.hero {
+.heroBanner {
   position: relative;
-  min-height: 75vh;
   width: 100%;
+  height: clamp(340px, 48vh, 540px);
+  overflow: hidden;
+  background: #110805;
+}
+
+.sliderContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.slideItem {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+}
+
+.slideActive {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slideImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.heroBannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.35) 100%);
+  pointer-events: none;
+}
+
+/* Slider Navigation Buttons */
+.sliderNavBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background: linear-gradient(180deg, rgba(20, 10, 6, 0.45) 0%, rgba(20, 10, 6, 0.72) 100%), url('/images/kimchi_hero_bg.jpg') center/cover no-repeat;
-  padding: clamp(60px, 8vw, 100px) 1.5rem clamp(40px, 5vw, 70px);
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-/* 배경 장식 광원 */
-.hero::before {
-  content: '';
+.sliderNavBtn:hover {
+  background: rgba(229, 9, 20, 0.85);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.sliderPrevBtn {
+  left: 16px;
+}
+
+.sliderNextBtn {
+  right: 16px;
+}
+
+/* Dots Pagination */
+.sliderDots {
   position: absolute;
-  top: -100px;
-  right: -100px;
-  width: 500px;
-  height: 500px;
+  bottom: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(200, 57, 43, 0.35) 0%, transparent 70%);
-  pointer-events: none;
+  background: rgba(255, 255, 255, 0.45);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
 }
 
-.hero::after {
-  content: '';
-  position: absolute;
-  bottom: -60px;
-  left: -60px;
-  width: 380px;
-  height: 380px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 135, 10, 0.3) 0%, transparent 70%);
-  pointer-events: none;
+.activeDot {
+  background: #e50914;
+  width: 26px;
+  border-radius: 6px;
 }
 
-.heroOverlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, transparent 30%, rgba(10, 5, 3, 0.4) 100%);
-  pointer-events: none;
+.heroTextSection {
+  width: 100%;
+  padding: 0 1.5rem;
+  margin-top: -50px;
+  position: relative;
+  z-index: 5;
+  margin-bottom: 24px;
 }
 
 .heroContent {
   text-align: center;
-  z-index: 2;
   max-width: 860px;
   width: 100%;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 30px rgba(200, 57, 43, 0.15);
+  background: #ffffff;
+  border: 1.5px solid rgba(200, 57, 43, 0.15);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(200, 57, 43, 0.05);
   border-radius: 28px;
   padding: 44px 36px;
   margin: 0 auto;
@@ -410,141 +482,242 @@
   }
 }
 
-/* ===== 16:9 VIDEO SHOWCASE SECTION ===== */
-.videoSection {
-  padding: clamp(40px, 8vw, 90px) 1.5rem;
-  background: linear-gradient(180deg, #FFF9F5 0%, #FFFFFF 100%);
+/* ===== FACEBOOK VIDEO SECTION ===== */
+.fbVideoSection {
+  padding: 80px 24px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F4F7FB 100%);
   border-top: 1px solid var(--border-color);
+  margin-bottom: 60px;
 }
 
-.wideVideoGrid {
+.fbVideoGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
-  gap: 32px;
-  margin-top: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 36px;
 }
 
-.wideVideoCard {
-  background: var(--surface-color);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.fbVideoCard {
+  background: #ffffff;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1.5px solid rgba(24, 119, 242, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
 }
 
-.wideVideoCard:hover {
+.fbVideoCard:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-  border-color: rgba(227, 24, 55, 0.25);
+  box-shadow: 0 18px 40px rgba(24, 119, 242, 0.18);
+  border-color: #1877F2;
 }
 
-.aspect16x9 {
+.fbVideoThumb {
   position: relative;
   width: 100%;
-  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-  background: #000;
+  height: 200px;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.aspect16x9 iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
+.fbThumbImg {
   width: 100%;
   height: 100%;
-  border: none;
+  object-fit: cover;
+  transition: transform 0.4s ease;
 }
 
-.videoCardInfo {
-  padding: 24px;
-  background: #fff;
+.fbVideoCard:hover .fbThumbImg {
+  transform: scale(1.08);
 }
 
-.videoCardInfo h4 {
-  font-size: 1.25rem;
+.fbThumbOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.6) 100%);
+  transition: background 0.3s ease;
+  z-index: 1;
+}
+
+.fbVideoCard:hover .fbThumbOverlay {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.72) 100%);
+}
+
+.fbPlayCircle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(24, 119, 242, 0.95);
+  border: 2.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(24, 119, 242, 0.4);
+  transition: transform 0.3s ease, background 0.3s ease;
+  z-index: 3;
+}
+
+.fbVideoCard:hover .fbPlayCircle {
+  transform: scale(1.12);
+  background: #e50914;
+  box-shadow: 0 10px 30px rgba(229, 9, 20, 0.5);
+}
+
+.fbBadgePos {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 0.76rem;
   font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 3;
 }
 
-.videoCardInfo p {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  line-height: 1.5;
+.fbCardBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.fbCardTitle {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #1A0D08;
+  margin-bottom: 16px;
+  line-height: 1.45;
+}
+
+.fbWatchBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #1877F2;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.25s ease, transform 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.fbWatchBtn:hover {
+  background: #e50914;
+}
+
+/* ===== VIDEO PLAYER MODAL ===== */
+.videoModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.videoModalContainer {
+  background: #0f172a;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  max-width: 860px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.videoModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: #1e293b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.videoModalTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
   margin: 0;
 }
 
-@media (max-width: 600px) {
-  .wideVideoGrid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-}
-
-/* ===== SHORTS SECTION ===== */
-.shortsSection {
-  padding: 80px 24px;
-  background: #FFF;
-  border-top: 1px solid var(--border-color);
-}
-
-.shortsGrid {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 1.5rem;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-.shortsGrid::-webkit-scrollbar {
-  height: 8px;
-}
-
-.shortsGrid::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.shortsGrid::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-.shortsGrid::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-.shortVideoCard {
-  flex: 0 0 280px;
-  height: 500px; /* Fallback */
-  aspect-ratio: 9 / 16;
-  height: auto;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  scroll-snap-align: center;
-  background: #000;
-}
-
-.shortVideoIframe {
-  width: 100%;
-  height: calc(100% + 70px);
-  margin-top: -70px;
+.videoModalCloseBtn {
+  background: rgba(255, 255, 255, 0.12);
   border: none;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.videoModalCloseBtn:hover {
+  background: #e50914;
+}
+
+.videoModalBody {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000000;
+}
+
+.videoModalMedia {
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: contain;
+}
+
+.videoModalFooter {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e293b;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 @media (max-width: 600px) {
-  .shortsSection {
+  .fbVideoSection {
     padding: 60px 16px;
   }
-  .shortsGrid {
+  .fbVideoGrid {
+    grid-template-columns: 1fr;
     gap: 16px;
-    padding-bottom: 20px;
-  }
-  .shortVideoCard {
-    flex: 0 0 80vw;
-    border-radius: 12px;
   }
 }
 

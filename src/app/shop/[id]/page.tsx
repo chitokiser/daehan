@@ -436,7 +436,7 @@ export default function ProductDetail() {
                     </div>
                     <div className={styles.specRow}>
                         <div className={styles.specKey}>고객센터 & 주문 문의</div>
-                        <div className={styles.specVal}>대한김치 (DAEHAN KIMCHI) • Kakao/Zalo: 0702116617</div>
+                        <div className={styles.specVal}>대한김치 (DAEHAN KIMCHI) • Korean: 0702116617 / 0366440746 | Vietnam: 0349475948</div>
                     </div>
                 </div>
             </section>
