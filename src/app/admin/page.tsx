@@ -24,7 +24,8 @@ export default function AdminDashboard() {
         changeUserRole, 
         changeOrderStatus, 
         fetchAdminData, 
-        isLoading 
+        isLoading,
+        openLoginModal
     } = useUserWallet();
 
     const [activeTab, setActiveTab] = useState<"charges" | "members" | "orders" | "analytics" | "api" | "kmoa_crm">("members");
@@ -233,6 +234,80 @@ export default function AdminDashboard() {
             alert(res.error || "배송 정보 저장 실패");
         }
     };
+
+    if (!isOperator) {
+        return (
+            <div className={styles.adminContainer} style={{ minHeight: '65vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+                <div style={{
+                    maxWidth: '460px',
+                    width: '100%',
+                    background: '#ffffff',
+                    border: '1px solid #fee2e2',
+                    borderRadius: '20px',
+                    padding: '40px 28px',
+                    textAlign: 'center',
+                    boxShadow: '0 15px 35px -5px rgba(227, 24, 55, 0.12)'
+                }}>
+                    <div style={{
+                        width: '70px',
+                        height: '70px',
+                        borderRadius: '50%',
+                        background: '#fef2f2',
+                        color: '#e31837',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 20px',
+                        border: '1px solid #fca5a5'
+                    }}>
+                        <Lock size={34} />
+                    </div>
+                    <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', marginBottom: '12px' }}>
+                        관리자 전용 접근 제한
+                    </h2>
+                    <p style={{ fontSize: '0.92rem', color: '#64748b', lineHeight: '1.65', marginBottom: '28px' }}>
+                        이 페이지는 <strong>최고 관리자(SUPER_ADMIN)</strong> 및 지정된 <strong>운영자(OPERATOR)</strong> 전용 관리자 센터입니다.<br />
+                        인증된 관리자 계정으로 로그인 후 이용 가능합니다.
+                    </p>
+
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <Link href="/" style={{
+                            background: '#f1f5f9',
+                            color: '#334155',
+                            fontWeight: 700,
+                            fontSize: '0.9rem',
+                            padding: '11px 22px',
+                            borderRadius: '12px',
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                        }}>
+                            🏠 홈으로 이동
+                        </Link>
+                        <button 
+                            onClick={openLoginModal}
+                            style={{
+                                background: '#e31837',
+                                color: '#ffffff',
+                                fontWeight: 700,
+                                fontSize: '0.9rem',
+                                padding: '11px 22px',
+                                borderRadius: '12px',
+                                border: 'none',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                            }}
+                        >
+                            👑 관리자 로그인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.adminContainer}>
