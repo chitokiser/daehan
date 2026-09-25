@@ -30,7 +30,7 @@ function WebzineServiceContent() {
     const articleIdFromUrl = searchParams.get("article");
 
     const { user, refreshWallet } = useUserWallet();
-    const isAdmin = user?.role === "SUPER_ADMIN" || user?.role === "OPERATOR";
+    const isAdmin = user?.role === "SUPER_ADMIN" || user?.role === "OPERATOR" || user?.email === "daguri75@gmail.com" || user?.email === "infinis6688@gmail.com";
 
     const [kmoaWebzines, setKmoaWebzines] = useState<KmoaWebzine[]>([]);
     const [kmoaLoading, setKmoaLoading] = useState(true);

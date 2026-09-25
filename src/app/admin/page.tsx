@@ -148,7 +148,7 @@ export default function AdminDashboard() {
     }, []);
 
 
-    const isSuperAdmin = user?.role === "SUPER_ADMIN";
+    const isSuperAdmin = user?.role === "SUPER_ADMIN" || user?.email === "daguri75@gmail.com" || user?.email === "infinis6688@gmail.com";
     const isOperator = user?.role === "OPERATOR" || isSuperAdmin;
 
     // Filter members
@@ -260,10 +260,16 @@ export default function AdminDashboard() {
                     <span className={styles.switchLabel}>빠른 계정 전환 (테스트용):</span>
                     <div className={styles.switchBtnGroup}>
                         <button 
-                            className={`${styles.switchBtn} ${user?.uid === "admin_super_daehan" ? styles.activeSwitch : ''}`}
-                            onClick={() => login("admin_super_daehan")}
+                            className={`${styles.switchBtn} ${user?.email === "daguri75@gmail.com" || user?.uid === "admin_super_daehan" ? styles.activeSwitch : ''}`}
+                            onClick={() => login("google_daguri75_gmail_com")}
                         >
-                            👑 최고관리자
+                            👑 대표자 (daguri75)
+                        </button>
+                        <button 
+                            className={`${styles.switchBtn} ${user?.email === "infinis6688@gmail.com" || user?.uid === "google_infinis6688_gmail_com" ? styles.activeSwitch : ''}`}
+                            onClick={() => login("google_infinis6688_gmail_com")}
+                        >
+                            👑 관리자 (infinis6688)
                         </button>
                         <button 
                             className={`${styles.switchBtn} ${user?.uid === "operator_hanoi_01" ? styles.activeSwitch : ''}`}

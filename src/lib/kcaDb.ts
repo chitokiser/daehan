@@ -261,11 +261,13 @@ export async function getUserWallet(uid: string): Promise<UserWalletData> {
     
     if (!docSnap.exists) {
         // Create default user if not exists
-        const initialRole: UserRole = uid.includes("operator") ? "OPERATOR" : (uid.includes("admin") || uid.includes("super")) ? "SUPER_ADMIN" : "MEMBER";
+        const isSuperAdminUid = uid.includes("admin") || uid.includes("super") || uid.includes("infinis6688") || uid.includes("daguri75");
+        const initialRole: UserRole = uid.includes("operator") ? "OPERATOR" : isSuperAdminUid ? "SUPER_ADMIN" : "MEMBER";
+        const email = uid.includes("infinis6688") ? "infinis6688@gmail.com" : uid.includes("daguri75") ? "daguri75@gmail.com" : `${uid}@daehankimchi.com`;
         const newUser: UserWalletData = {
             uid,
-            name: uid.includes("operator") ? "지정 운영자" : uid.includes("admin") ? "최고 관리자" : `회원_${uid.slice(-4)}`,
-            email: `${uid}@daehankimchi.com`,
+            name: uid.includes("infinis6688") ? "관리자 (infinis6688)" : uid.includes("operator") ? "지정 운영자" : uid.includes("admin") || uid.includes("daguri75") ? "최고 관리자" : `회원_${uid.slice(-4)}`,
+            email,
             onChainWalletAddress: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`,
             moneyBalance: 0,
             pointBalance: 0,
@@ -282,8 +284,11 @@ export async function getUserWallet(uid: string): Promise<UserWalletData> {
     }
     
     const data = docSnap.data() as UserWalletData;
+    const cleanEmail = (data.email || "").toLowerCase();
+    const isSuperAdminEmail = cleanEmail === "daguri75@gmail.com" || cleanEmail === "infinis6688@gmail.com";
     return {
         ...data,
+        role: isSuperAdminEmail ? "SUPER_ADMIN" : (data.role || "MEMBER"),
         level: data.level || 1,
         exp: data.exp !== undefined ? data.exp : 0
     };
