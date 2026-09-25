@@ -114,7 +114,7 @@ export default function Header() {
     };
 
     const submitReferrer = async () => {
-        const finalReferrer = (referrerInput || "").trim().toLowerCase() || "daguri75@gmail.com";
+        const finalReferrer = (referrerInput || "").trim().toLowerCase() || "infinis6688@gmail.com";
         if (!agreeTerms || !agreePrivacy) {
             alert("이용약관 및 개인정보 처리방침에 모두 동의해 주세요 (필수).");
             return;
@@ -383,7 +383,7 @@ export default function Header() {
                             <form onSubmit={(e) => { e.preventDefault(); handleEmailLogin(); }} style={{ display: 'flex', gap: '8px' }}>
                                 <input
                                     type="email"
-                                    placeholder="예: daguri75@gmail.com"
+                                    placeholder="예: infinis6688@gmail.com"
                                     value={googleEmailInput}
                                     onChange={(e) => setGoogleEmailInput(e.target.value)}
                                     style={{
@@ -410,17 +410,10 @@ export default function Header() {
                                 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>빠른 테스트:</span>
                                 <button
                                     type="button"
-                                    onClick={() => handleEmailLogin("daguri75@gmail.com")}
-                                    style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                                >
-                                    👑 대표자 (daguri75)
-                                </button>
-                                <button
-                                    type="button"
                                     onClick={() => handleEmailLogin("infinis6688@gmail.com")}
                                     style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                                 >
-                                    👑 관리자 (infinis6688)
+                                    👑 대표자 (infinis6688)
                                 </button>
                                 <button
                                     type="button"
@@ -520,7 +513,7 @@ export default function Header() {
                                 </label>
                                 <button
                                     type="button"
-                                    onClick={() => setReferrerInput("daguri75@gmail.com")}
+                                    onClick={() => setReferrerInput("infinis6688@gmail.com")}
                                     style={{
                                         background: '#FDF2F2',
                                         color: '#C8392B',
@@ -532,12 +525,12 @@ export default function Header() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    ⚡ 자동 추천 (daguri75@gmail.com)
+                                    ⚡ 자동 추천 (infinis6688@gmail.com)
                                 </button>
                             </div>
                             <input
                                 type="text"
-                                placeholder="추천인 이메일 입력 (미입력 시 daguri75@gmail.com 자동지정)"
+                                placeholder="추천인 이메일 입력 (미입력 시 infinis6688@gmail.com 자동지정)"
                                 value={referrerInput}
                                 onChange={(e) => setReferrerInput(e.target.value)}
                                 style={{
