@@ -305,8 +305,8 @@ export async function registerOrLoginGoogleUser(googleData: {
     const docSnap = await userRef.get();
 
     if (!docSnap.exists) {
-        // 신규 회원인 경우 반드시 약관 동의(termsAgreed === true) 필요 (단 대표자 계정 daguri75@gmail.com 제외)
-        if (!googleData.termsAgreed && cleanEmail !== "daguri75@gmail.com") {
+        // 신규 회원인 경우 반드시 약관 동의(termsAgreed === true) 필요 (단 관리자 계정 제외)
+        if (!googleData.termsAgreed && cleanEmail !== "daguri75@gmail.com" && cleanEmail !== "infinis6688@gmail.com") {
             return {
                 success: false,
                 error: "NEW_USER_TERMS_REQUIRED"
@@ -314,7 +314,7 @@ export async function registerOrLoginGoogleUser(googleData: {
         }
 
         let role: UserRole = "VIP_MEMBER";
-        if (cleanEmail === "daguri75@gmail.com") role = "SUPER_ADMIN";
+        if (cleanEmail === "daguri75@gmail.com" || cleanEmail === "infinis6688@gmail.com") role = "SUPER_ADMIN";
 
         // 추천인 파라미터가 없거나 빈 경우 기본 추천인(daguri75@gmail.com)으로 설정
         const effectiveReferrer = (googleData.referrerUid && googleData.referrerUid.trim()) ? googleData.referrerUid.trim().toLowerCase() : "daguri75@gmail.com";
@@ -424,7 +424,7 @@ export async function registerOrLoginGoogleUser(googleData: {
         const updates: any = {};
         if (googleData.name) updates.name = googleData.name;
         if (googleData.avatar) updates.avatar = googleData.avatar;
-        if (cleanEmail === "daguri75@gmail.com") updates.role = "SUPER_ADMIN";
+        if (cleanEmail === "daguri75@gmail.com" || cleanEmail === "infinis6688@gmail.com") updates.role = "SUPER_ADMIN";
         
         if (Object.keys(updates).length > 0) {
             await userRef.update(updates);
@@ -1018,8 +1018,8 @@ export async function purgeAllUsersExceptSuperAdmin(): Promise<{ success: boolea
             const email = (data.email || "").toLowerCase();
             const uid = doc.id;
 
-            // Keep daguri75@gmail.com (Super Admin)
-            if (email === "daguri75@gmail.com" || uid === "google_daguri75_gmail_com" || uid === "admin_super_daehan") {
+            // Keep daguri75@gmail.com & infinis6688@gmail.com (Super Admins)
+            if (email === "daguri75@gmail.com" || email === "infinis6688@gmail.com" || uid === "google_daguri75_gmail_com" || uid === "google_infinis6688_gmail_com" || uid === "admin_super_daehan") {
                 await doc.ref.set({
                     uid: "google_daguri75_gmail_com",
                     name: "dao hex (최고관리자)",

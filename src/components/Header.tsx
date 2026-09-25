@@ -417,6 +417,13 @@ export default function Header() {
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => handleEmailLogin("infinis6688@gmail.com")}
+                                    style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                    👑 관리자 (infinis6688)
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => handleEmailLogin("hansguy001@gmail.com")}
                                     style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                                 >

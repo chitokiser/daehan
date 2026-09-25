@@ -293,7 +293,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             if (!email) {
                 return { success: false, error: "이메일이 제공되지 않았습니다." };
             }
-            const name = customName || (email === "daguri75@gmail.com" ? "dao hex (최고관리자)" : "Google 인증 회원");
+            const name = customName || (email === "daguri75@gmail.com" ? "dao hex (최고관리자)" : email === "infinis6688@gmail.com" ? "관리자 (infinis6688)" : "Google 인증 회원");
             const avatar = (customAvatar && !customAvatar.includes("unavatar.io")) 
                 ? customAvatar 
                 : `https://ui-avatars.com/api/?name=${encodeURIComponent(name || email)}&background=E31837&color=ffffff&bold=true`;
@@ -346,7 +346,7 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
 
             // Client Fallback login in case of network/server response failure so the user is never blocked
             const safeUid = `google_${email.replace(/[^a-zA-Z0-9]/g, "_")}`;
-            const isSuper = email === "daguri75@gmail.com";
+            const isSuper = email === "daguri75@gmail.com" || email === "infinis6688@gmail.com";
             const fallbackUser: UserProfile = {
                 uid: safeUid,
                 name: name,
