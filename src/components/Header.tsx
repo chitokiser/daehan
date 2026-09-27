@@ -372,58 +372,8 @@ export default function Header() {
                             </div>
                         )}
                         <p className={styles.modalDesc}>
-                            이메일 주소를 입력하거나 Google 계정으로 계속하세요.
+                            Google 계정으로 계속하세요.
                         </p>
-
-                        {/* Direct Email Login Form */}
-                        <div style={{ marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '8px' }}>
-                                ✉️ 이메일로 간편 로그인 / 회원가입
-                            </label>
-                            <form onSubmit={(e) => { e.preventDefault(); handleEmailLogin(); }} style={{ display: 'flex', gap: '8px' }}>
-                                <input
-                                    type="email"
-                                    placeholder="예: infinis6688@gmail.com"
-                                    value={googleEmailInput}
-                                    onChange={(e) => setGoogleEmailInput(e.target.value)}
-                                    style={{
-                                        flex: 1,
-                                        background: '#fff',
-                                        border: '1.5px solid #cbd5e1',
-                                        borderRadius: '8px',
-                                        padding: '10px 14px',
-                                        color: '#1e293b',
-                                        fontSize: '0.92rem',
-                                        outline: 'none'
-                                    }}
-                                />
-                                <button
-                                    type="submit"
-                                    className="btn-primary"
-                                    style={{ padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, whiteSpace: 'nowrap' }}
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? "처리중..." : "로그인"}
-                                </button>
-                            </form>
-                            <div style={{ marginTop: '10px', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>빠른 테스트:</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleEmailLogin("infinis6688@gmail.com")}
-                                    style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                                >
-                                    👑 대표자 (infinis6688)
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleEmailLogin("hansguy001@gmail.com")}
-                                    style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', borderRadius: '12px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                                >
-                                    ⭐ VIP (hansguy)
-                                </button>
-                            </div>
-                        </div>
 
                         {/* Google Social Login */}
                         <div style={{ marginBottom: '12px' }}>

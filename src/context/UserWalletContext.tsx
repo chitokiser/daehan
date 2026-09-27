@@ -94,6 +94,7 @@ interface PaymentParams {
     currency?: "MONEY" | "POINT" | "VND";
     items?: any[];
     shippingAddress?: any;
+    taxInvoice?: { companyName: string; taxCode: string; address?: string };
 }
 
 interface PaymentResult {
@@ -227,8 +228,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         const initAuth = async () => {
             if (typeof window !== "undefined") {
-                const savedEmail = localStorage.getItem("google_auth_email");
-                const savedName = localStorage.getItem("google_auth_name");
+                const savedEmail = localStorage.getItem("daehan_google_auth_email");
+                const savedName = localStorage.getItem("daehan_google_auth_name");
                 if (savedEmail) {
                     const cleanSaved = savedEmail.trim().toLowerCase();
                     const res = await loginWithGoogle(cleanSaved, savedName || undefined);
@@ -334,8 +335,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                 setIsLoggedIn(true);
 
                 if (typeof window !== "undefined") {
-                    localStorage.setItem("google_auth_email", loggedUser.email);
-                    localStorage.setItem("google_auth_name", loggedUser.name);
+                    localStorage.setItem("daehan_google_auth_email", loggedUser.email);
+                    localStorage.setItem("daehan_google_auth_name", loggedUser.name);
                 }
 
                 await fetchAdminData();
@@ -365,8 +366,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
             setIsLoggedIn(true);
 
             if (typeof window !== "undefined") {
-                localStorage.setItem("google_auth_email", fallbackUser.email);
-                localStorage.setItem("google_auth_name", fallbackUser.name);
+                localStorage.setItem("daehan_google_auth_email", fallbackUser.email);
+                localStorage.setItem("daehan_google_auth_name", fallbackUser.name);
             }
 
             return { success: true, user: fallbackUser };
@@ -382,8 +383,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
         setUser(null);
         setIsLoggedIn(false);
         if (typeof window !== "undefined") {
-            localStorage.removeItem("google_auth_email");
-            localStorage.removeItem("google_auth_name");
+            localStorage.removeItem("daehan_google_auth_email");
+            localStorage.removeItem("daehan_google_auth_name");
         }
     };
 
@@ -406,7 +407,8 @@ export function UserWalletProvider({ children }: { children: React.ReactNode }) 
                     amount: params.amount,
                     orderId: params.orderId || `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
                     items: params.items,
-                    shippingAddress: params.shippingAddress
+                    shippingAddress: params.shippingAddress,
+                    taxInvoice: params.taxInvoice
                 })
             });
 

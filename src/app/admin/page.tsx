@@ -6,24 +6,24 @@ import { useUserWallet, UserRole, MemberOrder } from "@/context/UserWalletContex
 import { products } from "@/data/products";
 
 import Link from "next/link";
-import { 
-    ShieldAlert, Users, ShoppingBag, Coins, DollarSign, RefreshCw, 
-    UserCheck, UserX, Crown, CheckCircle2, Truck, Eye, Search, 
+import {
+    ShieldAlert, Users, ShoppingBag, Coins, DollarSign, RefreshCw,
+    UserCheck, UserX, Crown, CheckCircle2, Truck, Eye, Search,
     Key, ExternalLink, ArrowUpRight, Sparkles, Filter, Edit3, Lock,
     Wallet, Ticket, RefreshCcw
 } from "lucide-react";
 
 export default function AdminDashboard() {
-    const { 
-        user, 
-        wallet, 
-        allMembers, 
-        allOrders, 
-        adminStats, 
-        login, 
-        changeUserRole, 
-        changeOrderStatus, 
-        fetchAdminData, 
+    const {
+        user,
+        wallet,
+        allMembers,
+        allOrders,
+        adminStats,
+        login,
+        changeUserRole,
+        changeOrderStatus,
+        fetchAdminData,
         isLoading,
         openLoginModal
     } = useUserWallet();
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
     const [kmoaMembers, setKmoaMembers] = useState<any[]>([]);
     const [kmoaDbLoading, setKmoaDbLoading] = useState(false);
     const [kmoaDemo, setKmoaDemo] = useState(false);
-    const [kmoaConnStatus, setKmoaConnStatus] = useState<"live"|"demo"|"error"|"offline"|"loading">("loading");
+    const [kmoaConnStatus, setKmoaConnStatus] = useState<"live" | "demo" | "error" | "offline" | "loading">("loading");
 
 
     // 가맹점 데이터 로드
@@ -142,8 +142,8 @@ export default function AdminDashboard() {
         }
     };
 
-    useEffect(() => { 
-        loadKmoaData(); 
+    useEffect(() => {
+        loadKmoaData();
         fetchChargeRequests();
         fetchAdminData();
     }, []);
@@ -285,7 +285,7 @@ export default function AdminDashboard() {
                         }}>
                             🏠 홈으로 이동
                         </Link>
-                        <button 
+                        <button
                             onClick={openLoginModal}
                             style={{
                                 background: '#e31837',
@@ -329,38 +329,8 @@ export default function AdminDashboard() {
                         </p>
                     </div>
                 </div>
-
-                {/* Account Switcher for Instant Testing */}
-                <div className={styles.quickAccountSwitch}>
-                    <span className={styles.switchLabel}>빠른 계정 전환 (테스트용):</span>
-                    <div className={styles.switchBtnGroup}>
-                        <button 
-                            className={`${styles.switchBtn} ${user?.email === "daguri75@gmail.com" || user?.uid === "admin_super_daehan" ? styles.activeSwitch : ''}`}
-                            onClick={() => login("google_daguri75_gmail_com")}
-                        >
-                            👑 대표자 (daguri75)
-                        </button>
-                        <button 
-                            className={`${styles.switchBtn} ${user?.email === "infinis6688@gmail.com" || user?.uid === "google_infinis6688_gmail_com" ? styles.activeSwitch : ''}`}
-                            onClick={() => login("google_infinis6688_gmail_com")}
-                        >
-                            👑 관리자 (infinis6688)
-                        </button>
-                        <button 
-                            className={`${styles.switchBtn} ${user?.uid === "operator_hanoi_01" ? styles.activeSwitch : ''}`}
-                            onClick={() => login("operator_hanoi_01")}
-                        >
-                            🛡️ 운영자
-                        </button>
-                        <button 
-                            className={`${styles.switchBtn} ${user?.uid === "user_daehan_vip01" ? styles.activeSwitch : ''}`}
-                            onClick={() => login("user_daehan_vip01")}
-                        >
-                            👤 일반VIP회원
-                        </button>
-                    </div>
-                </div>
             </div>
+
 
             {actionMessage && (
                 <div className={styles.alertSuccess}>
@@ -414,7 +384,7 @@ export default function AdminDashboard() {
                         disabled={kmoaDbLoading}
                     >
                         <RefreshCcw size={14} className={kmoaDbLoading ? styles.spinning : ''} />
-                        {kmoaDbLoading ? "로딩...": "실시간 동기화"}
+                        {kmoaDbLoading ? "로딩..." : "실시간 동기화"}
                     </button>
                 </div>
                 <div className={styles.kmoaBalanceRow}>
@@ -578,31 +548,31 @@ export default function AdminDashboard() {
                 const pendingOrderCount = (allOrders || []).filter(o => o.status === "PENDING_PAYMENT" || o.status === "PAID" || o.status === "PREPARING").length;
                 return (
                     <div className={styles.tabNav}>
-                        <button 
+                        <button
                             className={`${styles.navTabBtn} ${activeTab === "charges" ? styles.activeNavTab : ''}`}
                             onClick={() => setActiveTab("charges")}
                         >
                             <Wallet size={16} /> 💳 계좌입금 충전 신청 관리 {pendingChargeCount > 0 && <span style={{ background: '#ef4444', color: '#fff', borderRadius: '99px', padding: '1px 7px', fontSize: '0.75rem', marginLeft: '6px' }}>{pendingChargeCount}건 대기</span>}
                         </button>
-                        <button 
+                        <button
                             className={`${styles.navTabBtn} ${activeTab === "members" ? styles.activeNavTab : ''}`}
                             onClick={() => setActiveTab("members")}
                         >
                             <Users size={16} /> 👥 회원 및 운영자 권한 관리
                         </button>
-                        <button 
+                        <button
                             className={`${styles.navTabBtn} ${activeTab === "orders" ? styles.activeNavTab : ''}`}
                             onClick={() => setActiveTab("orders")}
                         >
                             <ShoppingBag size={16} /> 📦 주문 및 배송 상태 관리 ({allOrders ? allOrders.length : 0}) {pendingOrderCount > 0 && <span style={{ background: '#f59e0b', color: '#000', borderRadius: '99px', padding: '1px 7px', fontSize: '0.75rem', marginLeft: '6px', fontWeight: 700 }}>{pendingOrderCount}건 처리필요</span>}
                         </button>
-                        <button 
+                        <button
                             className={`${styles.navTabBtn} ${activeTab === "analytics" ? styles.activeNavTab : ''}`}
                             onClick={() => setActiveTab("analytics")}
                         >
                             <Coins size={16} /> 📊 매출 & 정산 대시보드
                         </button>
-                        <button 
+                        <button
                             className={`${styles.navTabBtn} ${activeTab === "api" ? styles.activeNavTab : ''}`}
                             onClick={() => setActiveTab("api")}
                         >
@@ -755,7 +725,7 @@ export default function AdminDashboard() {
                     <div className={styles.memberFilterRow}>
                         <div className={styles.searchBox}>
                             <Search size={16} color="var(--text-muted)" />
-                            <input 
+                            <input
                                 type="text"
                                 placeholder="회원 이름, 이메일, 지갑 주소 검색..."
                                 value={memberSearch}
@@ -766,8 +736,8 @@ export default function AdminDashboard() {
 
                         <div className={styles.roleFilterGroup}>
                             <Filter size={15} color="var(--text-muted)" />
-                            <select 
-                                value={roleFilter} 
+                            <select
+                                value={roleFilter}
                                 onChange={e => setRoleFilter(e.target.value)}
                                 className={styles.roleSelect}
                             >
@@ -881,7 +851,7 @@ export default function AdminDashboard() {
                                 주문 DB 동기화
                             </button>
                             <div className={styles.orderFilterGroup}>
-                                <select 
+                                <select
                                     value={orderFilter}
                                     onChange={e => setOrderFilter(e.target.value)}
                                     className={styles.roleSelect}
@@ -1155,7 +1125,7 @@ export default function AdminDashboard() {
                             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#fcd34d' }}>
                                 <Truck size={20} color="#38bdf8" /> 베트남 현지 택배 & 송장 등록
                             </h3>
-                            <button 
+                            <button
                                 onClick={() => setShippingModalOrder(null)}
                                 style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '1.2rem', cursor: 'pointer' }}
                             >
@@ -1202,7 +1172,7 @@ export default function AdminDashboard() {
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
                                     2. 송장 번호 (Mã vận đơn)
                                 </label>
-                                <input 
+                                <input
                                     type="text"
                                     placeholder="예: GRAB-891023 또는 10293812"
                                     value={shippingForm.trackingNumber}
@@ -1223,7 +1193,7 @@ export default function AdminDashboard() {
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
                                     3. 배송기사 / 택배사 연락처 (Số điện thoại tài xế)
                                 </label>
-                                <input 
+                                <input
                                     type="text"
                                     placeholder="예: 098-123-4567"
                                     value={shippingForm.driverPhone}
@@ -1244,7 +1214,7 @@ export default function AdminDashboard() {
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: '#9ca3af' }}>
                                     4. 배송 특이사항 / 안내 메모 (Ghi chú)
                                 </label>
-                                <input 
+                                <input
                                     type="text"
                                     placeholder="예: 하노이 미딩 지역 12시 이전 도착 요청"
                                     value={shippingForm.deliveryMemo}

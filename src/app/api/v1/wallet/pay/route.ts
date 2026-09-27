@@ -6,7 +6,7 @@ import { executePayment } from "@/lib/kcaDb";
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { uid, merchantId, currency, amount, orderId, items, shippingAddress } = body;
+        const { uid, merchantId, currency, amount, orderId, items, shippingAddress, taxInvoice } = body;
 
         if (!uid) {
             return NextResponse.json({ success: false, error: "회원 UID가 누락되었습니다." }, { status: 400 });
@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
             amount: Number(amount),
             orderId: effectiveOrderId,
             items,
-            shippingAddress
+            shippingAddress,
+            taxInvoice
         });
 
         if (!result.success) {

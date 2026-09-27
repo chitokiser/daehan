@@ -7,7 +7,7 @@ import styles from "./page.module.css";
 import { products, Product } from "@/data/products";
 import { useUserWallet } from "@/context/UserWalletContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { 
+import {
     Star, Truck, ShieldCheck, Award, Sparkles, Check,
     ArrowLeft, Heart, Plus, Minus, PackageCheck,
     CreditCard, ArrowRight, CheckCircle2, AlertCircle, ShoppingCart, Copy, Clock
@@ -51,6 +51,12 @@ export default function ProductDetail() {
     const [copiedTx, setCopiedTx] = useState(false);
     const [paymentCurrency, setPaymentCurrency] = useState<"VND" | "대한페이">("VND");
 
+    // Tax Invoice State
+    const [requestTaxInvoice, setRequestTaxInvoice] = useState(false);
+    const [taxCompanyName, setTaxCompanyName] = useState("");
+    const [taxCompanyNumber, setTaxCompanyNumber] = useState("");
+    const [taxCompanyAddress, setTaxCompanyAddress] = useState("");
+
     // Calculate dynamic pricing
     const unitPriceVnd = product.price;
     const basePriceVnd = unitPriceVnd * selectedWeight;
@@ -87,7 +93,7 @@ export default function ProductDetail() {
                     return;
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
         setReviews(defaultReviews);
     }, [product.id, defaultReviews]);
 
@@ -137,7 +143,12 @@ export default function ProductDetail() {
                 phone: recipientPhone,
                 address: recipientAddress,
                 memo: deliveryMemo
-            }
+            },
+            taxInvoice: requestTaxInvoice ? {
+                companyName: taxCompanyName,
+                taxCode: taxCompanyNumber,
+                address: taxCompanyAddress
+            } : undefined
         });
 
         if (res.success) {
@@ -192,7 +203,7 @@ export default function ProductDetail() {
             const userOnly = updatedReviews.filter(r => r.uid && !r.uid.startsWith("user_mock"));
             localStorage.setItem(`daehan_reviews_p${product.id}`, JSON.stringify(userOnly));
             localStorage.setItem(`daehan_reviewed_p${product.id}_u${user.uid}`, "true");
-        } catch (e) {}
+        } catch (e) { }
 
         setReviewText("");
 
@@ -260,8 +271,8 @@ export default function ProductDetail() {
                     )}
                     <span className={styles.categoryBadge}>{displayCategory}</span>
                     <img src={product.image} alt={displayName} className={styles.productImage} />
-                    <button 
-                        className={`${styles.likeBtn} ${isLiked ? styles.liked : ''}`} 
+                    <button
+                        className={`${styles.likeBtn} ${isLiked ? styles.liked : ''}`}
                         onClick={() => setIsLiked(!isLiked)}
                         title="찜하기"
                     >
@@ -340,14 +351,14 @@ export default function ProductDetail() {
                     <div className={styles.quantitySection}>
                         <span className={styles.optionLabel}>수량 (Quantity):</span>
                         <div className={styles.quantityControl}>
-                            <button 
+                            <button
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                 className={styles.qtyBtn}
                             >
                                 <Minus size={16} />
                             </button>
                             <span className={styles.qtyNumber}>{quantity}</span>
-                            <button 
+                            <button
                                 onClick={() => setQuantity(quantity + 1)}
                                 className={styles.qtyBtn}
                             >
@@ -358,7 +369,7 @@ export default function ProductDetail() {
 
                     {/* Standard E-Commerce Purchase Actions */}
                     <div className={styles.purchaseActions}>
-                        <button 
+                        <button
                             className={styles.hexPayBtn}
                             onClick={handleOpenCheckout}
                             title="주문서 열기 및 결제수단 선택"
@@ -367,7 +378,7 @@ export default function ProductDetail() {
                             <span>바로 구매하기 ({totalPriceVnd.toLocaleString()} VND)</span>
                         </button>
 
-                        <button 
+                        <button
                             className={`btn-primary ${styles.buyBtn} ${cartAdded ? styles.cartAdded : ''}`}
                             onClick={handleAddToCart}
                         >
@@ -584,7 +595,7 @@ export default function ProductDetail() {
                                         <p>용량: {selectedWeight}Kg • 수량: {quantity}개 • 주문번호: <code>{dynamicOrderId}</code></p>
                                         <div className={styles.orderPrices}>
                                             <span className={styles.vndTotal} style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-                                                {totalPriceVnd.toLocaleString()} VND 
+                                                {totalPriceVnd.toLocaleString()} VND
                                                 <span style={{ fontSize: '0.9rem', color: '#f7a400', marginLeft: 8 }}>({totalPriceVnd.toLocaleString()} 머니)</span>
                                             </span>
                                         </div>
@@ -599,8 +610,8 @@ export default function ProductDetail() {
                                             💳 보유 대한페이: {(wallet.moneyBalance || 0).toLocaleString()} 머니
                                         </span>
                                     </div>
-                                    <select 
-                                        value={paymentCurrency} 
+                                    <select
+                                        value={paymentCurrency}
                                         onChange={(e) => setPaymentCurrency(e.target.value as "VND" | "대한페이")}
                                         className={`${styles.checkoutInput} ${styles.fullWidth}`}
                                         style={{ marginTop: 8 }}
@@ -636,35 +647,77 @@ export default function ProductDetail() {
                                 <div className={styles.shippingForm}>
                                     <label className={styles.sectionSubTitle}>배송지 정보 (하노이 오토바이 직배송):</label>
                                     <div className={styles.formGrid}>
-                                        <input 
-                                            type="text" 
-                                            placeholder="받는 분 성함" 
+                                        <input
+                                            type="text"
+                                            placeholder="받는 분 성함"
                                             value={recipientName}
                                             onChange={e => setRecipientName(e.target.value)}
                                             className={styles.checkoutInput}
                                         />
-                                        <input 
-                                            type="text" 
-                                            placeholder="연락처 (Zalo/휴대폰)" 
+                                        <input
+                                            type="text"
+                                            placeholder="연락처 (Zalo/휴대폰)"
                                             value={recipientPhone}
                                             onChange={e => setRecipientPhone(e.target.value)}
                                             className={styles.checkoutInput}
                                         />
-                                        <input 
-                                            type="text" 
-                                            placeholder="하노이 배송 주소" 
+                                        <input
+                                            type="text"
+                                            placeholder="하노이 배송 주소"
                                             value={recipientAddress}
                                             onChange={e => setRecipientAddress(e.target.value)}
                                             className={`${styles.checkoutInput} ${styles.fullWidth}`}
                                         />
-                                        <input 
-                                            type="text" 
-                                            placeholder="배송 요청사항 (선택)" 
+                                        <input
+                                            type="text"
+                                            placeholder="배송 요청사항 (선택)"
                                             value={deliveryMemo}
                                             onChange={e => setDeliveryMemo(e.target.value)}
                                             className={`${styles.checkoutInput} ${styles.fullWidth}`}
                                         />
                                     </div>
+                                </div>
+
+                                {/* Tax Invoice Section */}
+                                <div className={styles.shippingForm} style={{ marginTop: '16px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={requestTaxInvoice}
+                                            onChange={(e) => setRequestTaxInvoice(e.target.checked)}
+                                            style={{ transform: 'scale(1.2)' }}
+                                        />
+                                        세금계산서 (VAT Invoice / Hóa đơn) 당일 자동 발행 요청
+                                    </label>
+
+                                    {requestTaxInvoice && (
+                                        <div className={styles.formGrid} style={{ marginTop: '12px' }}>
+                                            <input
+                                                type="text"
+                                                placeholder="회사명 (Tên công ty)"
+                                                value={taxCompanyName}
+                                                onChange={e => setTaxCompanyName(e.target.value)}
+                                                className={`${styles.checkoutInput} ${styles.fullWidth}`}
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="사업자등록번호/MST (Mã số thuế)"
+                                                value={taxCompanyNumber}
+                                                onChange={e => setTaxCompanyNumber(e.target.value)}
+                                                className={`${styles.checkoutInput} ${styles.fullWidth}`}
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="사업장 주소 (Địa chỉ công ty)"
+                                                value={taxCompanyAddress}
+                                                onChange={e => setTaxCompanyAddress(e.target.value)}
+                                                className={`${styles.checkoutInput} ${styles.fullWidth}`}
+                                            />
+                                            <div style={{ fontSize: '0.8rem', color: '#16a34a', fontStyle: 'italic', gridColumn: '1 / -1' }}>
+                                                결제(입금확인) 완료 시 입력해주신 정보로 국세청(전자세금계산서) 또는 베트남 Hóa Đơn 자동 발행이 승인됩니다.
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {paymentError && (
@@ -700,8 +753,8 @@ export default function ProductDetail() {
                                     )}
                                 </div>
                                 <h3 className={styles.successTitle}>
-                                    {paymentReceipt.status === "PENDING_PAYMENT" 
-                                        ? "주문이 접수되었습니다! (입금대기)" 
+                                    {paymentReceipt.status === "PENDING_PAYMENT"
+                                        ? "주문이 접수되었습니다! (입금대기)"
                                         : "주문 결제가 완료되었습니다!"}
                                 </h3>
                                 <p className={styles.successSub}>
@@ -723,9 +776,9 @@ export default function ProductDetail() {
                                     </div>
                                     <div className={styles.receiptRow}>
                                         <span>주문 상태</span>
-                                        <span style={{ 
+                                        <span style={{
                                             color: paymentReceipt.status === "PENDING_PAYMENT" ? '#f59e0b' : '#16a34a',
-                                            fontWeight: 700 
+                                            fontWeight: 700
                                         }}>
                                             {paymentReceipt.status === "PENDING_PAYMENT" ? "🟡 입금 확인 대기중" : "🟢 결제 완료 (배송준비)"}
                                         </span>
@@ -773,7 +826,7 @@ export default function ProductDetail() {
                                     <Link href="/mypage" className="btn-primary" style={{ textAlign: 'center', padding: '12px 24px' }}>
                                         마이페이지 & 주문내역 조회
                                     </Link>
-                                    <button 
+                                    <button
                                         className={styles.closeReceiptBtn}
                                         onClick={() => setCheckoutModalOpen(false)}
                                     >

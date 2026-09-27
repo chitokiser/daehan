@@ -68,6 +68,7 @@ export interface MemberOrder {
         memo?: string;
     };
     shippingInfo?: ShippingInfo;
+    taxInvoice?: { companyName: string; taxCode: string; address?: string; issuedNumber?: string; status?: string; };
     status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED";
     createdAt: string;
 }
@@ -258,7 +259,7 @@ export function getDb() {
 export async function getUserWallet(uid: string): Promise<UserWalletData> {
     const db = getDb();
     const docSnap = await db.collection(USERS_COL).doc(uid).get();
-    
+
     if (!docSnap.exists) {
         // Create default user if not exists
         const isSuperAdminUid = uid.includes("admin") || uid.includes("super") || uid.includes("infinis6688") || uid.includes("daguri75");
@@ -282,7 +283,7 @@ export async function getUserWallet(uid: string): Promise<UserWalletData> {
         await db.collection(USERS_COL).doc(uid).set(newUser);
         return newUser;
     }
-    
+
     const data = docSnap.data() as UserWalletData;
     const cleanEmail = (data.email || "").toLowerCase();
     const isSuperAdminEmail = cleanEmail === "daguri75@gmail.com" || cleanEmail === "infinis6688@gmail.com";
@@ -305,7 +306,7 @@ export async function registerOrLoginGoogleUser(googleData: {
     const db = getDb();
     const cleanEmail = (googleData.email || "").trim().toLowerCase();
     const safeUid = `google_${cleanEmail.replace(/[^a-zA-Z0-9]/g, "_")}`;
-    
+
     const userRef = db.collection(USERS_COL).doc(safeUid);
     const docSnap = await userRef.get();
 
@@ -327,7 +328,7 @@ export async function registerOrLoginGoogleUser(googleData: {
         let validReferrer: string | null = null;
         if (effectiveReferrer) {
             const inputRef = effectiveReferrer;
-            
+
             // 1. Direct doc lookup by UID
             const refSnap1 = await db.collection(USERS_COL).doc(inputRef).get();
             if (refSnap1.exists) {
@@ -371,7 +372,7 @@ export async function registerOrLoginGoogleUser(googleData: {
                 return { success: false, error: `입력하신 추천인 [${inputRef}]을 찾을 수 없습니다. 정확한 추천인 이메일(예: daguri75@gmail.com) 또는 코드를 입력해주세요.` };
             }
         }
-        
+
         // 예외: 최고 관리자 계정(SUPER_ADMIN: daguri75@gmail.com)만 추천인 없이 가입 가능
         const isException = role === "SUPER_ADMIN";
         if (!isException && !validReferrer) {
@@ -411,26 +412,26 @@ export async function registerOrLoginGoogleUser(googleData: {
             }
         }
         await batch.commit();
-        
+
         // DP 리워드 지급 (신규회원 1000 DP, 추천인 500 DP)
         try {
             await grantDaehanPoint(safeUid, 1000, "신규 회원가입 보상 (1,000 DP)", "REWARD");
             newUser.dpPoints = (newUser.dpPoints || 0) + 1000;
-            
+
             if (finalReferrerUid) {
                 await grantDaehanPoint(finalReferrerUid, 500, `친구 추천 보상 (${newUser.name} 가입)`, "REFERRAL_BONUS");
             }
         } catch (dpErr) {
             console.warn("Initial DP grant warning:", dpErr);
         }
-        
+
         return { success: true, user: newUser };
     } else {
         const updates: any = {};
         if (googleData.name) updates.name = googleData.name;
         if (googleData.avatar) updates.avatar = googleData.avatar;
         if (cleanEmail === "daguri75@gmail.com" || cleanEmail === "infinis6688@gmail.com") updates.role = "SUPER_ADMIN";
-        
+
         if (Object.keys(updates).length > 0) {
             await userRef.update(updates);
         }
@@ -488,14 +489,14 @@ export async function updateUserBalance(adminUid: string, targetUid: string, upd
 }
 
 export async function updateOrderStatus(
-    orderId: string, 
+    orderId: string,
     status: "PENDING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPING" | "DELIVERED",
     shippingInfo?: ShippingInfo
 ): Promise<{ success: boolean; error?: string; order?: MemberOrder }> {
     const db = getDb();
     const snapshot = await db.collection(ORDERS_COL).where("orderId", "==", orderId).get();
     if (snapshot.empty) return { success: false, error: "주문을 찾을 수 없습니다." };
-    
+
     const doc = snapshot.docs[0];
     const existingOrder = doc.data() as any;
     const oldStatus = existingOrder.status;
@@ -531,9 +532,9 @@ export async function distributeReferralRewards(buyerUid: string, amount: number
     const buyerRef = db.collection(USERS_COL).doc(buyerUid);
     const buyerDoc = await buyerRef.get();
     if (!buyerDoc.exists) return;
-    
+
     const buyer = buyerDoc.data() as UserWalletData;
-    
+
     let earnedDp = 0;
     if (currency === "DP") {
         earnedDp = amount;
@@ -554,7 +555,7 @@ export async function distributeReferralRewards(buyerUid: string, amount: number
         const mentorDoc = await mentorRef.get();
         if (mentorDoc.exists) {
             const mentor = mentorDoc.data() as UserWalletData;
-            batch.update(mentorRef, { 
+            batch.update(mentorRef, {
                 dpPoints: (mentor.dpPoints || 0) + mentorDp,
                 exp: (mentor.exp !== undefined ? mentor.exp : 0) + mentorDp
             });
@@ -578,7 +579,7 @@ export async function distributeReferralRewards(buyerUid: string, amount: number
                 const gMentorDoc = await gMentorRef.get();
                 if (gMentorDoc.exists) {
                     const grandMentor = gMentorDoc.data() as UserWalletData;
-                    batch.update(gMentorRef, { 
+                    batch.update(gMentorRef, {
                         dpPoints: (grandMentor.dpPoints || 0) + grandMentorDp,
                         exp: (grandMentor.exp !== undefined ? grandMentor.exp : 0) + grandMentorDp
                     });
@@ -599,7 +600,7 @@ export async function distributeReferralRewards(buyerUid: string, amount: number
             }
         }
     }
-    
+
     await batch.commit();
 }
 
@@ -611,11 +612,12 @@ export async function executePayment(params: {
     orderId: string;
     items?: any[];
     shippingAddress?: any;
+    taxInvoice?: { companyName: string; taxCode: string; address?: string };
 }): Promise<{ success: boolean; error?: string; transactionId?: string; receipt?: any }> {
     const db = getDb();
     const userRef = db.collection(USERS_COL).doc(params.uid);
     const userDoc = await userRef.get();
-    
+
     if (!userDoc.exists) return { success: false, error: "사용자 정보를 찾을 수 없습니다." };
     const user = userDoc.data() as UserWalletData;
     const amount = Number(params.amount);
@@ -629,9 +631,9 @@ export async function executePayment(params: {
 
     if (params.currency === "MONEY" || params.currency === "HEX") {
         if ((user.moneyBalance || 0) < amount) {
-            return { 
-                success: false, 
-                error: `대한페이(충전머니) 잔액이 부족합니다. (보유: ${(user.moneyBalance || 0).toLocaleString()} 머니 / 필요: ${amount.toLocaleString()} 머니). [마이페이지]에서 계좌 입금 충전 신청 후 이용해주세요.` 
+            return {
+                success: false,
+                error: `대한페이(충전머니) 잔액이 부족합니다. (보유: ${(user.moneyBalance || 0).toLocaleString()} 머니 / 필요: ${amount.toLocaleString()} 머니). [마이페이지]에서 계좌 입금 충전 신청 후 이용해주세요.`
             };
         }
         updates.moneyBalance = Number(((user.moneyBalance || 0) - amount).toFixed(2));
@@ -703,6 +705,11 @@ export async function executePayment(params: {
                 phone: user.phone || "0702116617",
                 address: "Hanoi, Vietnam"
             },
+            taxInvoice: params.taxInvoice ? {
+                ...params.taxInvoice,
+                issuedNumber: `TAX-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 9999)}`,
+                status: "ISSUED" // 가상 자동 발행 상태
+            } : undefined,
             bankTransferInfo,
             status: orderStatus,
             createdAt: timestamp
@@ -745,10 +752,10 @@ export async function faucetWallet(uid: string, moneyAmount: number = 500): Prom
     const userRef = db.collection(USERS_COL).doc(uid);
     const userDoc = await userRef.get();
     if (!userDoc.exists) return { success: false };
-    
+
     const user = userDoc.data() as UserWalletData;
     const newBalance = Number((user.moneyBalance + moneyAmount).toFixed(2));
-    
+
     const txId = `tx_faucet_${Date.now()}`;
     const batch = db.batch();
     batch.update(userRef, { moneyBalance: newBalance });
@@ -803,7 +810,7 @@ export async function getAllOrders(): Promise<MemberOrder[]> {
 export async function verifyTransaction(txHash: string, orderId?: string): Promise<{ verified: boolean; transaction?: WalletTransaction; order?: MemberOrder }> {
     const db = getDb();
     let tx: WalletTransaction | undefined;
-    
+
     const txQuery = await db.collection(TRANSACTIONS_COL).where("txHash", "==", txHash).get();
     if (!txQuery.empty) tx = txQuery.docs[0].data() as WalletTransaction;
     else {
@@ -817,7 +824,7 @@ export async function verifyTransaction(txHash: string, orderId?: string): Promi
         const oDoc = await db.collection(ORDERS_COL).doc(oId as string).get();
         if (oDoc.exists) order = oDoc.data() as MemberOrder;
     }
-    
+
     if (tx) return { verified: true, transaction: tx, order };
     return { verified: false };
 }
@@ -826,10 +833,10 @@ export async function getAdminStats(): Promise<any> {
     const db = getDb();
     const ordersSnap = await db.collection(ORDERS_COL).get();
     const orders: MemberOrder[] = ordersSnap.docs.map((d: any) => d.data() as MemberOrder);
-    
+
     const usersSnap = await db.collection(USERS_COL).get();
     const users: UserWalletData[] = usersSnap.docs.map((d: any) => d.data() as UserWalletData);
-    
+
     const txSnap = await db.collection(TRANSACTIONS_COL).get();
     const recentTx: WalletTransaction[] = txSnap.docs.map((d: any) => d.data() as WalletTransaction);
 
@@ -855,18 +862,18 @@ export async function convertPointsToKm(uid: string, pointsAmount: number): Prom
     const userRef = db.collection(USERS_COL).doc(uid);
     const userDoc = await userRef.get();
     if (!userDoc.exists) return { success: false, error: "사용자를 찾을 수 없습니다." };
-    
+
     const user = userDoc.data() as UserWalletData;
     if (user.pointBalance < pointsAmount) return { success: false, error: "포인트가 부족합니다." };
-    
-    const moneyAmount = pointsAmount; 
-    
+
+    const moneyAmount = pointsAmount;
+
     const batch = db.batch();
     batch.update(userRef, {
         pointBalance: user.pointBalance - pointsAmount,
         moneyBalance: user.moneyBalance + moneyAmount
     });
-    
+
     const txId = `tx_convert_${Date.now()}`;
     batch.set(db.collection(TRANSACTIONS_COL).doc(txId), {
         id: txId,
@@ -880,9 +887,9 @@ export async function convertPointsToKm(uid: string, pointsAmount: number): Prom
         txHash: `0x${Math.random().toString(16).substring(2)}`,
         timestamp: new Date().toISOString()
     });
-    
+
     await batch.commit();
-    
+
     return { success: true, newPoints: user.pointBalance - pointsAmount, newKm: user.moneyBalance + moneyAmount };
 }
 
@@ -895,25 +902,25 @@ export async function grantDaehanPoint(
 ): Promise<{ success: boolean; newBalance?: number; newExp?: number; error?: string }> {
     const db = getDb();
     const userRef = db.collection(USERS_COL).doc(uid);
-    
+
     try {
         const result = await db.runTransaction(async (transaction: any) => {
             const userDoc = await transaction.get(userRef);
             if (!userDoc.exists) throw new Error("사용자를 찾을 수 없습니다.");
-            
+
             const user = userDoc.data() as UserWalletData;
             const updatedDp = (user.dpPoints || 0) + amount;
             const addExp = expAmount !== undefined ? expAmount : amount;
             const updatedExp = (user.exp !== undefined ? user.exp : 0) + addExp;
-            
+
             transaction.update(userRef, {
                 dpPoints: updatedDp,
                 exp: updatedExp
             });
-            
+
             const txId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const txRef = db.collection(TRANSACTIONS_COL).doc(txId);
-            
+
             transaction.set(txRef, {
                 id: txId,
                 uid,
@@ -926,10 +933,10 @@ export async function grantDaehanPoint(
                 txHash: `0x${Math.random().toString(16).substring(2)}`,
                 timestamp: new Date().toISOString()
             });
-            
+
             return { newBalance: updatedDp, newExp: updatedExp };
         });
-        
+
         return { success: true, newBalance: result.newBalance, newExp: result.newExp };
     } catch (e: any) {
         console.error("Failed to grant DP & EXP:", e);
@@ -973,7 +980,7 @@ export async function convertDpToMoney(uid: string, dpAmount: number): Promise<{
                 txHash: `0x${Math.random().toString(16).substring(2)}`,
                 timestamp: new Date().toISOString()
             });
-        } catch {}
+        } catch { }
 
         return { success: true, convertedMoney, newDp, newMoney };
     } catch (e: any) {
@@ -991,9 +998,9 @@ export async function levelUpUser(uid: string): Promise<{ success: boolean; erro
         const requiredExp = Math.pow(currentLevel, 2) * 10000;
 
         if (currentExp < requiredExp) {
-            return { 
-                success: false, 
-                error: `레벨업에 필요한 EXP가 부족합니다. (필요: ${requiredExp.toLocaleString()} EXP, 보유: ${currentExp.toLocaleString()} EXP)` 
+            return {
+                success: false,
+                error: `레벨업에 필요한 EXP가 부족합니다. (필요: ${requiredExp.toLocaleString()} EXP, 보유: ${currentExp.toLocaleString()} EXP)`
             };
         }
 
@@ -1091,7 +1098,7 @@ export async function createChargeRequest(uid: string, amount: number, depositor
         const db = getDb();
         const user = await getUserWallet(uid);
         const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-        
+
         const newReq: ChargeRequest = {
             requestId,
             uid,
@@ -1180,7 +1187,7 @@ export async function approveChargeRequest(requestId: string): Promise<{ success
                 txHash: `0x${Math.random().toString(16).substring(2)}`,
                 timestamp: new Date().toISOString()
             });
-        } catch {}
+        } catch { }
 
         return { success: true, request: reqData };
     } catch (e: any) {
@@ -1309,7 +1316,7 @@ export async function getTopDpRankings(limitCount = 10): Promise<DpRankItem[]> {
         const db = getDb();
         const snap = await db.collection(USERS_COL).get();
         const users = snap.docs.map((doc: any) => doc.data() as UserWalletData);
-        
+
         if (users.length === 0) return fallbackMock;
 
         const sorted = users
@@ -1320,7 +1327,7 @@ export async function getTopDpRankings(limitCount = 10): Promise<DpRankItem[]> {
 
         const result: DpRankItem[] = sorted.slice(0, limitCount).map((u: UserWalletData, i: number) => {
             const rawName = u.name || "회원";
-            const maskedName = rawName.length > 2 
+            const maskedName = rawName.length > 2
                 ? `${rawName[0]}*${rawName[rawName.length - 1]}`
                 : `${rawName[0]}*`;
 
@@ -1420,7 +1427,7 @@ export async function getTopReferralRankings(limitCount = 10): Promise<ReferralR
         const result: ReferralRankItem[] = rankedUsers.slice(0, limitCount).map((item: { user: UserWalletData; menteeCount: number }, i: number) => {
             const u = item.user;
             const rawName = u.name || "회원";
-            const maskedName = rawName.length > 2 
+            const maskedName = rawName.length > 2
                 ? `${rawName[0]}*${rawName[rawName.length - 1]}`
                 : `${rawName[0]}*`;
 
