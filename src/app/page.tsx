@@ -112,7 +112,7 @@ export default function Home() {
           setDpRankings(data.rankings);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     fetch("/api/v1/rankings/referral")
       .then(res => res.json())
@@ -121,7 +121,7 @@ export default function Home() {
           setReferralRankings(data.rankings);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const activeRankings = rankingTab === "referral" ? referralRankings : dpRankings;
@@ -188,7 +188,7 @@ export default function Home() {
             <br />{t("hero.title2", "대한김치 (DAEHAN KIMCHI)")}
           </h1>
           <p className={`${styles.subtitle} ${styles.fadeInUp} ${styles.delay2}`}>
-            {t("hero.sub", "엄선된 고랭지 배추와 100% 천연 재료, HACCP 위생 인증 시설에서 정성껏 담근 한국 정통 김치.")}
+            {t("hero.sub", "엄선된 천연 재료, HACCP 위생 인증 시설에서 정성껏 담근 한국 정통 김치.")}
           </p>
           <div className={`${styles.ctaGroup} ${styles.fadeInUp} ${styles.delay3}`}>
             <Link href="/subscribe">
@@ -259,8 +259,8 @@ export default function Home() {
               {lang === "vi" ? "Giao Kimchi tươi tận nhà hàng tuần / hàng tháng" : "1주일에 1회, 매월 1일/15일 원하는 만큼 정기배송"}
             </h2>
             <p style={{ color: 'var(--text-sub)', fontSize: '1rem', lineHeight: '1.6', margin: 0 }}>
-              {lang === "vi" 
-                ? "Tận hưởng ưu đãi giảm giá 5% + Miễn phí giao hàng lạnh + Tích 10% điểm DP với các gói Basic (2Kg), Family (5Kg), Restaurant (10~30Kg)." 
+              {lang === "vi"
+                ? "Tận hưởng ưu đãi giảm giá 5% + Miễn phí giao hàng lạnh + Tích 10% điểm DP với các gói Basic (2Kg), Family (5Kg), Restaurant (10~30Kg)."
                 : "Basic(2Kg), Family(5Kg), Restaurant(10~30Kg) 맞춤 플랜! 정기구독 신청 시 5% 할인 + 무료배송 + 10% DP 적립 혜택을 제공합니다."}
             </p>
           </div>
@@ -290,11 +290,11 @@ export default function Home() {
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
               {rankingTab === "referral"
                 ? (lang === "vi"
-                    ? "Danh sách TOP 10 Mentor có số lượng Mentee giới thiệu nhiều nhất. Nhận hoa hồng DP 2 cấp hấp dẫn!"
-                    : "대한김치 생태계를 함께 키워나가는 명예로운 TOP 10 추천인(멘토) 목록입니다. 주문 발생 시 2단계 DP 보상 혜택!")
+                  ? "Danh sách TOP 10 Mentor có số lượng Mentee giới thiệu nhiều nhất. Nhận hoa hồng DP 2 cấp hấp dẫn!"
+                  : "대한김치 생태계를 함께 키워나가는 명예로운 TOP 10 추천인(멘토) 목록입니다. 주문 발생 시 2단계 DP 보상 혜택!")
                 : (lang === "vi"
-                    ? "Bảng xếp hạng thành viên tích lũy điểm DP cao nhất. Nhận ưu đãi đổi Tiền nạp lên tới 100%!"
-                    : "플랫폼 활동과 구매로 포인트를 모은 명예로운 TOP 10 회원 목록입니다. 레벨 상승 시 최대 100% 충전머니 전환!")}
+                  ? "Bảng xếp hạng thành viên tích lũy điểm DP cao nhất. Nhận ưu đãi đổi Tiền nạp lên tới 100%!"
+                  : "플랫폼 활동과 구매로 포인트를 모은 명예로운 TOP 10 회원 목록입니다. 레벨 상승 시 최대 100% 충전머니 전환!")}
             </p>
 
             {/* Ranking Tab Switcher */}
@@ -432,8 +432,8 @@ export default function Home() {
               {lang === "vi" ? "Video & Reels Daehan Kimchi trên Facebook" : "대한김치 페이스북 공식 영상 & 릴스"}
             </h2>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
-              {lang === "vi" 
-                ? "Theo dõi các video quy trình sản xuất, trải nghiệm vị ngon và câu chuyện thương hiệu trên Facebook." 
+              {lang === "vi"
+                ? "Theo dõi các video quy trình sản xuất, trải nghiệm vị ngon và câu chuyện thương hiệu trên Facebook."
                 : "생생한 대한김치의 제조 과정과 미식 경험, 하노이 현지 소식을 페이스북 영상으로 감상해보세요."}
             </p>
           </div>

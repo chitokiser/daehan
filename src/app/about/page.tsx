@@ -1,4 +1,4 @@
-import styles from './page.module.css';
+﻿import styles from './page.module.css';
 import Link from 'next/link';
 import { Download, ShieldCheck, HeartHandshake, Sparkles, FileText } from 'lucide-react';
 
@@ -124,7 +124,7 @@ export default function AboutPage() {
                             <span className={styles.brandNum}>03</span>
                             <div className={styles.brandIcon}>🛡️</div>
                             <h4>HACCP 국제 인증 위생 관리</h4>
-                            <p>위해보소분석(Hazard Analysis)과 중요관리점 국제 규격인 "HACCP CODEX 2020"을 획득하여 안심하고 드실 수 있습니다.</p>
+                            <p>위해요소분석(Hazard Analysis)과 중요관리점 국제 규격인 "HACCP CODEX 2020"을 획득하여 안심하고 드실 수 있습니다.</p>
                         </div>
 
                         <div className={styles.brandCard}>

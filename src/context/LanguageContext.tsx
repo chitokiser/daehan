@@ -41,7 +41,7 @@ const translations: Record<Language, Record<string, string>> = {
         "hero.badge": "하노이 직배송 • 100% 한국 정통 발효 비법",
         "hero.title1": "대한민국 정통 비법 그대로",
         "hero.title2": "하노이에서 즐기는 프리미엄 대한김치",
-        "hero.sub": "엄선된 고랭지 배추와 100% 천연 재료, HACCP 위생 인증 시설에서 정성껏 담근 한국 정통 김치.",
+        "hero.sub": "엄선된 천연 재료, HACCP 위생 인증 시설에서 정성껏 담근 한국 정통 김치.",
         "hero.btnShop": "신선 김치 주문하기",
         "hero.btnAbout": "브랜드 스토리",
 
@@ -272,8 +272,8 @@ const translations: Record<Language, Record<string, string>> = {
 
 const LanguageContext = createContext<LanguageContextType>({
     lang: "ko",
-    setLang: () => {},
-    toggleLang: () => {},
+    setLang: () => { },
+    toggleLang: () => { },
     t: (key: string, defaultText?: string) => defaultText || key,
 });
 
