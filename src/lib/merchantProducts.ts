@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where, type DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebaseClient";
-import type { Product } from "@/data/products";
+import type { Product } from "@/types/product";
 
 export const DAEHAN_MERCHANT_ID = process.env.NEXT_PUBLIC_BESTCLUB_MERCHANT_ID || "1791002036";
 

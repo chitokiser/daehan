@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
-import type { Product } from "@/data/products";
+import type { Product } from "@/types/product";
 import { useMerchantProducts } from "@/lib/merchantProducts";
 import { useUserWallet } from "@/context/UserWalletContext";
 import { useLanguage } from "@/context/LanguageContext";

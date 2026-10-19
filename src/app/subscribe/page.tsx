@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./page.module.css";
 import { useLanguage } from "@/context/LanguageContext";
 import { useUserWallet } from "@/context/UserWalletContext";
 import { Sparkles, Check, Truck, Percent, Gift, Calendar, ArrowRight, ShieldCheck, PhoneCall } from "lucide-react";
 import Link from "next/link";
+import { useMerchantProducts } from "@/lib/merchantProducts";
 
 interface TierConfig {
     id: "basic" | "family" | "restaurant";
@@ -99,20 +100,30 @@ const TIERS: TierConfig[] = [
     }
 ];
 
-const KIMCHI_OPTIONS = [
-    { value: "포기김치 (Pogi Kimchi)", labelKo: "포기김치 (대표 시그니처)", labelVi: "Kimchi Cải Thảo Nguyên Cây" },
-    { value: "맛김치 (Mat Kimchi)", labelKo: "맛김치 (한 입 크기 컷팅)", labelVi: "Kimchi Cải Thảo Cắt Miếng" },
-    { value: "깍두기 (Kkakdugi)", labelKo: "깍두기 (아삭한 무김치)", labelVi: "Kimchi Củ Cải Cắt Vuông" },
-    { value: "묵은지 (Mookeunji)", labelKo: "신김치 / 묵은지 (요리용)", labelVi: "Kimchi Chua Lên Men Lâu" },
-    { value: "혼합 (포기김치+깍두기)", labelKo: "반반 혼합 (포기김치 + 깍두기)", labelVi: "Mix (Cải Thảo + Củ Cải)" }
-];
+/** 구독 전용 반반 혼합 옵션 (판매 상품이 아닌 구독 구성). 단품 김치는 BestClub 메인 DB 상품에서 가져온다. */
+const MIX_OPTION = { value: "혼합 (포기김치+깍두기)", labelKo: "반반 혼합 (포기김치 + 깍두기)", labelVi: "Mix (Cải Thảo + Củ Cải)" };
 
 export default function SubscribePage() {
     const { lang, t } = useLanguage();
     const { user, isLoggedIn } = useUserWallet();
 
     const [selectedTier, setSelectedTier] = useState<TierConfig | null>(null);
-    const [selectedKimchi, setSelectedKimchi] = useState<string>("포기김치 (Pogi Kimchi)");
+    const { products } = useMerchantProducts();
+    const kimchiOptions = useMemo(
+        () => [
+            ...products.map(p => ({
+                value: p.name,
+                labelKo: p.weight ? `${p.koreanName} ${p.weight}` : p.koreanName,
+                labelVi: p.vietnameseName || p.koreanName,
+            })),
+            MIX_OPTION,
+        ],
+        [products]
+    );
+    const [selectedKimchi, setSelectedKimchi] = useState<string>("");
+    useEffect(() => {
+        if (!selectedKimchi && products.length > 0) setSelectedKimchi(products[0].name);
+    }, [products, selectedKimchi]);
     const [selectedCycle, setSelectedCycle] = useState<string>("EVERY_WEEK");
     const [restaurantKg, setRestaurantKg] = useState<number>(10);
 
@@ -345,7 +356,7 @@ export default function SubscribePage() {
                                     value={selectedKimchi}
                                     onChange={(e) => setSelectedKimchi(e.target.value)}
                                 >
-                                    {KIMCHI_OPTIONS.map(opt => (
+                                    {kimchiOptions.map(opt => (
                                         <option key={opt.value} value={opt.value}>
                                             {lang === "vi" ? opt.labelVi : opt.labelKo}
                                         </option>
