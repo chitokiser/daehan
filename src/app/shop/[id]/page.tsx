@@ -4,7 +4,8 @@ import { useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
-import { products, Product } from "@/data/products";
+import type { Product } from "@/data/products";
+import { useMerchantProducts } from "@/lib/merchantProducts";
 import { useUserWallet } from "@/context/UserWalletContext";
 import { useLanguage } from "@/context/LanguageContext";
 import {
@@ -14,25 +15,40 @@ import {
 } from "lucide-react";
 import ShareButtons from "@/components/ShareButtons";
 
+function findProduct(products: Product[], rawId: string): Product | undefined {
+    const num = parseInt(rawId, 10);
+    if (!isNaN(num)) {
+        const byId = products.find(p => p.id === num);
+        if (byId) return byId;
+        const byIdx = products.find(p => p.idx === num);
+        if (byIdx) return byIdx;
+    }
+    return products.find(p => p.slug === rawId || p.bestclubProductId === rawId);
+}
+
 export default function ProductDetail() {
     const params = useParams();
     const rawId = params?.id as string || "1";
+    const { products, loading, error } = useMerchantProducts();
+    const product = useMemo(() => findProduct(products, rawId), [products, rawId]);
 
+    if (loading) {
+        return <main style={{ padding: "120px 20px", textAlign: "center", color: "#888" }}>상품 정보를 불러오는 중... / Đang tải sản phẩm...</main>;
+    }
+    if (error || !product) {
+        return (
+            <main style={{ padding: "120px 20px", textAlign: "center" }}>
+                <p style={{ color: "#c0392b" }}>{error ? "상품 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요." : "판매 중인 상품을 찾을 수 없습니다."}</p>
+                <Link href="/shop" style={{ textDecoration: "underline" }}>쇼핑으로 돌아가기 / Quay lại cửa hàng</Link>
+            </main>
+        );
+    }
+    return <ProductDetailView product={product} products={products} />;
+}
+
+function ProductDetailView({ product, products }: { product: Product; products: Product[] }) {
     const { user, wallet, isLoggedIn, payOrder, isLoading, refreshWallet, loginWithGoogle, openLoginModal } = useUserWallet();
     const { lang, t } = useLanguage();
-
-    // Find product by id, idx, or slug
-    const product: Product = useMemo(() => {
-        const num = parseInt(rawId, 10);
-        if (!isNaN(num)) {
-            const byId = products.find(p => p.id === num);
-            if (byId) return byId;
-            const byIdx = products.find(p => p.idx === num);
-            if (byIdx) return byIdx;
-        }
-        const bySlug = products.find(p => p.slug === rawId);
-        return bySlug || products[0];
-    }, [rawId]);
 
     // Weight and quantity selection
     const [selectedWeight, setSelectedWeight] = useState<number>(1);
@@ -240,7 +256,7 @@ export default function ProductDetail() {
 
     const relatedProducts = useMemo(() => {
         return products.filter(p => p.id !== product.id).slice(0, 4);
-    }, [product]);
+    }, [product, products]);
 
     const displayName = lang === "vi" ? (product.vietnameseName || product.koreanName) : product.koreanName;
     const displayCategory = lang === "vi" ? (product.vietnameseCategory || product.category) : product.category;

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { Sparkles, ArrowRight, ShieldCheck, Award, HeartHandshake, ThermometerSnowflake, Trophy, Medal, Crown, Flame, Star, User, ChevronLeft, ChevronRight, ExternalLink, Video, Play, X } from "lucide-react";
-import { products } from "@/data/products";
+import { useMerchantProducts } from "@/lib/merchantProducts";
 import { useLanguage } from "@/context/LanguageContext";
 
 const HERO_IMAGES = [
@@ -78,6 +78,7 @@ const DEFAULT_REFERRAL_RANKINGS: ReferralRankItem[] = [
 
 export default function Home() {
   const { lang, t } = useLanguage();
+  const { products } = useMerchantProducts();
   const featuredProducts = products.slice(0, 4);
   const [rankingTab, setRankingTab] = useState<"referral" | "dp">("referral");
   const [dpRankings, setDpRankings] = useState<DpRankItem[]>(DEFAULT_DP_RANKINGS);

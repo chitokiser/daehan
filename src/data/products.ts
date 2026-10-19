@@ -20,6 +20,9 @@ export interface Product {
     slug: string;
     imgUrl?: string;
     image: string;
+    /** BestClub merchant_products 문서 ID (DB 연동 상품) */
+    bestclubProductId?: string;
+    displayOrder?: number;
 }
 
 

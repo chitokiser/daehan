@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { useUserWallet, UserRole, MemberOrder } from "@/context/UserWalletContext";
-import { products } from "@/data/products";
 
 import Link from "next/link";
 import {

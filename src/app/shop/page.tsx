@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
-import { products } from "@/data/products";
+import { useMerchantProducts } from "@/lib/merchantProducts";
 import { Search, SlidersHorizontal, Sparkles, Truck, ShieldCheck, PhoneCall, ShoppingBag, Check } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -11,6 +11,7 @@ const CATEGORIES_KO = ["전체보기", "배추김치", "무김치", "별미김�
 
 export default function Shop() {
     const { lang, t } = useLanguage();
+    const { products, loading: productsLoading, error: productsError } = useMerchantProducts();
     const [selectedCategory, setSelectedCategory] = useState("전체보기");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name">("default");
@@ -53,7 +54,7 @@ export default function Shop() {
                 }
                 return a.id - b.id;
             });
-    }, [selectedCategory, searchQuery, sortBy, lang]);
+    }, [products, selectedCategory, searchQuery, sortBy, lang]);
 
     const handleAddToCart = (e: React.MouseEvent, productId: number) => {
         e.preventDefault();
@@ -147,7 +148,15 @@ export default function Shop() {
 
             {/* Products Grid */}
             <div className={`${styles.productGrid} container`}>
-                {filteredProducts.length === 0 ? (
+                {productsLoading ? (
+                    <div className={styles.emptyState}>
+                        <p>{lang === "vi" ? "Đang tải sản phẩm..." : "상품을 불러오는 중..."}</p>
+                    </div>
+                ) : productsError ? (
+                    <div className={styles.emptyState}>
+                        <p>{lang === "vi" ? "Không thể tải sản phẩm. Vui lòng thử lại sau." : "상품 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."}</p>
+                    </div>
+                ) : filteredProducts.length === 0 ? (
                     <div className={styles.emptyState}>
                         <p>{lang === "vi" ? "Không tìm thấy sản phẩm Kimchi nào phù hợp." : "검색 결과에 맞는 김치가 없습니다."}</p>
                         <button
